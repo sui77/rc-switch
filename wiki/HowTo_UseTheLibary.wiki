@@ -6,7 +6,7 @@ There are generally two kinds of outlet switches. The first one is configured wi
 
 = 10 pole DIP switches =
 
-[...]
+(...)
 
 RCSwitch::switchOn("11001", 2);
 
@@ -17,7 +17,7 @@ The second parameter represents the setting of the last 5 DIP switches. As only 
 
 = Two rotary/sliding switches =
 
-[...]
+(...)
 
 RCSwitch::switchOn(1, 4);
 
