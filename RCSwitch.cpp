@@ -1,48 +1,25 @@
 /*
-
-RCSwitch - Radio Controlled Switch Libary, operates up to 16 low cost 433MHz RC power sockets with an Arduino. 
-
-This will most likely work with any RC switch set with a SC5262S encoder chip built in the transmitter. 
-
-(c)2011 Suat Özgür
-
-=== How to modify the transmitter ===
-
-(You might also take a look at: http://sui77.wordpress.com/2011/04/12/low-cost-funksteckdosen-arduino/ )
-
-Open your hand-held transmitter and solder a wire to the positive pole (+), one to the negative pole (-) of the battery holder
-and another one to the DOUT Pin of the SC5262S chip.
-
-  +----  ----+                            +----  ----+
-  O    --    O                            O    --    O
-  O          O <---- Pin 19 / DOUT        O          O <---- Pin 18 / DOUT
-  O          O                            O          O
-  O  SC5262  O                            O  SC5262  O
-  O          O                            O          O
-  O 20Pin    O                            O 18Pin    O
-  O Package  O                            O Package  O
-  O          O                            O          O
-  O          O                            O          O
-  O          O                            +----------+
-  +----------+
-
-See datasheet: http://www.alldatasheet.co.kr/datasheet-pdf/pdf_kor/116104/SILAN/SC5262S-RF.html
+  RCSwitch - Arduino libary for remote control outlet switches
+  Copyright (c) 2011 Suat Özgür.  All right reserved.
   
-  
-Altough my transmitter was operated with a 12V battery, it also worked with 5V.
-Connect the wires to your Arduino:
+  Project home: http://code.google.com/p/rc-switch/
 
-(+)   --->   5V
-(-)   --->   GND
-DOUT  --->   Any available I/O Pin  (#10 for example)
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
-
 #include "RCSwitch.h"
-
  
 /**
  * Constructor
@@ -68,7 +45,7 @@ RCSwitch::RCSwitch(int nPin, int nDelay) {
 }
 
 /**
- * Switch a remote switch on (SC5262)
+ * Switch a remote switch on (Type A with 10 pole DIP switches)
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
@@ -78,7 +55,7 @@ void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
 }
 
 /**
- * Switch a remote switch off (SC5262)
+ * Switch a remote switch off (Type B with two rotary/sliding switches)
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
@@ -88,7 +65,7 @@ void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
 }
 
 /**
- * Switch a remote switch off (HX2262)
+ * Switch a remote switch off (Type B with two rotary/sliding switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
@@ -98,7 +75,7 @@ void RCSwitch::switchOn(String sGroup, int nChannel) {
 }
 
 /**
- * Switch a remote switch off (HX2262)
+ * Switch a remote switch off (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
@@ -134,7 +111,7 @@ String RCSwitch::getCodeWord(int nAddressCode, int nChannelCode, boolean bStatus
 }
 
 /**
- * Like getCodeWord (HX2262)
+ * Like getCodeWord  (Type A)
  */
 String RCSwitch::getCodeWord2(String sGroup, int nChannelCode, boolean bStatus) {
 	String code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
