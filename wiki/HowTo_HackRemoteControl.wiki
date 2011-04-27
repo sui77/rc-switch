@@ -1,13 +1,14 @@
 #summary Find out how to use your existing remote control as a transmitter.
 
-= Introduction =
+= Modification =
 
-Add your content here.
+Open your remote control to take a look inside of it. There should be a encoder chip inside which is labeled with SC5262, HX2262 or PT2262. This chip generates a specific bit stream and sends it out to the transmitter part of the remote control through its DOUT (digital out) pin. What we want to do is to connect a Arduino instead of the built in encoder chip to the transmitter part.
+
+The SC5262, HX2262 and PT2262 are compatible, so the DOUT pin is allways the 2nd pin from the upper right side
+
+<img src="http://i5.instantgallery.de/s/su/sui/d554719426745.jpg" border="0" alt="">
 
 
-= Details =
+There is no need to physically replace the chip. It will do to solder a wire to that pin and connect it with any available I/O pin from the Arduino.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Solder another wire to the positive pole (+) and the negative pole (-) of the battery holder. Altough a lot of transmitters were operated with a 12V battery they should also work with 5V, so I think it’s fine to power it directly from the Arduino (5V and GND pins).
