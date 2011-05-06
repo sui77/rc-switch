@@ -4,9 +4,9 @@
 
 There are generally two kinds of outlet switches. The first one is configured with a 10 pole DIP switch the other one is configured with two rotary (or sliding) switches with four setting possibilities each.
 
-= 10 pole DIP switches =
+= Type A: 10 pole DIP switches =
 
-(...)
+<img src="http://i8.instantgallery.de/s/su/sui/19fd919446818.png" border="0" alt="">
 
 RCSwitch::switchOn("11001", 2);
 
@@ -17,10 +17,10 @@ The second parameter represents the setting of the last 5 DIP switches. As only 
 
 = Two rotary/sliding switches =
 
-(...)
+<img src="http://i9.instantgallery.de/s/su/sui/b0d5c19446819.png" border="0" alt="">
 
-RCSwitch::switchOn(1, 4);
+RCSwitch::switchOn(4, 2);
 
-The first parameter represents the setting of the first rotary switch. In this example it's switched to "1" or "A" or "I".
+The first parameter represents the setting of the first rotary switch. In this example it's switched to "4" or "D" or "IV".
 
-The second parameter represents the setting of the second rotary switch. In this example it's switched to "4" or "D" or "IV".
+The second parameter represents the setting of the second rotary switch. In this example it's switched to "2" or "B" or "II".
