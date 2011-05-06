@@ -15,7 +15,7 @@ The first parameter represents the setting of the first 5 DIP switches. In this 
 The second parameter represents the setting of the last 5 DIP switches. As only one of these must be ON, it's the number of the DIP switch which is ON. In this example the last 5 DIP switches are OFF-ON-OFF-OFF-OFF.
 
 
-= Two rotary/sliding switches =
+= Type B: Two rotary/sliding switches =
 
 <img src="http://i9.instantgallery.de/s/su/sui/b0d5c19446819.png" border="0" alt="">
 
