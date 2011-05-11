@@ -21,6 +21,10 @@
 
 #include "WProgram.h"
 
+#define maxChanges 500
+
+typedef void (*RCSwitchCallback)(unsigned long decimal, unsigned int length, unsigned int delay, unsigned int* raw);
+
 class RCSwitch {
 
   public:
@@ -30,19 +34,31 @@ class RCSwitch {
     void switchOff(int nGroupNumber, int nSwitchNumber);
     void switchOn(String sGroup, int nSwitchNumber);
     void switchOff(String sGroup, int nSwitchNumber);
-    void send(String CodeWord);
+
+    void sendTriState(String Code);
+    void send(unsigned long Code, unsigned int length);
+    void send(char* Code);
+    
+    void enableReceive(int interrupt, RCSwitchCallback callback);
+    void disableReceive();
+
   
   private:
-    String getCodeWord(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-	String getCodeWord2(String sGroup, int nSwitchNumber, boolean bStatus);
+    String getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
+    String getCodeWordA(String sGroup, int nSwitchNumber, boolean bStatus);
+    void sendT0();
+    void sendT1();
+    void sendTF();
     void send0();
     void send1();
-    void sendF();
     void sendSync();
 
+    
+    static void receiveInterrupt();
+    static RCSwitchCallback mCallback;
+    int nInterrupt;
     int nPin;
     int nDelay;
-    
     
 };
 

@@ -20,6 +20,8 @@
 */
 
 #include "RCSwitch.h"
+
+RCSwitchCallback RCSwitch::mCallback;
  
 /**
  * Constructor
@@ -45,13 +47,13 @@ RCSwitch::RCSwitch(int nPin, int nDelay) {
 }
 
 /**
- * Switch a remote switch on (Type A with 10 pole DIP switches)
+ * Switch a remote switch on (Type B with two rotary/sliding switches)
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
-  this->send( this->getCodeWord(nAddressCode, nChannelCode, true) );
+  this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, true) );
 }
 
 /**
@@ -61,17 +63,17 @@ void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
  * @param nChannelCode  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
-  this->send( this->getCodeWord(nAddressCode, nChannelCode, false) );
+  this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, false) );
 }
 
 /**
- * Switch a remote switch off (Type B with two rotary/sliding switches)
+ * Switch a remote switch on (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOn(String sGroup, int nChannel) {
-  this->send( this->getCodeWord2(sGroup, nChannel, true) );
+  this->sendTriState( this->getCodeWordA(sGroup, nChannel, true) );
 }
 
 /**
@@ -81,7 +83,7 @@ void RCSwitch::switchOn(String sGroup, int nChannel) {
  * @param nChannelCode  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOff(String sGroup, int nChannel) {
-  this->send( this->getCodeWord2(sGroup, nChannel, false) );
+  this->sendTriState( this->getCodeWordA(sGroup, nChannel, false) );
 }
 
 /**
@@ -100,7 +102,7 @@ void RCSwitch::switchOff(String sGroup, int nChannel) {
  * 
  * @return String[13]
  */
-String RCSwitch::getCodeWord(int nAddressCode, int nChannelCode, boolean bStatus) {
+String RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
    String code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
 
    if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
@@ -113,7 +115,7 @@ String RCSwitch::getCodeWord(int nAddressCode, int nChannelCode, boolean bStatus
 /**
  * Like getCodeWord  (Type A)
  */
-String RCSwitch::getCodeWord2(String sGroup, int nChannelCode, boolean bStatus) {
+String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) {
 	String code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
 	if (sGroup.length() != 5 || nChannelCode < 1 || nChannelCode > 5) {
@@ -137,19 +139,18 @@ String RCSwitch::getCodeWord2(String sGroup, int nChannelCode, boolean bStatus) 
  * Sends a Code Word 
  * @param sCodeWord   /^[10FS]{13}$/  -> see getCodeWord
  */
-void RCSwitch::send(String sCodeWord) {
-  
+void RCSwitch::sendTriState(String sCodeWord) {
   for (int nRepeat=0; nRepeat<10; nRepeat++) {
-    for(int i=0; i<=12; i++) {
+    for(int i=0; i<sCodeWord.length(); i++) {
       switch(sCodeWord[i]) {
         case '0':
-          this->send0();
+          this->sendT0();
         break;
         case 'F':
-          this->sendF();
+          this->sendTF();
         break;
         case '1':
-          this->send1();
+          this->sendT1();
         break;
         case 'S':
           this->sendSync();
@@ -159,16 +160,33 @@ void RCSwitch::send(String sCodeWord) {
   }
 }
 
+void RCSwitch::send(unsigned long Code, unsigned int length) {
+}
+
+void RCSwitch::send(char* sCodeWord) {
+  for (int nRepeat=0; nRepeat<10; nRepeat++) {
+    int i = 0;
+    while (sCodeWord[i] != '\0') {
+      switch(sCodeWord[i]) {
+        case '0':
+          this->send0();
+        break;
+        case '1':
+          this->send1();
+        break;
+      }
+      i++;
+    }
+    this->sendSync();
+  }
+}
+
 /**
  * Sends a "0" Bit
- *            _     _
- * Waveform: | |___| |___
+ *            _    
+ * Waveform: | |___
  */
 void RCSwitch::send0() {
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 1);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 3);
   digitalWrite(this->nPin, HIGH);
   delayMicroseconds( this->nDelay * 1);
   digitalWrite(this->nPin, LOW);
@@ -177,38 +195,49 @@ void RCSwitch::send0() {
 
 /**
  * Sends a "1" Bit
- *            ___   ___
- * Waveform: |   |_|   |_
+ *            ___  
+ * Waveform: |   |_
  */
 void RCSwitch::send1() {
   digitalWrite(this->nPin, HIGH);
   delayMicroseconds( this->nDelay * 3);
   digitalWrite(this->nPin, LOW);
   delayMicroseconds( this->nDelay * 1);
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 3);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 1);
+}
+
+
+/**
+ * Sends a Tri-State "0" Bit
+ *            _     _
+ * Waveform: | |___| |___
+ */
+void RCSwitch::sendT0() {
+  this->send0();
+  this->send0();
 }
 
 /**
- * Sends a "F" Bit
+ * Sends a Tri-State "1" Bit
+ *            ___   ___
+ * Waveform: |   |_|   |_
+ */
+void RCSwitch::sendT1() {
+  this->send1();
+  this->send1();
+}
+
+/**
+ * Sends a Tri-State "F" Bit
  *            _     ___
  * Waveform: | |___|   |_
  */
-void RCSwitch::sendF() {
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 1);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 3);
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 3);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 1);
+void RCSwitch::sendTF() {
+  this->send0();
+  this->send1();
 }
 
 /**
- * Sends a "S" Bit
+ * Sends a "Sync" Bit
  *            _ 
  * Waveform: | |_______________________________
  */
@@ -218,3 +247,74 @@ void RCSwitch::sendSync() {
   digitalWrite(this->nPin, LOW);
   delayMicroseconds( this->nDelay * 31); 
 }
+
+/**
+ * Enable receiving data
+ */
+void RCSwitch::enableReceive(int interrupt, RCSwitchCallback callback) {
+  this->nInterrupt = interrupt;
+  attachInterrupt(this->nInterrupt, receiveInterrupt, CHANGE);
+  this->mCallback = callback;
+}
+
+/**
+ * Disable receiving data
+ */
+void RCSwitch::disableReceive() {
+  detachInterrupt(this->nInterrupt);
+}
+
+/**
+ * 
+ */
+void RCSwitch::receiveInterrupt() {
+
+  static unsigned int duration;
+  static unsigned int changeCount;
+  static unsigned int timings[maxChanges];
+  static unsigned long lastTime;
+  static unsigned int repeatCount;
+  
+
+  long time = micros();
+  duration = time - lastTime;
+ 
+  if (duration > 5000 && duration > timings[0] - 200 && duration < timings[0] + 200) {
+    repeatCount++;
+    changeCount--;
+    if (repeatCount == 2) {
+    
+      unsigned long code = 0;
+      unsigned long delay = timings[0] / 31;
+      unsigned long delayTolerance = delay*0.3;    
+      for (int i = 1; i<changeCount ; i=i+2) {
+      
+          if (timings[i] > delay-delayTolerance && timings[i] < delay+delayTolerance && timings[i+1] > delay*3-delayTolerance && timings[i+1] < delay*3+delayTolerance) {
+            code = code << 1;
+          } else if (timings[i] > delay*3-delayTolerance && timings[i] < delay*+delayTolerance && timings[i+1] > delay-delayTolerance && timings[i+1] < delay+delayTolerance) {
+            code+=1;
+            code = code << 1;
+          } else {
+            // Failed
+            i = changeCount;
+            code = 0;
+            repeatCount = 0;
+          }
+      }      
+      code = code >> 1;
+      (mCallback)(code, changeCount/2, delay, timings);
+      repeatCount = 0;
+    }
+    changeCount = 0;
+  } else if (duration > 5000) {
+    changeCount = 0;
+  }
+ 
+  if (changeCount >= maxChanges) {
+    changeCount = 0;
+    repeatCount = 0;
+  }
+  timings[changeCount++] = duration;
+  lastTime = time;  
+}
+
