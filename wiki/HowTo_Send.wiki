@@ -8,9 +8,13 @@ There are three methods to send raw codes:
 
 Sends the binary string.
 
+
+
 * send(int decimalCode, int bitLength) *
 
 Same as the first one but using the decimal value. The bit length is needed to zero-fill the binary code.
+
+
 
 * sendTriState(string triStateCode) *
 Tri-state codes are according to the data sheets of some encoding chips. Take a look at [http://sui77.wordpress.com/2011/04/12/163/ this blogpost] if you are interested in details.
