@@ -109,7 +109,7 @@ String RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatu
     return "";
    }
 
-   return code[nAddressCode] + code[nChannelCode] + "FF" + (bStatus==true?"FF":"F0") + "S";
+   return code[nAddressCode] + code[nChannelCode] + "FF" + (bStatus==true?"FF":"F0");
 }
 
 /**
@@ -131,13 +131,13 @@ String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) 
 		}
 	}
 	
-	return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0") + "S";
+	return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0");
 }
 
 
 /**
  * Sends a Code Word 
- * @param sCodeWord   /^[10FS]{13}$/  -> see getCodeWord
+ * @param sCodeWord   /^[10FS]{12}$/  -> see getCodeWord
  */
 void RCSwitch::sendTriState(String sCodeWord) {
   for (int nRepeat=0; nRepeat<10; nRepeat++) {
@@ -152,15 +152,14 @@ void RCSwitch::sendTriState(String sCodeWord) {
         case '1':
           this->sendT1();
         break;
-        case 'S':
-          this->sendSync();
-        break;
       }
     }
+    this->sendSync();    
   }
 }
 
 void RCSwitch::send(unsigned long Code, unsigned int length) {
+  this->send( this->dec2binWzerofill(Code, length) );
 }
 
 void RCSwitch::send(char* sCodeWord) {
@@ -318,3 +317,29 @@ void RCSwitch::receiveInterrupt() {
   lastTime = time;  
 }
 
+
+char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int length){
+ char bin[50];
+ int pos = 0;
+ while(Dec > 0){
+  if(Dec % 2 == 0){
+   bin[pos] = '0';
+  }else{
+   bin[pos] = '1';
+  }
+  Dec = floor(Dec/2);
+  pos++;
+ }
+
+ static char bin2[50];
+ int i2=0;
+ for (int i = 0; i<length-pos; i++) {
+   bin2[i2++] = '0';
+ }
+ for (int i = pos-1; i>=0; i--) {
+   bin2[i2++] = bin[i];   
+ }
+ bin2[i2] = '\0';
+
+ return bin2;
+}
