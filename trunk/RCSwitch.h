@@ -53,6 +53,7 @@ class RCSwitch {
     void send1();
     void sendSync();
 
+    static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
     static void receiveInterrupt();
     static RCSwitchCallback mCallback;
