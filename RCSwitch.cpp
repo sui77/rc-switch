@@ -270,7 +270,7 @@ void RCSwitch::receiveInterrupt() {
 
   static unsigned int duration;
   static unsigned int changeCount;
-  static unsigned int timings[maxChanges];
+  static unsigned int timings[RCSWITCH_MAX_CHANGES];
   static unsigned long lastTime;
   static unsigned int repeatCount;
   
@@ -309,7 +309,7 @@ void RCSwitch::receiveInterrupt() {
     changeCount = 0;
   }
  
-  if (changeCount >= maxChanges) {
+  if (changeCount >= RCSWITCH_MAX_CHANGES) {
     changeCount = 0;
     repeatCount = 0;
   }
