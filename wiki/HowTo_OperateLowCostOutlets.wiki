@@ -1,4 +1,4 @@
-#summary Some example sketches and explanation about which method to use.
+#summary Simplest way to just switch power outlets on and off.
 
 = What kind of switch =
 
