@@ -30,7 +30,7 @@ RCSwitchCallback RCSwitch::mCallback;
  */
 RCSwitch::RCSwitch(int nPin) {
   this->nPin = nPin;
-  this->nDelay = 469;
+  this->nDelay = 350;
   pinMode(nPin, OUTPUT);
 }
 
