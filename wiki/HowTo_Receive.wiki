@@ -1,0 +1,19 @@
+#summary How to receive codes from a remote control
+
+= Quick Start =
+
+ * Connect a receiver to Pin #2 of your Arduino.
+ * Upload the ReceiveDemo example sketch which is provided in the libary. 
+ * Open the Serial Monitor (9600 baud)
+ * Press any key on your remote
+
+= How it works =
+
+With the enableReceive method the Arduino will listen to incoming signals on the external interrupt (first parameter). Note that most boards have only two external interrupts: number 0 (on digital pin 2) and 1 (on digital pin 3) ([http://arduino.cc/en/Reference/AttachInterrupt The Arduino Mega has some more]). When a code was detected a callback method will be called (second parameter).
+
+The callback method takes 4 parameters: 
+ * decimal value of the code
+ * bit length (might be needed as the values can be zero-filled)
+ * delay (this is the time it takes to send 1/4 bit)
+ * raw array of microseconds between HIGH and LOW states
+
