@@ -1,3 +1,5 @@
+#summary How to send codes to a device.
+
 If you intend to only operate some power sockets you should take a look at [http://code.google.com/p/rc-switch/wiki/HowTo_OperateLowCostOutlets this HowTo].
 
 ----
