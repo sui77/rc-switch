@@ -21,7 +21,7 @@
 
 #include "WProgram.h"
 
-#define maxChanges 500
+#define RCSWITCH_MAX_CHANGES 100
 
 typedef void (*RCSwitchCallback)(unsigned long decimal, unsigned int length, unsigned int delay, unsigned int* raw);
 
