@@ -1,2 +1,2 @@
-  * [Transmit HowTo_Send]
-  * [Receive HowTo_Receive]
+  * [HowTo_Send Transmit]
+  * [HowTo_Receive Receive]
