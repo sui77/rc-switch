@@ -1,2 +1,7 @@
-  * [HowTo_Send Transmit]
-  * [HowTo_Receive Receive]
+  * Using the libary
+    * [HowTo_Send Transmit]
+      * [HowTo_OperateLowCostOutlets Operate simple power outlets]
+    * [HowTo_Receive Receive]
+  * Hardware
+    * [HowTo_HackRemoteControl Hack an existing remote]
+    * [List_KnownDevices List of known devices]
