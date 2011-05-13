@@ -1,6 +1,6 @@
   * Using the libary
     * [HowTo_Send Transmit]
-      * [HowTo_OperateLowCostOutlets Operate simple power outlets]
+      * [HowTo_OperateLowCostOutlets Simple outlets]
     * [HowTo_Receive Receive]
   * Hardware
     * [HowTo_HackRemoteControl Hack an existing remote]
