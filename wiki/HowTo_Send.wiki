@@ -19,4 +19,5 @@ Same as the first one but using the decimal value. The bit length is needed to z
 
 
 * sendTriState(string triStateCode) *
+
 Tri-state codes are according to the data sheets of some encoding chips. Take a look at [http://sui77.wordpress.com/2011/04/12/163/ this blogpost] if you are interested in details.
