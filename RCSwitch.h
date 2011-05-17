@@ -21,7 +21,9 @@
 
 #include "WProgram.h"
 
-#define RCSWITCH_MAX_CHANGES 100
+// Number of maximum High/Low changes per packet.
+// We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
+#define RCSWITCH_MAX_CHANGES 67
 
 typedef void (*RCSwitchCallback)(unsigned long decimal, unsigned int length, unsigned int delay, unsigned int* raw);
 
@@ -30,6 +32,7 @@ class RCSwitch {
   public:
     RCSwitch(int nPin);
     RCSwitch(int nPin, int nDelay);
+    
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
     void switchOn(String sGroup, int nSwitchNumber);
