@@ -317,29 +317,26 @@ void RCSwitch::receiveInterrupt() {
   lastTime = time;  
 }
 
+/**
+  * Turns a decimal value to its binary representation
+  */
+char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
+  char bin[64]; 
+  unsigned int i=0;
 
-char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int length){
- char bin[50];
- int pos = 0;
- while(Dec > 0){
-  if(Dec % 2 == 0){
-   bin[pos] = '0';
-  }else{
-   bin[pos] = '1';
+  while (Dec > 0) {
+    bin[32+i++] = (Dec & 1 > 0) ? '1' : '0';
+    Dec = Dec >> 1;
   }
-  Dec = floor(Dec/2);
-  pos++;
- }
 
- static char bin2[50];
- int i2=0;
- for (int i = 0; i<length-pos; i++) {
-   bin2[i2++] = '0';
- }
- for (int i = pos-1; i>=0; i--) {
-   bin2[i2++] = bin[i];   
- }
- bin2[i2] = '\0';
-
- return bin2;
+  for (unsigned int j = 0; j< bitLength; j++) {
+    if (j >= bitLength - i) {
+      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
+    }else {
+      bin[j] = '0';
+    }
+  }
+  bin[bitLength] = '\0';
+  
+  return bin;
 }
