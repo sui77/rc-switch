@@ -14,6 +14,33 @@ The first parameter represents the setting of the first 5 DIP switches. In this 
 
 The second parameter represents the setting of the last 5 DIP switches. As only one of these must be ON, it's the number of the DIP switch which is ON. In this example the last 5 DIP switches are OFF-ON-OFF-OFF-OFF.
 
+{{{
+#include <RCSwitch.h>
+
+RCSwitch mySwitch = RCSwitch();
+
+void setup() {
+
+  // Transmitter is connected to Arduino Pin #10  
+  mySwitch.enableTransmit(10);
+  
+}
+
+void loop() {
+
+  mySwitch.switchOn("11001", 2);
+
+  // Wait a second
+  delay(1000);
+  
+  // Switch off
+  mySwitch.switchOff("11001", 2);
+  
+  // Wait another second
+  delay(1000);
+  
+}
+}}}
 
 = Type B: Two rotary/sliding switches =
 
@@ -24,3 +51,31 @@ RCSwitch::switchOn(4, 2);
 The first parameter represents the setting of the first rotary switch. In this example it's switched to "4" or "D" or "IV".
 
 The second parameter represents the setting of the second rotary switch. In this example it's switched to "2" or "B" or "II".
+
+{{{
+#include <RCSwitch.h>
+
+RCSwitch mySwitch = RCSwitch();
+
+void setup() {
+
+  // Transmitter is connected to Arduino Pin #10  
+  mySwitch.enableTransmit(10);
+  
+}
+
+void loop() {
+
+  mySwitch.switchOn(4, 2);
+
+  // Wait a second
+  delay(1000);
+  
+  // Switch off
+  mySwitch.switchOff(4, 2);
+  
+  // Wait another second
+  delay(1000);
+  
+}
+}}}
