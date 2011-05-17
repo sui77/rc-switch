@@ -22,28 +22,51 @@
 #include "RCSwitch.h"
 
 RCSwitchCallback RCSwitch::mCallback;
- 
-/**
- * Constructor
- *
- * @param nPin    Arduino Pin to which the sender is connected to
- */
-RCSwitch::RCSwitch(int nPin) {
-  this->nPin = nPin;
-  this->nDelay = 350;
-  pinMode(nPin, OUTPUT);
+
+
+RCSwitch::RCSwitch() {
+  this->nReceiverInterrupt = -1;
+  this->nTransmitterPin = -1;
+  this->setPulseLength(350);
 }
 
 /**
- * Constructor with different bit width
- *
- * @param nPin    Arduino Pin to which the sender is connected to
- * @param nDelay  1/8 Bit width in microseconds
+ * deprecated
  */
-RCSwitch::RCSwitch(int nPin, int nDelay) {
-  this->nPin = nPin;
-  this->nDelay = nDelay;
-  pinMode(nPin, OUTPUT);
+RCSwitch::RCSwitch(int nTransmitterPin) {
+  this->enableTransmit(nTransmitterPin);
+}
+
+/**
+ * deprecated
+ */
+RCSwitch::RCSwitch(int nTransmitterPin, int nDelay) {
+  this->nPulseLength = nDelay;
+  this->enableTransmit(nTransmitterPin);
+}
+
+/**
+  * Sets pulse length in microseconds
+  */
+void RCSwitch::setPulseLength(int nPulseLength) {
+  this->nPulseLength = nPulseLength;
+}
+
+/**
+ * Enable transmissions
+ *
+ * @param nTransmitterPin    Arduino Pin to which the sender is connected to
+ */
+void RCSwitch::enableTransmit(int nTransmitterPin) {
+  this->nTransmitterPin = nTransmitterPin;
+  pinMode(this->nTransmitterPin, OUTPUT);
+}
+
+/**
+  * Disable transmissions
+  */
+void RCSwitch::disableTransmit() {
+  this->nTransmitterPin = -1;
 }
 
 /**
@@ -137,7 +160,7 @@ String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) 
 
 /**
  * Sends a Code Word 
- * @param sCodeWord   /^[10FS]{12}$/  -> see getCodeWord
+ * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
  */
 void RCSwitch::sendTriState(String sCodeWord) {
   for (int nRepeat=0; nRepeat<10; nRepeat++) {
@@ -159,6 +182,7 @@ void RCSwitch::sendTriState(String sCodeWord) {
 }
 
 void RCSwitch::send(unsigned long Code, unsigned int length) {
+  Serial.println(this->dec2binWzerofill(Code, length));
   this->send( this->dec2binWzerofill(Code, length) );
 }
 
@@ -180,16 +204,30 @@ void RCSwitch::send(char* sCodeWord) {
   }
 }
 
+void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
+  
+  if (this->nTransmitterPin != -1) {
+      int nRec = this->nReceiverInterrupt;
+      if (this->nReceiverInterrupt != -1) {
+		this->disableReceive();
+	  }
+	  digitalWrite(this->nTransmitterPin, HIGH);
+	  delayMicroseconds( this->nPulseLength * nHighPulses);
+	  digitalWrite(this->nTransmitterPin, LOW);
+	  delayMicroseconds( this->nPulseLength * nLowPulses);
+	  if (nRec != -1) {
+		this->enableReceive(nRec, this->mCallback);
+	  }
+  }
+}
+
 /**
  * Sends a "0" Bit
  *            _    
  * Waveform: | |___
  */
 void RCSwitch::send0() {
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 1);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 3);
+  this->transmit(1,3);
 }
 
 /**
@@ -198,10 +236,7 @@ void RCSwitch::send0() {
  * Waveform: |   |_
  */
 void RCSwitch::send1() {
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 3);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 1);
+	this->transmit(3,1);
 }
 
 
@@ -211,8 +246,8 @@ void RCSwitch::send1() {
  * Waveform: | |___| |___
  */
 void RCSwitch::sendT0() {
-  this->send0();
-  this->send0();
+  this->transmit(1,3);
+  this->transmit(1,3);
 }
 
 /**
@@ -221,8 +256,8 @@ void RCSwitch::sendT0() {
  * Waveform: |   |_|   |_
  */
 void RCSwitch::sendT1() {
-  this->send1();
-  this->send1();
+  this->transmit(3,1);
+  this->transmit(3,1);
 }
 
 /**
@@ -231,8 +266,8 @@ void RCSwitch::sendT1() {
  * Waveform: | |___|   |_
  */
 void RCSwitch::sendTF() {
-  this->send0();
-  this->send1();
+  this->transmit(1,3);
+  this->transmit(3,1);
 }
 
 /**
@@ -241,18 +276,15 @@ void RCSwitch::sendTF() {
  * Waveform: | |_______________________________
  */
 void RCSwitch::sendSync() {
-  digitalWrite(this->nPin, HIGH);
-  delayMicroseconds( this->nDelay * 1);
-  digitalWrite(this->nPin, LOW);
-  delayMicroseconds( this->nDelay * 31); 
+  this->transmit(1,31);
 }
 
 /**
  * Enable receiving data
  */
 void RCSwitch::enableReceive(int interrupt, RCSwitchCallback callback) {
-  this->nInterrupt = interrupt;
-  attachInterrupt(this->nInterrupt, receiveInterrupt, CHANGE);
+  this->nReceiverInterrupt = interrupt;
+  attachInterrupt(this->nReceiverInterrupt, receiveInterrupt, CHANGE);
   this->mCallback = callback;
 }
 
@@ -260,7 +292,8 @@ void RCSwitch::enableReceive(int interrupt, RCSwitchCallback callback) {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
-  detachInterrupt(this->nInterrupt);
+  detachInterrupt(this->nReceiverInterrupt);
+  this->nReceiverInterrupt = -1;
 }
 
 /**
@@ -321,7 +354,7 @@ void RCSwitch::receiveInterrupt() {
   * Turns a decimal value to its binary representation
   */
 char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
-  char bin[64]; 
+  static char bin[64]; 
   unsigned int i=0;
 
   while (Dec > 0) {

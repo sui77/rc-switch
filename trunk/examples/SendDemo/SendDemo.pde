@@ -6,13 +6,22 @@
 
 #include <RCSwitch.h>
 
-// Transmitter is connected to Arduino Pin #10
-RCSwitch mySwitch = RCSwitch(3);
+RCSwitch mySwitch = RCSwitch();
 
 void setup() {
 
   Serial.begin(9600);
   
+  // Transmitter is connected to Arduino Pin #10  
+  mySwitch.enableTransmit(10);
+
+  // Optional set pulse length.
+  // mySwitch.setPulseLength(320);  
+  
+}
+
+void loop() {
+
   /* See Example: TypeA_WithDIPSwitches */
   mySwitch.switchOn("11111", 4); 
   delay(1000);  
@@ -37,7 +46,5 @@ void setup() {
   mySwitch.sendTriState("00000FFF0FF0");
   delay(1000);
 
-}
-
-void loop() {
+  delay(20000);
 }
