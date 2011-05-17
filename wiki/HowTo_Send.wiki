@@ -10,14 +10,56 @@ There are three methods to send raw codes:
 
 Sends the binary string.
 
+{{{
+#include <RCSwitch.h>
 
+RCSwitch mySwitch = RCSwitch();
+
+void setup() {
+  mySwitch.enableTransmit(10);
+}
+
+void loop() {
+  mySwitch.send("000000000001010100010001");
+  delay(1000);  
+}
+}}}
 
 * send(int decimalCode, int bitLength) *
 
 Same as the first one but using the decimal value. The bit length is needed to zero-fill the binary code.
 
+{{{
+#include <RCSwitch.h>
 
+RCSwitch mySwitch = RCSwitch();
+
+void setup() {
+  mySwitch.enableTransmit(10);
+}
+
+void loop() {
+  mySwitch.send(5393, 24);
+  delay(1000);  
+}
+}}}
 
 * sendTriState(string triStateCode) *
 
 Tri-state codes are according to the data sheets of some encoding chips. Take a look at [http://sui77.wordpress.com/2011/04/12/163/ this blogpost] if you are interested in details.
+
+
+{{{
+#include <RCSwitch.h>
+
+RCSwitch mySwitch = RCSwitch();
+
+void setup() {
+  mySwitch.enableTransmit(10);
+}
+
+void loop() {
+  mySwitch.sendTriState("00000FFF0F0F");
+  delay(1000);  
+}
+}}}
