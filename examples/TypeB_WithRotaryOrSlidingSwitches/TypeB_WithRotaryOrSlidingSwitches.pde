@@ -6,13 +6,20 @@
 
 #include <RCSwitch.h>
 
-// Transmitter is connected to Arduino Pin #10
-RCSwitch mySwitch = RCSwitch(10);
+RCSwitch mySwitch = RCSwitch();
 
 void setup() {
+
+  // Transmitter is connected to Arduino Pin #10  
+  mySwitch.enableTransmit(10);
+  
+  // Optional set pulse length.
+  // mySwitch.setPulseLength(320);
+  
 }
 
 void loop() {
+
   // Switch on:
   // The first parameter represents the setting of the first rotary switch. 
   // In this example it's switched to "1" or "A" or "I". 
@@ -29,4 +36,5 @@ void loop() {
   
   // Wait another second
   delay(1000);
+  
 }
