@@ -11,6 +11,8 @@ If you intend to only operate some power sockets you should take a look at [http
 
 There are three methods to send raw codes:
 
+== Binary string ==
+
 * send(string binaryCode) *
 
 Sends the binary string.
@@ -30,6 +32,8 @@ void loop() {
 }
 }}}
 
+== Decimal value ==
+
 * send(int decimalCode, int bitLength) *
 
 Same as the first one but using the decimal value. The bit length is needed to zero-fill the binary code.
@@ -48,6 +52,8 @@ void loop() {
   delay(1000);  
 }
 }}}
+
+== Tri-state string ==
 
 * sendTriState(string triStateCode) *
 
