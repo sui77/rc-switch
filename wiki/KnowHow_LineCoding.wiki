@@ -5,6 +5,7 @@
 == Pulse length ==
 
  * About 300 to 500 microseconds
+ * 1/31 time of the synchronization low level.
 
 == Synchronization == 
 
@@ -27,6 +28,7 @@
 == Pulse length ==
 
  * About 300 to 500 microseconds
+ * 1/31 time of the synchronization low level.
 
 == Synchronization == 
 
