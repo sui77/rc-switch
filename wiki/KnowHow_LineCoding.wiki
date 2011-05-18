@@ -1,0 +1,13 @@
+#summary Details about the line encoding scheme.
+
+= SC5262 / SC5272, HX2262 / HX2272, PT2262 / PT2272 =
+
+== Synchronization == 
+
+== 
+
+at least 3 times: 12 Tri-state data bits + Sync Bit
+
+= EV1527, RT1527, FP1527 or HS1527 =
+
+at least 3 times: Sync Bit + 24 Two-state data bits 
