@@ -2,8 +2,10 @@
  * [HowTo_Send Transmit]
  * [HowTo_OperateLowCostOutlets Simple outlets]
  * [HowTo_Receive Receive]
+
 *Hardware*
  * [HowTo_HackRemoteControl Hack an existing remote]
  * [List_KnownDevices List of known devices]
+
 *Background information*
  * [KnowHow_LineCoding Line Coding]
