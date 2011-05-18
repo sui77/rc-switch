@@ -8,7 +8,7 @@
  * Press any key on your remote
 
 = Wiring =
-[http://rc-switch.googlecode.com/svn/wiki_images/wiring_receiver.png]
+[http://rc-switch.googlecode.com/svn/wiki_images/wiring_receiver2.png]
 
 (You can also use any other external interrupt pin of your Arduino instead of interrupt #0/Pin #2)
 
