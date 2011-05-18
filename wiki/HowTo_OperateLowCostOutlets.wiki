@@ -4,7 +4,7 @@
 
 There are generally two kinds of outlet switches. The first one is configured with a 10 pole DIP switch the other one is configured with two rotary (or sliding) switches with four setting possibilities each.
 
-= Type A: 10 pole DIP switches =
+== Type A: 10 pole DIP switches ==
 
 <img src="http://i8.instantgallery.de/s/su/sui/19fd919446818.png" border="0" alt="">
 
@@ -42,7 +42,7 @@ void loop() {
 }
 }}}
 
-= Type B: Two rotary/sliding switches =
+== Type B: Two rotary/sliding switches ==
 
 <img src="http://i9.instantgallery.de/s/su/sui/b0d5c19446819.png" border="0" alt="">
 
