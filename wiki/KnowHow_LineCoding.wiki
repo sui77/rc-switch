@@ -21,6 +21,8 @@
 
  * at least 3 times: 12 Tri-state data bits + Sync Bit
 
+[http://rc-switch.googlecode.com/svn/wiki_images/linecode_tristate.png]
+
 <hr>
 
 = EV1527, RT1527, FP1527 or HS1527 =
@@ -42,3 +44,5 @@
 == Telegram == 
 
  * at least 3 times: Sync Bit + 24 Two-state data bits 
+
+[http://rc-switch.googlecode.com/svn/wiki_images/linecode_twostate.png]
