@@ -7,6 +7,7 @@ If you intend to only operate some power sockets you should take a look at [http
 = Wiring =
 [http://rc-switch.googlecode.com/svn/wiki_images/wiring_transmitter.png]
 
+(You can also use any other I/O Pin of your Arduino instead of Pin #10)
 = Transmission methods =
 
 There are three methods to send raw codes:
@@ -23,7 +24,7 @@ Sends the binary string.
 RCSwitch mySwitch = RCSwitch();
 
 void setup() {
-  mySwitch.enableTransmit(10);
+  mySwitch.enableTransmit(10);  // Using Pin #10
 }
 
 void loop() {
@@ -44,7 +45,7 @@ Same as the first one but using the decimal value. The bit length is needed to z
 RCSwitch mySwitch = RCSwitch();
 
 void setup() {
-  mySwitch.enableTransmit(10);
+  mySwitch.enableTransmit(10);  // Using Pin #10
 }
 
 void loop() {
@@ -66,7 +67,7 @@ Tri-state codes are according to the data sheets of some encoding chips. Take a 
 RCSwitch mySwitch = RCSwitch();
 
 void setup() {
-  mySwitch.enableTransmit(10);
+  mySwitch.enableTransmit(10);  // Using Pin #10
 }
 
 void loop() {
