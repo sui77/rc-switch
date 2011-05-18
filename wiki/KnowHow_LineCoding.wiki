@@ -2,12 +2,41 @@
 
 = SC5262 / SC5272, HX2262 / HX2272, PT2262 / PT2272 =
 
+== Pulse length ==
+
+ * About 300 to 500 microseconds
+
 == Synchronization == 
 
-== 
+ * 1 Pulse High + 31 Pulses Low
 
-at least 3 times: 12 Tri-state data bits + Sync Bit
+== Bits ==
+
+ * 0: 1 Pulse High + 3 Pulses Low + 1 Pulse High + 3 Pulses Low
+ * 1: 3 Pulses High + 1 Pulse Low + 3 Pulses High + 1 Pulse Low
+ * F: 1 Pulse High + 3 Pulses Low + 3 Pulses High + 1 Pulse Low
+
+== Telegram == 
+
+ * at least 3 times: 12 Tri-state data bits + Sync Bit
+
+<hr>
 
 = EV1527, RT1527, FP1527 or HS1527 =
 
-at least 3 times: Sync Bit + 24 Two-state data bits 
+== Pulse length ==
+
+ * About 300 to 500 microseconds
+
+== Synchronization == 
+
+ * 1 Pulse High + 31 Pulses Low
+
+== Bits ==
+
+ * 0: 1 Pulse High + 3 Pulses Low
+ * 1: 3 Pulses High + 1 Pulse Low
+
+== Telegram == 
+
+ * at least 3 times: Sync Bit + 24 Two-state data bits 
