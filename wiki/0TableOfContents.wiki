@@ -4,6 +4,7 @@
  * [HowTo_Receive Receive]
 
 *Hardware*
+ * [List_TransmitterReceiverModules Buy a RF module]
  * [HowTo_HackRemoteControl Hack an existing remote]
  * [List_KnownDevices List of known devices]
 
