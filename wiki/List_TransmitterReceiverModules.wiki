@@ -1,3 +1,6 @@
-#summary One-sentence summary of this page.
+#summary Where to get prefabricated transmitter/receiver modules.
 
  * [http://www.seeedstudio.com/depot/index.php?main_page=product_reviews_info&cPath=139_140&products_id=127]
+ * [http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz]
+ * [http://www.watterott.com/de/RF-Link-Sender-434MHz]
+ * [http://www.conrad.de/ce/de/product/130428]
