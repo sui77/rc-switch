@@ -1,7 +1,12 @@
 #summary Where to get prefabricated transmitter/receiver modules.
 
+== China ==
  * [http://www.seeedstudio.com/depot/index.php?main_page=product_reviews_info&cPath=139_140&products_id=127]
+
+== Germany ==
  * [http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz]
  * [http://www.watterott.com/de/RF-Link-Sender-434MHz]
  * [http://www.conrad.de/ce/de/product/130428]
+
+== UK ==
  * [http://www.quasaruk.co.uk/acatalog/Radio_Modules.html]
