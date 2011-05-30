@@ -50,8 +50,7 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
     Serial.print(decimal);
     Serial.print(" (");
     Serial.print( length );
-    Serial.print("Bit) Binary: ");
-    Serial.print( b );
+    Serial.print("Bit) ");
     Serial.print(" PulseLength: ");
     Serial.print(delay);
     Serial.println(" microseconds");
