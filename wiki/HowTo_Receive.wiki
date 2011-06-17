@@ -45,7 +45,6 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
   if (decimal == 0) {
     Serial.print("Unknown encoding.");
   } else {
-    char* b = dec2binWzerofill(decimal, length);
     Serial.print("Decimal: ");
     Serial.print(decimal);
     Serial.print(" (");
