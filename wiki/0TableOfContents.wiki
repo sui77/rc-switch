@@ -2,6 +2,7 @@
  * [HowTo_Send Transmit]
  * [HowTo_OperateLowCostOutlets Simple outlets]
  * [HowTo_Receive Receive]
+ * [List_OtherProjects Projects using rc-switch]
 
 *Hardware*
  * [List_TransmitterReceiverModules Buy a RF module]
