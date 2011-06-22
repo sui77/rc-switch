@@ -1,0 +1,7 @@
+#summary One-sentence summary of this page.
+
+= Other projects using the rc-switch libary =
+
+== OpenplacOS == 
+Openplacos is an open source project for home automation, aquariophily and indoor gardens that runs on Linux. 
+Openplacos is a project to make possible and easy to extend your computer to new devices. Openplacos is designed for people who want to build their own DIY home automation system. Openplacos is highly flexible and easy to configure .[http://openplacos.tuxfamily.org/ Link]
