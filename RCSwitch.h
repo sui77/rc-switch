@@ -1,6 +1,9 @@
 /*
   RCSwitch - Arduino libary for remote control outlet switches
   Copyright (c) 2011 Suat Özgür.  All right reserved.
+
+  Contributors:
+  - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -50,6 +53,7 @@ class RCSwitch {
 	void enableTransmit(int nTransmitterPin);
 	void disableTransmit();
 	void setPulseLength(int nPulseLength);
+	void setRepeatTransmit(int RepeatTransmit);
 
   
   private:
@@ -70,6 +74,8 @@ class RCSwitch {
     int nReceiverInterrupt;
     int nTransmitterPin;
     int nPulseLength;
+
+	int RepeatTransmit;
     
 };
 
