@@ -16,7 +16,10 @@ void setup() {
   mySwitch.enableTransmit(10);
 
   // Optional set pulse length.
-  // mySwitch.setPulseLength(320);  
+  // mySwitch.setPulseLength(320);
+  
+  // Optional set number of transmission repetitions.
+  // mySwitch.setRepeatTransmit(15);
   
 }
 
