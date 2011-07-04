@@ -2,6 +2,9 @@
   RCSwitch - Arduino libary for remote control outlet switches
   Copyright (c) 2011 Suat Özgür.  All right reserved.
   
+  Contributors:
+  - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
+  
   Project home: http://code.google.com/p/rc-switch/
 
   This library is free software; you can redistribute it and/or
@@ -28,6 +31,7 @@ RCSwitch::RCSwitch() {
   this->nReceiverInterrupt = -1;
   this->nTransmitterPin = -1;
   this->setPulseLength(350);
+  this->setRepeatTransmit(10);
 }
 
 /**
@@ -50,6 +54,13 @@ RCSwitch::RCSwitch(int nTransmitterPin, int nDelay) {
   */
 void RCSwitch::setPulseLength(int nPulseLength) {
   this->nPulseLength = nPulseLength;
+}
+
+/**
+  * Sets Repeat Transmits
+  */
+void RCSwitch::setRepeatTransmit(int RepeatTransmit) {
+  this->RepeatTransmit = RepeatTransmit;
 }
 
 /**
@@ -163,7 +174,7 @@ String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) 
  * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
  */
 void RCSwitch::sendTriState(String sCodeWord) {
-  for (int nRepeat=0; nRepeat<10; nRepeat++) {
+  for (int nRepeat=0; nRepeat<RepeatTransmit; nRepeat++) {
     for(int i=0; i<sCodeWord.length(); i++) {
       switch(sCodeWord[i]) {
         case '0':
@@ -182,12 +193,11 @@ void RCSwitch::sendTriState(String sCodeWord) {
 }
 
 void RCSwitch::send(unsigned long Code, unsigned int length) {
-  Serial.println(this->dec2binWzerofill(Code, length));
   this->send( this->dec2binWzerofill(Code, length) );
 }
 
 void RCSwitch::send(char* sCodeWord) {
-  for (int nRepeat=0; nRepeat<10; nRepeat++) {
+  for (int nRepeat=0; nRepeat<RepeatTransmit; nRepeat++) {
     int i = 0;
     while (sCodeWord[i] != '\0') {
       switch(sCodeWord[i]) {
