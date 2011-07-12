@@ -150,22 +150,22 @@ String RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatu
  * Like getCodeWord  (Type A)
  */
 String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) {
-	String code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
+  String code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
-	if (sGroup.length() != 5 || nChannelCode < 1 || nChannelCode > 5) {
-		return "";
-	}
-	
-	String sAddressCode = "";
-	for (int i = 0; i<5; i++) {
-		if (sGroup[i] == '0') {
-			sAddressCode += "F";
-		} else {
-			sAddressCode += "0";
-		}
-	}
-	
-	return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0");
+  if (sGroup.length() != 5 || nChannelCode < 1 || nChannelCode > 5) {
+    return "";
+  }
+  
+  String sAddressCode = "";
+  for (int i = 0; i<5; i++) {
+    if (sGroup[i] == '0') {
+      sAddressCode += "F";
+    } else {
+      sAddressCode += "0";
+    }
+  }
+  
+  return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0");
 }
 
 
@@ -217,17 +217,17 @@ void RCSwitch::send(char* sCodeWord) {
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
   
   if (this->nTransmitterPin != -1) {
-      int nRec = this->nReceiverInterrupt;
-      if (this->nReceiverInterrupt != -1) {
-		this->disableReceive();
-	  }
-	  digitalWrite(this->nTransmitterPin, HIGH);
-	  delayMicroseconds( this->nPulseLength * nHighPulses);
-	  digitalWrite(this->nTransmitterPin, LOW);
-	  delayMicroseconds( this->nPulseLength * nLowPulses);
-	  if (nRec != -1) {
-		this->enableReceive(nRec, this->mCallback);
-	  }
+    int nRec = this->nReceiverInterrupt;
+    if (this->nReceiverInterrupt != -1) {
+      this->disableReceive();
+    }
+    digitalWrite(this->nTransmitterPin, HIGH);
+    delayMicroseconds( this->nPulseLength * nHighPulses);
+    digitalWrite(this->nTransmitterPin, LOW);
+    delayMicroseconds( this->nPulseLength * nLowPulses);
+    if (nRec != -1) {
+      this->enableReceive(nRec, this->mCallback);
+    }
   }
 }
 
@@ -246,7 +246,7 @@ void RCSwitch::send0() {
  * Waveform: |   |_
  */
 void RCSwitch::send1() {
-	this->transmit(3,1);
+  this->transmit(3,1);
 }
 
 

@@ -33,10 +33,10 @@ typedef void (*RCSwitchCallback)(unsigned long decimal, unsigned int length, uns
 class RCSwitch {
 
   public:
-	RCSwitch();
-	
-    RCSwitch(int nPin);					// deprecated
-    RCSwitch(int nPin, int nDelay);		// deprecated
+    RCSwitch();
+  
+    RCSwitch(int nPin);                // deprecated
+    RCSwitch(int nPin, int nDelay);    // deprecated
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -49,11 +49,11 @@ class RCSwitch {
     
     void enableReceive(int interrupt, RCSwitchCallback callback);
     void disableReceive();
-	
-	void enableTransmit(int nTransmitterPin);
-	void disableTransmit();
-	void setPulseLength(int nPulseLength);
-	void setRepeatTransmit(int RepeatTransmit);
+  
+    void enableTransmit(int nTransmitterPin);
+    void disableTransmit();
+    void setPulseLength(int nPulseLength);
+    void setRepeatTransmit(int RepeatTransmit);
 
   
   private:
@@ -65,7 +65,7 @@ class RCSwitch {
     void send0();
     void send1();
     void sendSync();
-	void transmit(int nHighPulses, int nLowPulses);
+    void transmit(int nHighPulses, int nLowPulses);
 
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
@@ -75,7 +75,7 @@ class RCSwitch {
     int nTransmitterPin;
     int nPulseLength;
 
-	int RepeatTransmit;
+    int RepeatTransmit;
     
 };
 
