@@ -39,14 +39,17 @@ RCSwitch::RCSwitch() {
  */
 RCSwitch::RCSwitch(int nTransmitterPin) {
   this->enableTransmit(nTransmitterPin);
+  this->setPulseLength(350);
+  this->setRepeatTransmit(10);
 }
 
 /**
  * deprecated
  */
 RCSwitch::RCSwitch(int nTransmitterPin, int nDelay) {
-  this->nPulseLength = nDelay;
   this->enableTransmit(nTransmitterPin);
+  this->setPulseLength(nDelay);
+  this->setRepeatTransmit(10);
 }
 
 /**
