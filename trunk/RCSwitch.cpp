@@ -204,13 +204,13 @@ String RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSt
     return "";
   }
   char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
-  String familycode[16] = { "0000", "1000", "0100", "1100", "0010", "1010", "0110", "1110", "0001", "1001", "0101", "1101", "0011", "1011", "0111", "1111" };
+  String familycode[16] = { "0000", "F000", "0F00", "FF00", "00F0", "F0F0", "0FF0", "FFF0", "000F", "F00F", "0F0F", "FF0F", "00FF", "F0FF", "0FFF", "FFFF" };
   String sReturn = familycode[ (int)sFamily - 97 ];
   for (int i = 0; i<4; i++) {
-    sReturn = sReturn + sDeviceGroupCode[3-i];
+    sReturn = sReturn + (sDeviceGroupCode[3-i] == '1' ? "F" : "0");
   }
-  sReturn = sReturn + "01";
-  sReturn = sReturn + (bStatus==true?"11":"10");
+  sReturn = sReturn + "0F";
+  sReturn = sReturn + (bStatus==true?"FF":"F0");
   return sReturn;
 }
 
