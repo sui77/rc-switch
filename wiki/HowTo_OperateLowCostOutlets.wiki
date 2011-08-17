@@ -2,7 +2,7 @@
 
 = What kind of switch =
 
-There are generally two kinds of outlet switches. The first one is configured with a 10 pole DIP switch the other one is configured with two rotary (or sliding) switches with four setting possibilities each.
+There are generally three common kinds of outlet switches. The first one is configured with a 10 pole DIP switch the other one is configured with two rotary (or sliding) switches with four setting possibilities each.
 
 == Type A: 10 pole DIP switches ==
 
@@ -79,3 +79,7 @@ void loop() {
   
 }
 }}}
+
+== Type C: Intertechno ==
+
+RCSwitch::switchOn('a', 1, 2);
