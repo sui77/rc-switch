@@ -84,6 +84,28 @@ void RCSwitch::disableTransmit() {
 }
 
 /**
+ * Switch a remote switch on (Type C Intertechno)
+ *
+ * @param sFamily  Familycode (a..f)
+ * @param nGroup   Number of group (1..4)
+ * @param nDevice  Number of device (1..4)
+  */
+void RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
+  this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, true) );
+}
+
+/**
+ * Switch a remote switch off (Type C Intertechno)
+ *
+ * @param sFamily  Familycode (a..f)
+ * @param nGroup   Number of group (1..4)
+ * @param nDevice  Number of device (1..4)
+ */
+void RCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
+  this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, false) );
+}
+
+/**
  * Switch a remote switch on (Type B with two rotary/sliding switches)
  *
  * @param nAddressCode  Number of the switch group (1..4)
@@ -171,6 +193,26 @@ String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) 
   return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0");
 }
 
+/**
+ * Like getCodeWord (Type C = Intertechno)
+ */
+String RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
+  if ( (byte)sFamily < 97 || (byte)sFamily > 112) {
+    return "";
+  }
+  if (nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
+    return "";
+  }
+  char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
+  String familycode[16] = { "0000", "1000", "0100", "1100", "0010", "1010", "0110", "1110", "0001", "1001", "0101", "1101", "0011", "1011", "0111", "1111" };
+  String sReturn = familycode[ (int)sFamily - 97 ];
+  for (int i = 0; i<4; i++) {
+    sReturn = sReturn + sDeviceGroupCode[3-i];
+  }
+  sReturn = sReturn + "01";
+  sReturn = sReturn + (bStatus==true?"11":"10");
+  return sReturn;
+}
 
 /**
  * Sends a Code Word 
@@ -386,3 +428,4 @@ char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
   
   return bin;
 }
+

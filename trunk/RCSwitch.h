@@ -42,6 +42,9 @@ class RCSwitch {
     void switchOff(int nGroupNumber, int nSwitchNumber);
     void switchOn(String sGroup, int nSwitchNumber);
     void switchOff(String sGroup, int nSwitchNumber);
+    void switchOn(char sFamily, int nGroup, int nDevice);
+    void switchOff(char sFamily, int nGroup, int nDevice);
+    
 
     void sendTriState(String Code);
     void send(unsigned long Code, unsigned int length);
@@ -54,11 +57,11 @@ class RCSwitch {
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int RepeatTransmit);
-
   
   private:
     String getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     String getCodeWordA(String sGroup, int nSwitchNumber, boolean bStatus);
+    String getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     void sendT0();
     void sendT1();
     void sendTF();
