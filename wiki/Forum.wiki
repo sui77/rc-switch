@@ -1,1 +1,5 @@
-[http://forum.ardumote.com/viewforum.php?f=2 Continue to forum]
+Please feel free to ask your questions or share your thoughts about RCSwitch in the forum.
+
+Unfortunately the forum is not hosted by google code. 
+
+*[http://forum.ardumote.com/viewforum.php?f=2 Continue to forum]*
