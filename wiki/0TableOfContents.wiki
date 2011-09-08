@@ -11,3 +11,6 @@
 
 *Background information*
  * [KnowHow_LineCoding Line Coding]
+
+*[Forum]*
+ 
