@@ -1,3 +1,5 @@
+ * [http://forum.ardumote.com/viewforum.php?f=2 Forum]
+
 *Using the libary*
  * [HowTo_Send Transmit]
  * [HowTo_OperateLowCostOutlets Simple outlets]
@@ -12,5 +14,5 @@
 *Background information*
  * [KnowHow_LineCoding Line Coding]
 
-*[Forum Forum]*
+
  
