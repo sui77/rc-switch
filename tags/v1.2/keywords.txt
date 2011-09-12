@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map For RCSwitch
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+RCSwitch	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+switchOn	KEYWORD2
+switchOff	KEYWORD2
+sendTriState	KEYWORD2
+send	KEYWORD2
+enableReceive	KEYWORD2
+disableReceive	KEYWORD2
+enableTransmit	KEYWORD2
+disableTransmit	KEYWORD2
+setPulseLength	KEYWORD2
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
