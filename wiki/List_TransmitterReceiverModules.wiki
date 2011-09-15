@@ -1,6 +1,7 @@
 #summary Where to get prefabricated transmitter/receiver modules.
 
-== China ==
+== China || Hong Kong ==
+(takes a couple of days to deliver but is really cheap)
  * [http://www.seeedstudio.com/depot/index.php?main_page=product_reviews_info&cPath=139_140&products_id=127]
  * eBay: search for "Arduino 433" or "RF Link kit"
 
