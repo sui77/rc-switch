@@ -389,7 +389,9 @@ void RCSwitch::receiveInterrupt() {
           }
       }      
       code = code >> 1;
-      (mCallback)(code, changeCount/2, delay, timings);
+	  if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
+        (mCallback)(code, changeCount/2, delay, timings);
+	  }
       repeatCount = 0;
     }
     changeCount = 0;
