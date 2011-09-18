@@ -256,6 +256,7 @@ void RCSwitch::send(char* sCodeWord) {
       i++;
     }
     this->sendSync();
+
   }
 }
 
@@ -266,10 +267,13 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
     if (this->nReceiverInterrupt != -1) {
       this->disableReceive();
     }
-    digitalWrite(this->nTransmitterPin, HIGH);
-    delayMicroseconds( this->nPulseLength * nHighPulses);
+	
     digitalWrite(this->nTransmitterPin, LOW);
+    delayMicroseconds( this->nPulseLength * nHighPulses);
+    digitalWrite(this->nTransmitterPin, HIGH);
     delayMicroseconds( this->nPulseLength * nLowPulses);
+    digitalWrite(this->nTransmitterPin, LOW);
+	
     if (nRec != -1) {
       this->enableReceive(nRec, this->mCallback);
     }
@@ -282,7 +286,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
  * Waveform: | |___
  */
 void RCSwitch::send0() {
-  this->transmit(1,3);
+  this->transmit(2,1);
 }
 
 /**
@@ -291,7 +295,7 @@ void RCSwitch::send0() {
  * Waveform: |   |_
  */
 void RCSwitch::send1() {
-  this->transmit(3,1);
+  this->transmit(1,2);
 }
 
 
@@ -331,7 +335,7 @@ void RCSwitch::sendTF() {
  * Waveform: | |_______________________________
  */
 void RCSwitch::sendSync() {
-  this->transmit(1,31);
+  this->transmit(22,1);
 }
 
 /**
@@ -376,9 +380,9 @@ void RCSwitch::receiveInterrupt() {
       unsigned long delayTolerance = delay*0.3;    
       for (int i = 1; i<changeCount ; i=i+2) {
       
-          if (timings[i] > delay-delayTolerance && timings[i] < delay+delayTolerance && timings[i+1] > delay*3-delayTolerance && timings[i+1] < delay*3+delayTolerance) {
+          if (timings[i] > delay-delayTolerance && timings[i] < delay+delayTolerance && timings[i+1] > delay*2-delayTolerance && timings[i+1] < delay*2+delayTolerance) {
             code = code << 1;
-          } else if (timings[i] > delay*3-delayTolerance && timings[i] < delay*+delayTolerance && timings[i+1] > delay-delayTolerance && timings[i+1] < delay+delayTolerance) {
+          } else if (timings[i] > delay*2-delayTolerance && timings[i] < delay*+delayTolerance && timings[i+1] > delay-delayTolerance && timings[i+1] < delay+delayTolerance) {
             code+=1;
             code = code << 1;
           } else {
