@@ -335,7 +335,7 @@ void RCSwitch::sendTF() {
  * Waveform: | |_______________________________
  */
 void RCSwitch::sendSync() {
-  this->transmit(21,1);
+  this->transmit(22,1);
 }
 
 /**
