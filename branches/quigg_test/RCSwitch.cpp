@@ -256,24 +256,64 @@ void RCSwitch::send(char* sCodeWord) {
       i++;
     }
     this->sendSync();
-
   }
 }
 
-void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
+void RCSwitch::sendQ(unsigned long Code, unsigned int length) {
+  this->sendQ( this->dec2binWzerofill(Code, length) );
+}
+
+void RCSwitch::sendQ(char* sCodeWord) {
+  for (int nRepeat=0; nRepeat<RepeatTransmit; nRepeat++) {
+    int i = 0;
+    this->sendSyncQ();
+    while (sCodeWord[i] != '\0') {
+      switch(sCodeWord[i]) {
+        case '0':
+          this->send0Q();
+        break;
+        case '1':
+          this->send1Q();
+        break;
+      }
+      i++;
+    }
+  }
+  digitalWrite(this->nTransmitterPin, LOW);  
+}
+
+void RCSwitch::transmitHL(int nHighPulses, int nLowPulses) {
   
   if (this->nTransmitterPin != -1) {
     int nRec = this->nReceiverInterrupt;
     if (this->nReceiverInterrupt != -1) {
       this->disableReceive();
     }
-	
-    digitalWrite(this->nTransmitterPin, LOW);
-    delayMicroseconds( this->nPulseLength * nHighPulses);
     digitalWrite(this->nTransmitterPin, HIGH);
-    delayMicroseconds( this->nPulseLength * nLowPulses);
+    delayMicroseconds( this->nPulseLength * nHighPulses);
     digitalWrite(this->nTransmitterPin, LOW);
-	
+    delayMicroseconds( this->nPulseLength * nLowPulses);
+    if (nRec != -1) {
+      this->enableReceive(nRec, this->mCallback);
+    }
+  }
+}
+
+void RCSwitch::transmitLH(int nLowPulses, int nHighPulses) {
+  
+  if (this->nTransmitterPin != -1) {
+    int nRec = this->nReceiverInterrupt;
+    if (this->nReceiverInterrupt != -1) {
+      this->disableReceive();
+    }
+    digitalWrite(this->nTransmitterPin, LOW);
+    for (int i = 0; i< nLowPulses; i++) {
+      delayMicroseconds( this->nPulseLength);
+    }
+    digitalWrite(this->nTransmitterPin, HIGH);
+    for (int i = 0; i< nHighPulses; i++) {
+      delayMicroseconds( this->nPulseLength );
+    }
     if (nRec != -1) {
       this->enableReceive(nRec, this->mCallback);
     }
@@ -286,7 +326,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
  * Waveform: | |___
  */
 void RCSwitch::send0() {
-  this->transmit(2,1);
+  this->transmitHL(1,3);
 }
 
 /**
@@ -295,9 +335,26 @@ void RCSwitch::send0() {
  * Waveform: |   |_
  */
 void RCSwitch::send1() {
-  this->transmit(1,2);
+  this->transmitHL(3,1);
 }
 
+/**
+ * Sends a "0" Bit
+ *             __  
+ * Waveform: _|  |
+ */
+void RCSwitch::send0Q() {
+  this->transmitLH(1,2);
+}
+
+/**
+ * Sends a "1" Bit
+ *              _    
+ * Waveform: __| |
+ */
+void RCSwitch::send1Q() {
+  this->transmitLH(2,1);
+}
 
 /**
  * Sends a Tri-State "0" Bit
@@ -305,8 +362,8 @@ void RCSwitch::send1() {
  * Waveform: | |___| |___
  */
 void RCSwitch::sendT0() {
-  this->transmit(1,3);
-  this->transmit(1,3);
+  this->transmitHL(1,3);
+  this->transmitHL(1,3);
 }
 
 /**
@@ -315,8 +372,8 @@ void RCSwitch::sendT0() {
  * Waveform: |   |_|   |_
  */
 void RCSwitch::sendT1() {
-  this->transmit(3,1);
-  this->transmit(3,1);
+  this->transmitHL(3,1);
+  this->transmitHL(3,1);
 }
 
 /**
@@ -325,8 +382,8 @@ void RCSwitch::sendT1() {
  * Waveform: | |___|   |_
  */
 void RCSwitch::sendTF() {
-  this->transmit(1,3);
-  this->transmit(3,1);
+  this->transmitHL(1,3);
+  this->transmitHL(3,1);
 }
 
 /**
@@ -335,7 +392,16 @@ void RCSwitch::sendTF() {
  * Waveform: | |_______________________________
  */
 void RCSwitch::sendSync() {
-  this->transmit(22,1);
+  this->transmitHL(1,31);
+}
+
+/**
+ * Sends a "Sync" Bit
+ *                                     _ 
+ * Waveform: _________________________| |
+ */
+void RCSwitch::sendSyncQ() {
+  this->transmitLH(21,1);
 }
 
 /**
@@ -372,30 +438,63 @@ void RCSwitch::receiveInterrupt() {
  
   if (duration > 5000 && duration > timings[0] - 200 && duration < timings[0] + 200) {
     repeatCount++;
-    changeCount--;
+    //changeCount--;
+    timings[changeCount] = duration;
     if (repeatCount == 2) {
     
       unsigned long code = 0;
+      unsigned long codeQ = 0;
       unsigned long delay = timings[0] / 31;
+      unsigned long delayQ = timings[1];
       unsigned long delayTolerance = delay*0.3;    
+      unsigned long delayToleranceQ = delayQ*0.3;
+      bool failed = false;
+      bool failedQ = false;
+      
       for (int i = 1; i<changeCount ; i=i+2) {
       
-          if (timings[i] > delay-delayTolerance && timings[i] < delay+delayTolerance && timings[i+1] > delay*2-delayTolerance && timings[i+1] < delay*2+delayTolerance) {
+          if ((i<changeCount-1) && timings[i] > delay-delayTolerance && timings[i] < delay+delayTolerance && timings[i+1] > delay*3-delayTolerance && timings[i+1] < delay*3+delayTolerance) {
             code = code << 1;
-          } else if (timings[i] > delay*2-delayTolerance && timings[i] < delay*+delayTolerance && timings[i+1] > delay-delayTolerance && timings[i+1] < delay+delayTolerance) {
+          } else if ((i<changeCount-1) && timings[i] > delay*3-delayTolerance && timings[i] < delay*3+delayTolerance && timings[i+1] > delay-delayTolerance && timings[i+1] < delay+delayTolerance) {
             code+=1;
             code = code << 1;
-          } else {
-            // Failed
-            i = changeCount;
-            code = 0;
-            repeatCount = 0;
+          } else if (i<changeCount-1) {
+            failed = true;
           }
+
+          
+          if        ( timings[i+1] > delayQ*1-delayToleranceQ && timings[i+1] < delayQ*1+delayToleranceQ && timings[i+2] > delayQ*2-delayToleranceQ && timings[i+2] < delayQ*2+delayToleranceQ) {
+            codeQ+=1;
+            codeQ = codeQ << 1;
+          } else if ( timings[i+1] > delayQ*2-delayToleranceQ && timings[i+1] < delayQ*2+delayToleranceQ && timings[i+2] > delayQ*1-delayToleranceQ && timings[i+2] < delayQ*1+delayToleranceQ) {
+            codeQ = codeQ << 1;
+          } else if (i+3>changeCount) {
+           
+          } else {
+            failedQ = true;
+          }
+
+          
       }      
+
+      if (failed) {
+        code = 0;
+      }
+      if (failedQ) {
+        codeQ = 0;
+      }
+      if (failed && failedQ) {
+        repeatCount = 0;
+      }
       code = code >> 1;
-	  if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-        (mCallback)(code, changeCount/2, delay, timings);
-	  }
+      codeQ = codeQ >> 1;
+      if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
+        if (!failed) {
+          (mCallback)(code, (changeCount-1)/2, delay, timings);
+        } else if (!failedQ) {
+          (mCallback)(codeQ, (changeCount-1)/2, delayQ, timings);
+        }
+      }
       repeatCount = 0;
     }
     changeCount = 0;
@@ -410,7 +509,6 @@ void RCSwitch::receiveInterrupt() {
   timings[changeCount++] = duration;
   lastTime = time;  
 }
-
 /**
   * Turns a decimal value to its binary representation
   */
