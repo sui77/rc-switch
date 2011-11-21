@@ -131,7 +131,7 @@ void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOn(String sGroup, int nChannel) {
+void RCSwitch::switchOn(char* sGroup, int nChannel) {
   this->sendTriState( this->getCodeWordA(sGroup, nChannel, true) );
 }
 
@@ -141,12 +141,12 @@ void RCSwitch::switchOn(String sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOff(String sGroup, int nChannel) {
+void RCSwitch::switchOff(char* sGroup, int nChannel) {
   this->sendTriState( this->getCodeWordA(sGroup, nChannel, false) );
 }
 
 /**
- * Returns a String[13], representing the Code Word to be send. 
+ * Returns a char[13], representing the Code Word to be send. 
  * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
  * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
  *
@@ -159,58 +159,107 @@ void RCSwitch::switchOff(String sGroup, int nChannel) {
  * @param nChannelCode  Number of the switch itself (1..4)
  * @param bStatus       Wether to switch on (true) or off (false)
  * 
- * @return String[13]
+ * @return char[13]
  */
-String RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
-   String code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
-
+char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
+   int nReturnPos = 0;
+   static char sReturn[13];
+   
+   char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
    if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
-    return "";
+    return '\0';
+   }
+   for (int i = 0; i<4; i++) {
+     sReturn[nReturnPos++] = code[nAddressCode][i];
    }
 
-   return code[nAddressCode] + code[nChannelCode] + "FF" + (bStatus==true?"FF":"F0");
+   for (int i = 0; i<4; i++) {
+     sReturn[nReturnPos++] = code[nChannelCode][i];
+   }
+   
+   sReturn[nReturnPos++] = 'F';
+   sReturn[nReturnPos++] = 'F';
+   sReturn[nReturnPos++] = 'F';
+   
+   if (bStatus) {
+      sReturn[nReturnPos++] = 'F';
+   } else {
+      sReturn[nReturnPos++] = '0';
+   }
+   
+   sReturn[nReturnPos] = '\0';
+   
+   return sReturn;
 }
+
 
 /**
  * Like getCodeWord  (Type A)
  */
-String RCSwitch::getCodeWordA(String sGroup, int nChannelCode, boolean bStatus) {
-  String code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
+char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
+   int nReturnPos = 0;
+   static char sReturn[13];
 
-  if (sGroup.length() != 5 || nChannelCode < 1 || nChannelCode > 5) {
-    return "";
+  char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
+
+  if (nChannelCode < 1 || nChannelCode > 5) {
+      return '\0';
   }
   
-  String sAddressCode = "";
   for (int i = 0; i<5; i++) {
     if (sGroup[i] == '0') {
-      sAddressCode += "F";
+      sReturn[nReturnPos++] = 'F';
+    } else if (sGroup[i] == '1') {
+      sReturn[nReturnPos++] = '0';
     } else {
-      sAddressCode += "0";
+      return '\0';
     }
   }
   
-  return sAddressCode + code[nChannelCode] + (bStatus==true?"0F":"F0");
+  for (int i = 0; i<5; i++) {
+    sReturn[nReturnPos++] = code[ nChannelCode ][i];
+  }
+  
+  if (bStatus) {
+    sReturn[nReturnPos++] = '0';
+    sReturn[nReturnPos++] = 'F';
+  } else {
+    sReturn[nReturnPos++] = 'F';
+    sReturn[nReturnPos++] = '0';
+  }
+  sReturn[nReturnPos] = '\0';
+
+  return sReturn;
 }
 
 /**
  * Like getCodeWord (Type C = Intertechno)
  */
-String RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
-  if ( (byte)sFamily < 97 || (byte)sFamily > 112) {
-    return "";
+char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
+  
+  if ( (byte)sFamily < 97 || (byte)sFamily > 112 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
+    return '\0';
   }
-  if (nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
-    return "";
-  }
+  
   char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
-  String familycode[16] = { "0000", "F000", "0F00", "FF00", "00F0", "F0F0", "0FF0", "FFF0", "000F", "F00F", "0F0F", "FF0F", "00FF", "F0FF", "0FFF", "FFFF" };
-  String sReturn = familycode[ (int)sFamily - 97 ];
+  char familycode[16][5] = { "0000", "F000", "0F00", "FF00", "00F0", "F0F0", "0FF0", "FFF0", "000F", "F00F", "0F0F", "FF0F", "00FF", "F0FF", "0FFF", "FFFF" };
   for (int i = 0; i<4; i++) {
-    sReturn = sReturn + (sDeviceGroupCode[3-i] == '1' ? "F" : "0");
+    sReturn[nReturnPos++] = familycode[ (int)sFamily - 97 ][i];
   }
-  sReturn = sReturn + "0F";
-  sReturn = sReturn + (bStatus==true?"FF":"F0");
+  for (int i = 0; i<4; i++) {
+    sReturn[nReturnPos++] = (sDeviceGroupCode[3-i] == '1' ? 'F' : '0');
+  }
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+  if (bStatus) {
+    sReturn[nReturnPos++] = 'F';
+  } else {
+    sReturn[nReturnPos++] = '0';
+  }
+  sReturn[nReturnPos] = '\0';
   return sReturn;
 }
 
@@ -218,9 +267,10 @@ String RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSt
  * Sends a Code Word 
  * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
  */
-void RCSwitch::sendTriState(String sCodeWord) {
+void RCSwitch::sendTriState(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<RepeatTransmit; nRepeat++) {
-    for(int i=0; i<sCodeWord.length(); i++) {
+    int i = 0;
+    while (sCodeWord[i] != '\0') {
       switch(sCodeWord[i]) {
         case '0':
           this->sendT0();
@@ -232,6 +282,7 @@ void RCSwitch::sendTriState(String sCodeWord) {
           this->sendT1();
         break;
       }
+      i++;
     }
     this->sendSync();    
   }
