@@ -131,7 +131,7 @@ void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOn(String sGroup, int nChannel) {
+void RCSwitch::switchOn(char* sGroup, int nChannel) {
   this->sendTriState( this->getCodeWordA(sGroup, nChannel, true) );
 }
 
@@ -141,12 +141,12 @@ void RCSwitch::switchOn(String sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOff(String sGroup, int nChannel) {
+void RCSwitch::switchOff(char* sGroup, int nChannel) {
   this->sendTriState( this->getCodeWordA(sGroup, nChannel, false) );
 }
 
 /**
- * Returns a String[13], representing the Code Word to be send. 
+ * Returns a char[13], representing the Code Word to be send. 
  * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
  * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
  *
@@ -159,7 +159,7 @@ void RCSwitch::switchOff(String sGroup, int nChannel) {
  * @param nChannelCode  Number of the switch itself (1..4)
  * @param bStatus       Wether to switch on (true) or off (false)
  * 
- * @return String[13]
+ * @return char[13]
  */
 char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
    int nReturnPos = 0;
@@ -238,10 +238,10 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
  */
 char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
   if ( (byte)sFamily < 97 || (byte)sFamily > 112) {
-    return '';
+    return '\0';
   }
   if (nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
-    return '';
+    return '\0';
   }
   char sReturn[13];
   int sReturnPos = 0;
@@ -252,7 +252,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
     sReturn[sReturnPos++] = familycode[ (int)sFamily - 97 ][i];
   }
   for (int i = 0; i<4; i++) {
-    sReturn[sReturnPos++] = (sDeviceGroupCode[3-i] == '1' ? "F" : "0");
+    sReturn[sReturnPos++] = (sDeviceGroupCode[3-i] == '1' ? 'F' : '0');
   }
   sReturn[sReturnPos++] = '0';
   sReturn[sReturnPos++] = 'F';
