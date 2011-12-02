@@ -25,9 +25,9 @@
 #define _RCSwitch_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
+#include "Arduino.h"
 #else
-	#include "WProgram.h"
+#include "WProgram.h"
 #endif
 
 // Number of maximum High/Low changes per packet.
@@ -46,13 +46,13 @@ class RCSwitch {
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
-    void switchOn(char* sGroup, int nSwitchNumber);
-    void switchOff(char* sGroup, int nSwitchNumber);
+    void switchOn(String sGroup, int nSwitchNumber);
+    void switchOff(String sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
     
 
-    void sendTriState(char* Code);
+    void sendTriState(String Code);
     void send(unsigned long Code, unsigned int length);
     void send(char* Code);
     
@@ -65,9 +65,9 @@ class RCSwitch {
     void setRepeatTransmit(int RepeatTransmit);
   
   private:
-    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
+    String getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
+    String getCodeWordA(String sGroup, int nSwitchNumber, boolean bStatus);
+    String getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     void sendT0();
     void sendT1();
     void sendTF();
