@@ -55,6 +55,8 @@ class RCSwitch {
     void enableReceive();
     void disableReceive();
     bool available();
+	void resetAvailable();
+	
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
@@ -63,8 +65,8 @@ class RCSwitch {
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
-    void setRepeatTransmit(int RepeatTransmit);
-    void setReceiveTolerance();
+    void setRepeatTransmit(int nRepeatTransmit);
+    void setReceiveTolerance(int nPercent);
 
   
   private:
@@ -87,6 +89,7 @@ class RCSwitch {
     int nPulseLength;
     int nRepeatTransmit;
 
+	static int nReceiveTolerance;
     static unsigned long nReceivedValue;
     static unsigned int nReceivedBitlength;
 	static unsigned int nReceivedDelay;

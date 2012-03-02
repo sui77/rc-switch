@@ -28,6 +28,7 @@ unsigned long RCSwitch::nReceivedValue = NULL;
 unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+int RCSwitch::nReceiveTolerance = 60;
 
 RCSwitch::RCSwitch() {
   this->nReceiverInterrupt = -1;
@@ -35,6 +36,7 @@ RCSwitch::RCSwitch() {
   RCSwitch::nReceivedValue = NULL;
   this->setPulseLength(350);
   this->setRepeatTransmit(10);
+  this->setReceiveTolerance(60);
 }
 
 /**
@@ -45,11 +47,19 @@ void RCSwitch::setPulseLength(int nPulseLength) {
 }
 
 /**
-  * Sets Repeat Transmits
-  */
+ * Sets Repeat Transmits
+ */
 void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
   this->nRepeatTransmit = nRepeatTransmit;
 }
+
+/**
+ * Set Receiving Tolerance
+ */
+void RCSwitch::setReceiveTolerance(int nPercent) {
+  RCSwitch::nReceiveTolerance = nPercent;
+}
+  
 
 /**
  * Enable transmissions
@@ -395,6 +405,10 @@ bool RCSwitch::available() {
   return RCSwitch::nReceivedValue != NULL;
 }
 
+void RCSwitch::resetAvailable() {
+  RCSwitch::nReceivedValue = NULL;
+}
+
 unsigned long RCSwitch::getReceivedValue() {
     return RCSwitch::nReceivedValue;
 }
@@ -432,7 +446,8 @@ void RCSwitch::handleInterrupt() {
     
       unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / 31;
-      unsigned long delayTolerance = delay*0.3;    
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
+
       for (int i = 1; i<changeCount ; i=i+2) {
       
           if (RCSwitch::timings[i] > delay-delayTolerance && RCSwitch::timings[i] < delay+delayTolerance && RCSwitch::timings[i+1] > delay*3-delayTolerance && RCSwitch::timings[i+1] < delay*3+delayTolerance) {
