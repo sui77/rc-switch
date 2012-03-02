@@ -25,24 +25,20 @@
 #define _RCSwitch_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
+    #include "Arduino.h"
 #else
-	#include "WProgram.h"
+    #include "WProgram.h"
 #endif
 
 // Number of maximum High/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
 
-typedef void (*RCSwitchCallback)(unsigned long decimal, unsigned int length, unsigned int delay, unsigned int* raw);
 
 class RCSwitch {
 
   public:
     RCSwitch();
-  
-    RCSwitch(int nPin);                // deprecated
-    RCSwitch(int nPin, int nDelay);    // deprecated
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -50,19 +46,26 @@ class RCSwitch {
     void switchOff(char* sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
-    
 
     void sendTriState(char* Code);
     void send(unsigned long Code, unsigned int length);
     void send(char* Code);
     
-    void enableReceive(int interrupt, RCSwitchCallback callback);
+    void enableReceive(int interrupt);
+    void enableReceive();
     void disableReceive();
+    bool available();
+    unsigned long getReceivedValue();
+    unsigned int getReceivedBitlength();
+    unsigned int getReceivedDelay();
+    unsigned int* getReceivedRawdata();
   
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int RepeatTransmit);
+    void setReceiveTolerance();
+
   
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
@@ -78,13 +81,17 @@ class RCSwitch {
 
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
-    static void receiveInterrupt();
-    static RCSwitchCallback mCallback;
+    static void handleInterrupt();
     int nReceiverInterrupt;
     int nTransmitterPin;
     int nPulseLength;
+    int nRepeatTransmit;
 
-    int RepeatTransmit;
+    static unsigned long nReceivedValue;
+    static unsigned int nReceivedBitlength;
+	static unsigned int nReceivedDelay;
+    static unsigned int timings[RCSWITCH_MAX_CHANGES];
+
     
 };
 
