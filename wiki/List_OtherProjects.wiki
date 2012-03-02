@@ -2,6 +2,9 @@
 
 = Other projects using the rc-switch libary =
 
+== homecontrol4.me ==
+Control your devices with a Smartphone App [http://www.homecontrol4.me/ Link]
+
 == OpenplacOS == 
 Openplacos is an open source project for home automation, aquariophily and indoor gardens that runs on Linux. [http://openplacos.tuxfamily.org/ Link]
 
