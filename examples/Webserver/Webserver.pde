@@ -11,7 +11,7 @@
 // Ethernet configuration
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // MAC Address
 byte ip[] = { 192,168,0, 2 };                        // IP Address
-Server server(80);                                   // Server Port 80
+EthernetServer server(80);                           // Server Port 80
 
 // RCSwitch configuration
 RCSwitch mySwitch = RCSwitch();
@@ -57,7 +57,7 @@ void processCommand(char* command) {
 /**
  * HTTP Response with homepage
  */
-void httpResponseHome(Client c) {
+void httpResponseHome(EthernetClient c) {
   c.println("HTTP/1.1 200 OK");
   c.println("Content-Type: text/html");
   c.println();
@@ -87,7 +87,7 @@ void httpResponseHome(Client c) {
 /**
  * HTTP Redirect to homepage
  */
-void httpResponseRedirect(Client c) {
+void httpResponseRedirect(EthernetClient c) {
   c.println("HTTP/1.1 301 Found");
   c.println("Location: /");
   c.println();
@@ -97,7 +97,7 @@ void httpResponseRedirect(Client c) {
  * HTTP Response 414 error
  * Command must not be longer than 30 characters
  **/
-void httpResponse414(Client c) {
+void httpResponse414(EthernetClient c) {
   c.println("HTTP/1.1 414 Request URI too long");
   c.println("Content-Type: text/plain");
   c.println();
@@ -110,7 +110,7 @@ void httpResponse414(Client c) {
  * the ? question mark in the URL).
  */
 char*  httpServer() {
-  Client client = server.available();
+  EthernetClient client = server.available();
   if (client) {
     char sReturnCommand[32];
     int nCommandPos=-1;
