@@ -7,6 +7,7 @@ I would like to control all my power sockets and room lights over website with
 
 Important:
 All must be
+
  * low cost
  * full removeable (if you change your flat or house)
  * and useable for normal users (without skills in developing or hardware)
