@@ -18,4 +18,4 @@
  * Proteam HO1853 ([http://www.amazon.co.uk/Proteam-HO1853-Set-Remote-Sockets/dp/B0029Z9YUQ Link])
 
 == unknown Country ==
- * RM-RFDIMMER-1CH-12V ([http://www.alibaba.com/product-gs/385985544/led_RF_dimmer_controller.html Link])
+ * RM-RFDIMMER-1CH-12V - Protocol:1 / BitLength:24 - ([http://www.alibaba.com/product-gs/385985544/led_RF_dimmer_controller.html Link])
