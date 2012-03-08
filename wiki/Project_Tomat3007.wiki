@@ -2,15 +2,16 @@
 ===The Project:===
 I would like to control all my power sockets and room lights over website with 
  * a normal PC
- * a Smartphone
+ * a smartphone
  * something that can display websites
 
 Important:
-
 All must be
  * low cost
  * full removeable (if you change your flat or house)
  * and useable for normal users (without skills in developing or hardware)
+
+
 
 
 ===Components===
