@@ -12,7 +12,7 @@ All must be
  * low cost
  * full removeable (if you change your flat or house)
  * plug and play (useable for normal users - without skills in developing or hardware) 
- * configureable over website (new devices / building groups of devices / build cronjobs to switch On/Off devices)
+ * configurable over website (new devices / build groups of devices / build cronjobs to switch On/Off devices)
 
 
 
