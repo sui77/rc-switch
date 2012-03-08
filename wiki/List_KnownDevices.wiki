@@ -6,10 +6,11 @@
 
 
 == Germany ==
- * Conrad 646443 outlet sockets / RSL366R [Protocol:1 / BitLength:24 ] ([http://www.conrad.de/ce/de/product/646452/ Link])
- * Pollin Funk-Steckdosen-Set 2605 [Protocol:1 / BitLength:24 ] ([http://www.pollin.de/shop/dt/MzMzOTQ0OTk-/Haustechnik/Installationsmaterial/Schalter_Steckdosen/Funk_Steckdosen_Set_2605.html Link])
- * Pollin Funk-Dimmer HouseLight FD-UP001 [Protocol:1 / BitLength:24 ] ([http://www.pollin.de/shop/dt/NjY0OTQ0OTk-/Haustechnik/Installationsmaterial/Schalter_Steckdosen/Funk_Dimmer_HouseLight_FD_UP001.html Link])
- * Conrad RSL88R/B [Protocol:2 / BitLength:32 ] ([http://www.conrad.de/ce/de/product/646608/ Link])
+ * Conrad 646443 outlet sockets / RSL366R [ Protocol:1 / BitLength:24 ] ([http://www.conrad.de/ce/de/product/646452/ Link])
+ * Pollin Funk-Steckdosen-Set 2605 [ Protocol:1 / BitLength:24 ] ([http://www.pollin.de/shop/dt/MzMzOTQ0OTk-/Haustechnik/Installationsmaterial/Schalter_Steckdosen/Funk_Steckdosen_Set_2605.html Link])
+ * Pollin Funk-Dimmer HouseLight FD-UP001 [ Protocol:1 / BitLength:24 ] ([http://www.pollin.de/shop/dt/NjY0OTQ0OTk-/Haustechnik/Installationsmaterial/Schalter_Steckdosen/Funk_Dimmer_HouseLight_FD_UP001.html Link])
+ * Conrad RSL88R/B [ Protocol:2 / BitLength:32 ] ([http://www.conrad.de/ce/de/product/646608/ Link])
+ * Elro Home Control Funk Set [ Protocol:1 / BitLength:24 ] ([http://www.home4u-store.com/product_info.php?products_id=5948 Link])
 
 
 == UK ==
