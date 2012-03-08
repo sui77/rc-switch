@@ -1,1 +1,29 @@
 #summary Project Tomat3007 - Arduino Uno with 433Mhz (Sender+Receiver) and Networkinterface
+===The Project:===
+I would like control all my power sockets and room lights over Website with 
+ * a normal PC
+ * a Smartphone
+ * something that can display Websites
+
+Important:
+
+All must be
+ * low cost
+ * full removeable (if you change your flat or house)
+ * and useable for normal users (without skills in developing or hardware)
+
+
+===Components===
+ * 433 Mhz Receiver ([http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz Link])
+ * 433 Mhz Sender ([http://www.watterott.com/de/RF-Link-Sender-434MHz Link])
+ * Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])
+ * some Jumper Wires ([http://www.watterott.com/de/Low-Cost-Jumper-Wires-fuer-Breadboards-70-Stueck Link])
+ * a Case for all Components
+
+===Pictures:===
+
+<a href="http://imageshack.us/photo/my-images/17/foto5he.jpg/" target="_blank"><img src="http://img17.imageshack.us/img17/1696/foto5he.th.jpg" border="0"/></a>
+<a href="http://imageshack.us/photo/my-images/839/foto4gt.jpg/" target="_blank"><img src="http://img839.imageshack.us/img839/6287/foto4gt.th.jpg" border="0"/></a>
+<a href="http://imageshack.us/photo/my-images/850/foto3eg.jpg/" target="_blank"><img src="http://img850.imageshack.us/img850/4838/foto3eg.th.jpg" border="0"/></a>
+<a href="http://imageshack.us/photo/my-images/825/foto2oa.jpg/" target="_blank"><img src="http://img825.imageshack.us/img825/1862/foto2oa.th.jpg" border="0"/></a>
+<a href="http://imageshack.us/photo/my-images/51/foto1vko.jpg/" target="_blank"><img src="http://img51.imageshack.us/img51/3559/foto1vko.th.jpg" border="0"/></a>
