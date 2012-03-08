@@ -1,9 +1,9 @@
 #summary Project Tomat3007 - Arduino Uno with 433Mhz (Sender+Receiver) and Networkinterface
 ===The Project:===
-I would like control all my power sockets and room lights over Website with 
+I would like control all my power sockets and room lights over website with 
  * a normal PC
  * a Smartphone
- * something that can display Websites
+ * something that can display websites
 
 Important:
 
