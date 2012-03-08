@@ -21,11 +21,10 @@ All must be
  * the Network-Interface is ready to get a DHCP-IP and present a static html-site. (For that i use the Ethercard Lib - [https://github.com/jcw/ethercard Link])
  * 3 power sockets are static include and can switch On/Off over Website (One by One or all together over an GroupSwitchOn)
 
+You can see a video below...
 
 
-
-
-===Components===
+===Components:===
  * 433 Mhz Receiver ([http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz Link])
  * 433 Mhz Sender ([http://www.watterott.com/de/RF-Link-Sender-434MHz Link])
  * Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])
@@ -40,3 +39,7 @@ All must be
 <a href="http://imageshack.us/photo/my-images/850/foto3eg.jpg/" target="_blank"><img src="http://img850.imageshack.us/img850/4838/foto3eg.th.jpg" border="0"/></a>
 <a href="http://imageshack.us/photo/my-images/825/foto2oa.jpg/" target="_blank"><img src="http://img825.imageshack.us/img825/1862/foto2oa.th.jpg" border="0"/></a>
 <a href="http://imageshack.us/photo/my-images/51/foto1vko.jpg/" target="_blank"><img src="http://img51.imageshack.us/img51/3559/foto1vko.th.jpg" border="0"/></a>
+
+===Videos:===
+=====Current State (in old blue case):=====
+<wiki:video url="https://www.youtube.com/watch?v=fPw1jR1p6D8"/>
