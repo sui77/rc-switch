@@ -1,5 +1,5 @@
 #summary Project Tomat3007 - Arduino Uno with 433Mhz (Sender+Receiver) and Networkinterface
-==The Project:==
+==Funkcontrol over Net - The Project:==
 I would like to control all my power sockets and room lights over website with 
  * a normal PC
  * a smartphone
@@ -23,14 +23,14 @@ All must be
 
 
 
-==Components==
+===Components===
  * 433 Mhz Receiver ([http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz Link])
  * 433 Mhz Sender ([http://www.watterott.com/de/RF-Link-Sender-434MHz Link])
  * Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])
  * some Jumper Wires ([http://www.watterott.com/de/Low-Cost-Jumper-Wires-fuer-Breadboards-70-Stueck Link])
  * a Case for all Components
 
-==Pictures:==
+===Pictures:===
 
 <a href="http://imageshack.us/photo/my-images/17/foto5he.jpg/" target="_blank"><img src="http://img17.imageshack.us/img17/1696/foto5he.th.jpg" border="0"/></a>
 <a href="http://imageshack.us/photo/my-images/839/foto4gt.jpg/" target="_blank"><img src="http://img839.imageshack.us/img839/6287/foto4gt.th.jpg" border="0"/></a>
