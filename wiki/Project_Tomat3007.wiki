@@ -30,7 +30,7 @@ You can see a video below...
  * Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])
  * ENC28J60 Network Module ([http://www.lipoly.de/index.php?main_page=product_info&products_id=200136 Link])
  * some Jumper Wires ([http://www.watterott.com/de/Low-Cost-Jumper-Wires-fuer-Breadboards-70-Stueck Link])
- * a Case for all Components
+ * a case for all Components
 
 ===Pictures:===
 
