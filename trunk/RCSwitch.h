@@ -3,6 +3,7 @@
   Copyright (c) 2011 Suat Özgür.  All right reserved.
 
   Contributors:
+  - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   
   Project home: http://code.google.com/p/rc-switch/

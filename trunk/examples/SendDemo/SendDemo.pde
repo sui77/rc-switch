@@ -18,6 +18,9 @@ void setup() {
   // Optional set pulse length.
   // mySwitch.setPulseLength(320);
   
+  // Optional set protocol (default is 1, will work for most outlets)
+  // mySwitch.setProtocol(2);
+  
   // Optional set number of transmission repetitions.
   // mySwitch.setRepeatTransmit(15);
   
