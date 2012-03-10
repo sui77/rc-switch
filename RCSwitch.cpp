@@ -3,6 +3,7 @@
   Copyright (c) 2011 Suat Özgür.  All right reserved.
   
   Contributors:
+  - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   
   Project home: http://code.google.com/p/rc-switch/
@@ -350,8 +351,10 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
 
 /**
  * Sends a "0" Bit
- *            _    
- * Waveform: | |___
+ *                       _    
+ * Waveform Protocol 1: | |___
+ *                       _  
+ * Waveform Protocol 2: | |__
  */
 void RCSwitch::send0() {
 	if (this->nProtocol == 1){
@@ -364,8 +367,10 @@ void RCSwitch::send0() {
 
 /**
  * Sends a "1" Bit
- *            ___  
- * Waveform: |   |_
+ *                       ___  
+ * Waveform Protocol 1: |   |_
+ *                       __  
+ * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
   	if (this->nProtocol == 1){
@@ -409,8 +414,10 @@ void RCSwitch::sendTF() {
 
 /**
  * Sends a "Sync" Bit
- *            _
- * Waveform: | |_______________________________
+ *                       _
+ * Waveform Protocol 1: | |_______________________________
+ *                       _
+ * Waveform Protocol 2: | |__________
  */
 void RCSwitch::sendSync() {
 
@@ -477,7 +484,6 @@ unsigned int* RCSwitch::getReceivedRawdata() {
 /**
  *
  */
-
 bool RCSwitch::receiveProtocol1(unsigned int changeCount){
     
 	  unsigned long code = 0;
