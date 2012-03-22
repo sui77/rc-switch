@@ -1,4 +1,4 @@
-#summary Project Tomat3007 - Arduino Uno with 433Mhz (Sender+Receiver) and Network
+#summary Project Tomat3007 - Arduino Ethernet with 433Mhz (Sender+Receiver)
 
 Hi, here is my Project:
 
