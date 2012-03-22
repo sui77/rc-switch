@@ -18,8 +18,12 @@ All must be
 
 ===Current situation:===
  * All Components are connected (with the jumper wires)
- * the Network-Interface is ready to get a DHCP-IP and present a static html-site. (For that I use the Ethercard Lib - [https://github.com/jcw/ethercard Link])
- * 3 power sockets are static included and can be switched On/Off over Website (One by One or all together over an GroupSwitchOn)
+ * the Network-Interface is ready ~~to get a DHCP-IP and present a static html-site. (For that I use the Ethercard Lib - [https://github.com/jcw/ethercard Link])~~ and has a static IP.
+ * ~~3 power sockets are static included and can be switched On/Off over Website (One by One or all together over an GroupSwitchOn)~~
+ * Devices can be add over the Website by an normal User.
+ * The Device can turn on/off over Website OR Remote. If the User use the Remote, the arduino know that and change the status from this device to ON/OFF for Website presentation.
+ * all Data (htm-Files, js-Files, Pictures) are saved on an microSD.
+ * all Systemdata (which device is on or off, which code is for on or for off) are saved on the microSD, too.
 
 You can see a video below...
 
@@ -27,13 +31,19 @@ You can see a video below...
 ===Components:===
  * 433 Mhz Receiver ([http://www.watterott.com/de/RF-Link-2400bps-Empfaenger-434MHz Link])
  * 433 Mhz Sender ([http://www.watterott.com/de/RF-Link-Sender-434MHz Link])
- * Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])
- * ENC28J60 Network Module ([http://www.lipoly.de/index.php?main_page=product_info&products_id=200136 Link])
+ * ~~Arduino Uno Rev. 3 ([http://www.watterott.com/de/Arduino-Uno Link])~~
+ * ~~ENC28J60 Network Module ([http://www.lipoly.de/index.php?main_page=product_info&products_id=200136 Link])~~
+ * Arduino Ethernet - It is an Arduino Uno with WIZNET 5100 Ethernet and MicroSD([http://www.watterott.com/de/Arduino-Ethernet-w/o-PoE-module Link]) 
  * some Jumper Wires ([http://www.watterott.com/de/Low-Cost-Jumper-Wires-fuer-Breadboards-70-Stueck Link])
  * a case for all Components
 
 ===Pictures:===
 
+=====NEW PICTURES:=====
+
+not available in this moment...
+
+=====OLD PICTURES:=====
 <a href="http://imageshack.us/photo/my-images/17/foto5he.jpg/" target="_blank"><img src="http://img17.imageshack.us/img17/1696/foto5he.th.jpg" border="0"/></a>
 <a href="http://imageshack.us/photo/my-images/839/foto4gt.jpg/" target="_blank"><img src="http://img839.imageshack.us/img839/6287/foto4gt.th.jpg" border="0"/></a>
 <a href="http://imageshack.us/photo/my-images/850/foto3eg.jpg/" target="_blank"><img src="http://img850.imageshack.us/img850/4838/foto3eg.th.jpg" border="0"/></a>
@@ -41,5 +51,10 @@ You can see a video below...
 <a href="http://imageshack.us/photo/my-images/51/foto1vko.jpg/" target="_blank"><img src="http://img51.imageshack.us/img51/3559/foto1vko.th.jpg" border="0"/></a>
 
 ===Videos:===
-=====Current State (in old blue case):=====
+=====Current State:=====
+
+
+
+
+=====Old State (in old blue case with Arduino UNO and ENC28j60 Ethernet):=====
 <wiki:video url="https://www.youtube.com/watch?v=fPw1jR1p6D8"/>
