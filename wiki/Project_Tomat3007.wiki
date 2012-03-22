@@ -53,7 +53,7 @@ not available in this moment...
 ===Videos:===
 =====Current State:=====
 
-
+<wiki:video url="http://www.youtube.com/watch?v=GpM2XRm_f6I"/>
 
 
 =====Old State (in old blue case with Arduino UNO and ENC28j60 Ethernet):=====
