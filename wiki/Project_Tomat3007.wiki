@@ -52,9 +52,10 @@ not available in this moment...
 
 ===Videos:===
 =====Current State:=====
+<wiki:video url="http://www.youtube.com/watch?v=7H-7CO_hv94"/>
 
+======Older State=====
 <wiki:video url="http://www.youtube.com/watch?v=GpM2XRm_f6I"/>
-
 
 =====Old State (in old blue case with Arduino UNO and ENC28j60 Ethernet):=====
 <wiki:video url="https://www.youtube.com/watch?v=fPw1jR1p6D8"/>
