@@ -54,7 +54,7 @@ You can see a video below...
 <a href="http://imageshack.us/photo/my-images/51/foto1vko.jpg/" target="_blank"><img src="http://img51.imageshack.us/img51/3559/foto1vko.th.jpg" border="0"/></a>
 
 ===Videos:===
-=====Current State:=====
+=====Current State (german):=====
 <wiki:video url="http://www.youtube.com/watch?v=7H-7CO_hv94"/>
 
 ======Older State=====
