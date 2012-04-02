@@ -62,7 +62,7 @@ You can see a video below...
 ===Videos:===
 =====Current State:=====
 ======German:======
-<wiki:video url="http://www.youtube.com/watch?v=GnheKqRfAVI"/>
+
 ======English:======
 coming soon...
 
