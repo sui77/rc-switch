@@ -25,6 +25,12 @@ All must be
  * all Data (htm-Files, js-Files, Pictures) are saved on an microSD.
  * all Systemdata (which device is on or off, which code is for on or for off) are saved on the microSD, too.
 
+=====NEW (2012-04-02):=====
+ * User can change the Static IP over Website
+ * a Picture of the FLAT can be include over MicroSD. Than the User can add a Device an save the position on the Picture.
+ * User can delete a Device
+ * There are two Display View's. One for Mobile Devices without Picture and one for static PC with a Picture of the FLAT.
+
 You can see a video below...
 
 
@@ -54,10 +60,16 @@ You can see a video below...
 <a href="http://imageshack.us/photo/my-images/51/foto1vko.jpg/" target="_blank"><img src="http://img51.imageshack.us/img51/3559/foto1vko.th.jpg" border="0"/></a>
 
 ===Videos:===
-=====Current State (german):=====
+=====Current State:=====
+======German:======
+
+======English:======
+
+
+=====Older State:=====
+
 <wiki:video url="http://www.youtube.com/watch?v=7H-7CO_hv94"/>
 
-======Older State=====
 <wiki:video url="http://www.youtube.com/watch?v=GpM2XRm_f6I"/>
 
 =====Old State (in old blue case with Arduino UNO and ENC28j60 Ethernet):=====
