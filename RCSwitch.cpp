@@ -5,7 +5,7 @@
   Contributors:
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
-  - staroflaw  / http://forum.ardumote.com/viewtopic.php?f=2&t=48
+  - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=48
   
   Project home: http://code.google.com/p/rc-switch/
 
