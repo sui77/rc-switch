@@ -5,6 +5,7 @@
   Contributors:
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
+  - staroflaw  / http://forum.ardumote.com/viewtopic.php?f=2&t=48
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -336,19 +337,22 @@ void RCSwitch::send(char* sCodeWord) {
 }
 
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
-  
-  if (this->nTransmitterPin != -1) {
-    if (this->nReceiverInterrupt != -1) {
-      this->disableReceive();
+    boolean disabled_Receive = false;
+    int nReceiverInterrupt_backup = nReceiverInterrupt;
+    if (this->nTransmitterPin != -1) {
+        if (this->nReceiverInterrupt != -1) {
+            this->disableReceive();
+            disabled_Receive = true;
+        }
+        digitalWrite(this->nTransmitterPin, HIGH);
+        delayMicroseconds( this->nPulseLength * nHighPulses);
+        digitalWrite(this->nTransmitterPin, LOW);
+        delayMicroseconds( this->nPulseLength * nLowPulses);
+        if(disabled_Receive){
+            this->enableReceive(nReceiverInterrupt_backup);
+        }
     }
-    digitalWrite(this->nTransmitterPin, HIGH);
-    delayMicroseconds( this->nPulseLength * nHighPulses);
-    digitalWrite(this->nTransmitterPin, LOW);
-    delayMicroseconds( this->nPulseLength * nLowPulses);
-    this->enableReceive();
-  }
 }
-
 /**
  * Sends a "0" Bit
  *                       _    
