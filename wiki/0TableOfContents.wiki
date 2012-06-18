@@ -13,6 +13,3 @@
 
 *Background information*
  * [KnowHow_LineCoding Line Coding]
-
-*Project examples*
-  * [Project_Tomat3007 Project - Tomat3007]
