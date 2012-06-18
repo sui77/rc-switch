@@ -2,6 +2,9 @@
 
 = Other projects using the rc-switch libary =
 
+== funkcontrol-over-net ==
+Full configurable plug+play webserver and webinterface to control power sockets running on a Arduino Uno or Arduino Ethernet. [http://code.google.com/p/funkcontrol-over-net/ Link]
+
 == homecontrol4.me ==
 Control your devices with a Smartphone App [http://www.homecontrol4.me/ Link]
 
