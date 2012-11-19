@@ -13,3 +13,6 @@ Openplacos is an open source project for home automation, aquariophily and indoo
 
 == OpenPyro ==
 OpenPyro system takes transient place between massive professional systems for pyromusical shows and the various low-cost amateur fireworks systems. [http://blog.openpyro.com/ Link]
+
+== APDuino ==
+[http://apduino.org Link]
