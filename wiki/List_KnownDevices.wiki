@@ -18,7 +18,7 @@
  * Proteam HO1853 ([http://www.amazon.co.uk/Proteam-HO1853-Set-Remote-Sockets/dp/B0029Z9YUQ Link])
 
 == Netherlands ==
-* Velleman WRS3B  Protocol:1 / BitLength:24
+ * Velleman WRS3B  Protocol:1 / BitLength:24
 
 == unknown / no specific Country ==
  * RM-RFDIMMER-1CH-12V - Protocol:1 / BitLength:24 - ([http://www.alibaba.com/product-gs/385985544/led_RF_dimmer_controller.html Link])
