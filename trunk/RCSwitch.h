@@ -5,6 +5,7 @@
   Contributors:
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
+  - Dominik Fischer / dom_fischer(at)web(dot)de
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -47,6 +48,8 @@ class RCSwitch {
     void switchOff(char* sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
+	void switchOn(char* sGroup, char* sDevice);
+	void switchOff(char* sGroup, char* sDevice);
 
     void sendTriState(char* Code);
     void send(unsigned long Code, unsigned int length);
@@ -75,6 +78,7 @@ class RCSwitch {
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
+    char* getCodeWordA(char* sGroup, char* sDevice, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     void sendT0();
     void sendT1();

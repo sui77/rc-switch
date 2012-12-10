@@ -34,6 +34,12 @@ void loop() {
   mySwitch.switchOff("11111", 4);
   delay(1000);
 
+  /* Same switch as above, but using group and device switch setting */
+  mySwitch.switchOn("11111", "00010")
+  delay(1000);
+  mySwitch.switchOn("11111", "00010")
+  deleay(1000);
+
   /* Same switch as above, but using decimal code */
   mySwitch.send(5393, 24);
   delay(1000);  
