@@ -153,23 +153,27 @@ void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
 }
 
 /**
+ * Deprecated, use switchOn(char* sGroup, char* sDevice) instead!
  * Switch a remote switch on (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nChannelCode  Number of the switch itself (1..5)
  */
 void RCSwitch::switchOn(char* sGroup, int nChannel) {
-  this->sendTriState( this->getCodeWordA(sGroup, nChannel, true) );
+  char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
+  this->switchOn(sGroup, code[nChannel]);
 }
 
 /**
+ * Deprecated, use switchOff(char* sGroup, char* sDevice) instead!
  * Switch a remote switch off (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nChannelCode  Number of the switch itself (1..5)
  */
 void RCSwitch::switchOff(char* sGroup, int nChannel) {
-  this->sendTriState( this->getCodeWordA(sGroup, nChannel, false) );
+  char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
+  this->switchOff(sGroup, code[nChannel]);
 }
 
 /**
@@ -239,47 +243,9 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
    return sReturn;
 }
 
-
 /**
- * Like getCodeWord  (Type A)
- */
-char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
-   int nReturnPos = 0;
-   static char sReturn[13];
-
-  char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
-
-  if (nChannelCode < 1 || nChannelCode > 5) {
-      return '\0';
-  }
-  
-  for (int i = 0; i<5; i++) {
-    if (sGroup[i] == '0') {
-      sReturn[nReturnPos++] = 'F';
-    } else if (sGroup[i] == '1') {
-      sReturn[nReturnPos++] = '0';
-    } else {
-      return '\0';
-    }
-  }
-  
-  for (int i = 0; i<5; i++) {
-    sReturn[nReturnPos++] = code[ nChannelCode ][i];
-  }
-  
-  if (bStatus) {
-    sReturn[nReturnPos++] = '0';
-    sReturn[nReturnPos++] = 'F';
-  } else {
-    sReturn[nReturnPos++] = 'F';
-    sReturn[nReturnPos++] = '0';
-  }
-  sReturn[nReturnPos] = '\0';
-
-  return sReturn;
-}
-
-/**
+ * Returns a char[13], representing the Code Word to be send.
+ *
  * getCodeWordA(char*, char*)
  *
  */
