@@ -27,13 +27,13 @@ void loop() {
   // The second parameter represents the setting of the last 5 DIP switches. 
   // As only one of these must be ON, it's the number of the DIP switch which 
   // is ON. In this example the last 5 DIP switches are OFF-ON-OFF-OFF-OFF.  
-  mySwitch.switchOn("11001", 2);
+  mySwitch.switchOn("11001", "01000");
 
   // Wait a second
   delay(1000);
   
   // Switch off
-  mySwitch.switchOff("11001", 2);
+  mySwitch.switchOff("11001", "01000");
   
   // Wait another second
   delay(1000);
