@@ -6,7 +6,7 @@ There are generally three common kinds of outlet switches. The first one is conf
 
 == Type A: 10 pole DIP switches ==
 
-<img src="http://i8.instantgallery.de/s/su/sui/19fd919446818.png" border="0" alt="">
+[http://rc-switch.googlecode.com/svn/wiki_images/typeA.png]
 
 RCSwitch::switchOn("11001", "01000");
 
