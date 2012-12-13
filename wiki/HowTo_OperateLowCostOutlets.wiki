@@ -8,11 +8,11 @@ There are generally three common kinds of outlet switches. The first one is conf
 
 <img src="http://i8.instantgallery.de/s/su/sui/19fd919446818.png" border="0" alt="">
 
-RCSwitch::switchOn("11001", 2);
+RCSwitch::switchOn("11001", "01000");
 
 The first parameter represents the setting of the first 5 DIP switches. In this example it's ON-ON-OFF-OFF-ON.
 
-The second parameter represents the setting of the last 5 DIP switches. As only one of these must be ON, it's the number of the DIP switch which is ON. In this example the last 5 DIP switches are OFF-ON-OFF-OFF-OFF.
+The second parameter represents the setting of the last 5 DIP switches.  In this example the last 5 DIP switches are OFF-ON-OFF-OFF-OFF.
 
 {{{
 #include <RCSwitch.h>
@@ -28,13 +28,13 @@ void setup() {
 
 void loop() {
 
-  mySwitch.switchOn("11001", 2);
+  mySwitch.switchOn("11001", "01000");
 
   // Wait a second
   delay(1000);
   
   // Switch off
-  mySwitch.switchOff("11001", 2);
+  mySwitch.switchOff("11001", "01000");
   
   // Wait another second
   delay(1000);
