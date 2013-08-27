@@ -1,5 +1,3 @@
- * [Forum Forum]
-
 *Using the libary*
  * [HowTo_Send Transmit]
  * [HowTo_OperateLowCostOutlets Simple outlets]
