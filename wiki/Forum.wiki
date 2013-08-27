@@ -1,5 +1,0 @@
-Please feel free to post your bug reports, ask your questions or share your thoughts about RCSwitch in the forum.
-
-Unfortunately the forum is not hosted by google code but at least there is no registration required.
-
-*[http://forum.ardumote.com/viewforum.php?f=1 Continue to forum]*
