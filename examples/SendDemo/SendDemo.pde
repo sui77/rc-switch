@@ -2,6 +2,7 @@
   Example for different sending methods
   
   http://code.google.com/p/rc-switch/
+  
 */
 
 #include <RCSwitch.h>
@@ -29,10 +30,10 @@ void setup() {
 void loop() {
 
   /* See Example: TypeA_WithDIPSwitches */
-  mySwitch.switchOn("11111", "00010")
+  mySwitch.switchOn("11111", "00010");
   delay(1000);
-  mySwitch.switchOn("11111", "00010")
-  deleay(1000);
+  mySwitch.switchOn("11111", "00010");
+  delay(1000);
 
   /* Same switch as above, but using decimal code */
   mySwitch.send(5393, 24);
