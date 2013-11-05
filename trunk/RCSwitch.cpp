@@ -789,6 +789,7 @@ void RCSwitch::handleInterrupt() {
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
+#endif
 
 /**
   * Turns a decimal value to its binary representation
@@ -818,5 +819,5 @@ char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char
   return bin;
 }
 
-#endif
+
 
