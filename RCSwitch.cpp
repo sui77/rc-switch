@@ -64,6 +64,10 @@ void RCSwitch::setProtocol(int nProtocol) {
   else if (nProtocol == 3) {
     this->setPulseLength(100);
   }
+  //protocol 4 is for Brennenstuhl RC 3600
+  else if (nProtocol == 4) {
+    this->setPulseLength(500);
+  }
 }
 
 /**
@@ -505,7 +509,7 @@ void RCSwitch::send0() {
     if (this->nProtocol == 1){
         this->transmit(1,3);
     }
-    else if (this->nProtocol == 2) {
+    else if (this->nProtocol == 2 || this->nProtocol == 4) {
         this->transmit(1,2);
     }
     else if (this->nProtocol == 3) {
@@ -524,7 +528,7 @@ void RCSwitch::send1() {
       if (this->nProtocol == 1){
         this->transmit(3,1);
     }
-    else if (this->nProtocol == 2) {
+    else if (this->nProtocol == 2 || this->nProtocol == 4) {
         this->transmit(2,1);
     }
     else if (this->nProtocol == 3) {
@@ -580,6 +584,9 @@ void RCSwitch::sendSync() {
     }
     else if (this->nProtocol == 3) {
         this->transmit(1,71);
+    }
+    else if (this->nProtocol == 4) {
+        this->transmit(6,14);
     }
 }
 
