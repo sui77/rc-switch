@@ -2,7 +2,7 @@
 Use your Arduino to operate remote radio controlled devices
 
 ##Download
-https://github.com/sui77/rc-switch/releases
+https://github.com/sui77/rc-switch/releases/latest
 
 ##Info
 Send RC codes
