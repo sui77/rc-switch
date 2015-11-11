@@ -1,6 +1,6 @@
 /*
   RCSwitch - Arduino libary for remote control outlet switches
-  Copyright (c) 2011 Suat Özgür.  All right reserved.
+  Copyright (c) 2011 Suat Ã–zgÃ¼r.  All right reserved.
 
   Contributors:
   - Andre Koehler / info(at)tomate-online(dot)de
@@ -9,7 +9,7 @@
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   
-  Project home: http://code.google.com/p/rc-switch/
+  Project home: https://github.com/sui77/rc-switch
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
