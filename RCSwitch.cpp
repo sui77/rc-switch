@@ -64,6 +64,12 @@ void RCSwitch::setProtocol(int nProtocol) {
   else if (nProtocol == 3) {
     this->setPulseLength(100);
   }
+  else if (nProtocol == 4) {
+    this->setPulseLength(380);
+  }
+  else if (nProtocol == 5) {
+    this->setPulseLength(500);
+  }
 }
 
 /**
@@ -511,6 +517,12 @@ void RCSwitch::send0() {
     else if (this->nProtocol == 3) {
         this->transmit(4,11);
     }
+    else if (this->nProtocol == 4) {
+        this->transmit(1,3);
+    }
+    else if (this->nProtocol == 5) {
+        this->transmit(1,2);
+    }
 }
 
 /**
@@ -529,6 +541,12 @@ void RCSwitch::send1() {
     }
     else if (this->nProtocol == 3) {
         this->transmit(9,6);
+    }
+    else if (this->nProtocol == 4) {
+        this->transmit(3,1);
+    }
+	else if (this->nProtocol == 5) {
+        this->transmit(2,1);
     }
 }
 
@@ -580,6 +598,12 @@ void RCSwitch::sendSync() {
     }
     else if (this->nProtocol == 3) {
         this->transmit(1,71);
+    }
+    else if (this->nProtocol == 4) {
+        this->transmit(1,6);
+    }
+    else if (this->nProtocol == 5) {
+        this->transmit(6,14);
     }
 }
 
