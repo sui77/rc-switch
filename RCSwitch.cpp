@@ -36,6 +36,10 @@ unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
 unsigned int RCSwitch::nReceivedProtocol = 0;
 int RCSwitch::nReceiveTolerance = 60;
+unsigned int RCSwitch::nSeparationLimit = 4600;
+// separationLimit: minimum microseconds between received codes, closer codes are ignored.
+// according to discussion on issue #14 it might be more suitable to set the separation
+// limit to the same time as the 'low' part of the sync signal for the current protocol.
 #endif
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 
@@ -363,7 +367,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
  *
  * @param sGroup        Name of the switch group (A..D, resp. a..d) 
  * @param nDevice       Number of the switch itself (1..3)
- * @param bStatus       Wether to switch on (true) or off (false)
+ * @param bStatus       Whether to switch on (true) or off (false)
  *
  * @return char[13]
  */
@@ -795,7 +799,7 @@ void RCSwitch::handleInterrupt() {
   long time = micros();
   duration = time - lastTime;
  
-  if (duration > 5000 && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {
+  if (duration > RCSwitch::nSeparationLimit && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {
     repeatCount++;
     changeCount--;
     if (repeatCount == 2) {
@@ -809,7 +813,7 @@ void RCSwitch::handleInterrupt() {
       repeatCount = 0;
     }
     changeCount = 0;
-  } else if (duration > 5000) {
+  } else if (duration > RCSwitch::nSeparationLimit) {
     changeCount = 0;
   }
  
