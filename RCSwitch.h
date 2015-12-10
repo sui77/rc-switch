@@ -32,6 +32,23 @@
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"	
+#elif defined(RPI) // Raspberry Pi
+    #define RaspberryPi
+    #include <wiringPi.h>
+    #include <stdint.h>
+    #define NULL 0
+    #define CHANGE 1
+#ifdef __cplusplus
+extern "C"{
+#endif
+typedef uint8_t boolean;
+typedef uint8_t byte;
+
+#if !defined(NULL)
+#endif
+#ifdef __cplusplus
+}
+#endif // Last line inside Raspberry Pi block
 #else
     #include "WProgram.h"
 #endif

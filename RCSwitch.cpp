@@ -9,6 +9,7 @@
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Andreas Steinel / A.<lastname>(at)gmail(dot)com
+  - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -620,7 +621,11 @@ void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = NULL;
     RCSwitch::nReceivedBitlength = NULL;
+#if defined(RaspberryPi) // Raspberry Pi
+    wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
+#else // Arduino
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+#endif
   }
 }
 
@@ -628,7 +633,9 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
+#if not defined(RaspberryPi)
   detachInterrupt(this->nReceiverInterrupt);
+#endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
 }
 
