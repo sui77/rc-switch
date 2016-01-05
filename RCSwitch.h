@@ -31,7 +31,7 @@
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
-    #include "Energia.h"	
+    #include "Energia.h"
 #else
     #include "WProgram.h"
 #endif

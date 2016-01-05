@@ -302,23 +302,15 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bO
     int i = 0;
     int j = 0;
     
-    for (i=0; i < 5; i++) {
-        if (sGroup[i] == '0') {
-            sDipSwitches[j++] = 'F';
-        } else {
-            sDipSwitches[j++] = '0';
-        }
+    for (i = 0; i < 5; i++) {
+        sDipSwitches[j++] = (sGroup[i] == '0') ? 'F' : '0';
     }
 
-    for (i=0; i < 5; i++) {
-        if (sDevice[i] == '0') {
-            sDipSwitches[j++] = 'F';
-        } else {
-            sDipSwitches[j++] = '0';
-        }
+    for (i = 0; i < 5; i++) {
+        sDipSwitches[j++] = (sDevice[i] == '0') ? 'F' : '0';
     }
 
-    if ( bOn ) {
+    if (bOn) {
         sDipSwitches[j++] = '0';
         sDipSwitches[j++] = 'F';
     } else {
@@ -343,7 +335,12 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
   }
   
   const char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
-  const char familycode[16][5] = { "0000", "F000", "0F00", "FF00", "00F0", "F0F0", "0FF0", "FFF0", "000F", "F00F", "0F0F", "FF0F", "00FF", "F0FF", "0FFF", "FFFF" };
+  const char familycode[16][5] = {
+      "0000", "F000", "0F00", "FF00",
+      "00F0", "F0F0", "0FF0", "FFF0",
+      "000F", "F00F", "0F0F", "FF0F",
+      "00FF", "F0FF", "0FFF", "FFFF"
+      };
   for (int i = 0; i<4; i++) {
     sReturn[nReturnPos++] = familycode[ (int)sFamily - 97 ][i];
   }
@@ -407,8 +404,7 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
             return '\0';
     }
     
-    for (int i = 0; i<4; i++)
-    {
+    for (int i = 0; i<4; i++) {
         sReturn[nReturnPos++] = sGroupCode[i];
     }
 
@@ -470,8 +466,8 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
   }
 }
 
-void RCSwitch::send(unsigned long Code, unsigned int length) {
-  this->send( this->dec2binWzerofill(Code, length) );
+void RCSwitch::send(unsigned long code, unsigned int length) {
+  this->send( this->dec2binWzerofill(code, length) );
 }
 
 void RCSwitch::send(const char* sCodeWord) {
@@ -510,7 +506,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
         delayMicroseconds( this->nPulseLength * nLowPulses);
         
         #if not defined( RCSwitchDisableReceiving )
-        if(disabled_Receive){
+        if(disabled_Receive) {
             this->enableReceive(nReceiverInterrupt_backup);
         }
         #endif
@@ -843,6 +839,3 @@ char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char
   
   return bin;
 }
-
-
-
