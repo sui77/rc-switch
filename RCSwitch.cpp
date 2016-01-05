@@ -71,20 +71,12 @@ RCSwitch::RCSwitch() {
   */
 void RCSwitch::setProtocol(int nProtocol) {
   this->nProtocol = nProtocol;
-  if (nProtocol == 1){
-    this->setPulseLength(350);
-  }
-  else if (nProtocol == 2) {
-    this->setPulseLength(650);
-  }
-  else if (nProtocol == 3) {
-    this->setPulseLength(100);
-  }
-  else if (nProtocol == 4) {
-    this->setPulseLength(380);
-  }
-  else if (nProtocol == 5) {
-    this->setPulseLength(500);
+  switch (nProtocol) {
+    case 1: this->setPulseLength(350); break;
+    case 2: this->setPulseLength(650); break;
+    case 3: this->setPulseLength(100); break;
+    case 4: this->setPulseLength(380); break;
+    case 5: this->setPulseLength(500); break;
   }
 }
 
@@ -520,20 +512,18 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
  * Waveform Protocol 2: | |__
  */
 void RCSwitch::send0() {
-    if (this->nProtocol == 1){
+    switch (this->nProtocol) {
+    case 1:
+    case 4:
         this->transmit(1,3);
-    }
-    else if (this->nProtocol == 2) {
+        break;
+    case 2:
+    case 5:
         this->transmit(1,2);
-    }
-    else if (this->nProtocol == 3) {
-        this->transmit(PROTOCOL3_0_HIGH_CYCLES,PROTOCOL3_0_LOW_CYCLES);
-    }
-    else if (this->nProtocol == 4) {
-        this->transmit(1,3);
-    }
-    else if (this->nProtocol == 5) {
-        this->transmit(1,2);
+        break;
+    case 3:
+        this->transmit(PROTOCOL3_0_HIGH_CYCLES, PROTOCOL3_0_LOW_CYCLES);
+        break;
     }
 }
 
@@ -545,20 +535,18 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-      if (this->nProtocol == 1){
+    switch (this->nProtocol) {
+    case 1:
+    case 4:
         this->transmit(3,1);
-    }
-    else if (this->nProtocol == 2) {
+        break;
+    case 2:
+    case 5:
         this->transmit(2,1);
-    }
-    else if (this->nProtocol == 3) {
-        this->transmit(PROTOCOL3_1_HIGH_CYCLES,PROTOCOL3_1_LOW_CYCLES);
-    }
-    else if (this->nProtocol == 4) {
-        this->transmit(3,1);
-    }
-	else if (this->nProtocol == 5) {
-        this->transmit(2,1);
+        break;
+    case 3:
+        this->transmit(PROTOCOL3_1_HIGH_CYCLES, PROTOCOL3_1_LOW_CYCLES);
+        break;
     }
 }
 
@@ -602,20 +590,22 @@ void RCSwitch::sendTF() {
  */
 void RCSwitch::sendSync() {
 
-    if (this->nProtocol == 1){
+    switch (this->nProtocol) {
+    case 1:
         this->transmit(1,PROTOCOL1_SYNC_FACTOR);
-    }
-    else if (this->nProtocol == 2) {
+        break;
+    case 2:
         this->transmit(1,PROTOCOL2_SYNC_FACTOR);
-    }
-    else if (this->nProtocol == 3) {
+        break;
+    case 3:
         this->transmit(1,PROTOCOL3_SYNC_FACTOR);
-    }
-    else if (this->nProtocol == 4) {
+        break;
+    case 4:
         this->transmit(1,6);
-    }
-    else if (this->nProtocol == 5) {
+        break;
+    case 5:
         this->transmit(6,14);
+        break;
     }
 }
 
