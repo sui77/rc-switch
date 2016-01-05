@@ -29,6 +29,18 @@
 
 #include "RCSwitch.h"
 
+enum {
+    PROTOCOL1_SYNC_FACTOR       = 31,
+
+    PROTOCOL2_SYNC_FACTOR       = 10,
+
+    PROTOCOL3_SYNC_FACTOR       = 71,
+    PROTOCOL3_0_HIGH_CYCLES     = 4,
+    PROTOCOL3_0_LOW_CYCLES      = 11,
+    PROTOCOL3_1_HIGH_CYCLES     = 9,
+    PROTOCOL3_1_LOW_CYCLES      = 6
+};
+
 #if not defined( RCSwitchDisableReceiving )
 unsigned long RCSwitch::nReceivedValue = 0;
 unsigned int RCSwitch::nReceivedBitlength = 0;
@@ -519,7 +531,7 @@ void RCSwitch::send0() {
         this->transmit(1,2);
     }
     else if (this->nProtocol == 3) {
-        this->transmit(4,11);
+        this->transmit(PROTOCOL3_0_HIGH_CYCLES,PROTOCOL3_0_LOW_CYCLES);
     }
     else if (this->nProtocol == 4) {
         this->transmit(1,3);
@@ -544,7 +556,7 @@ void RCSwitch::send1() {
         this->transmit(2,1);
     }
     else if (this->nProtocol == 3) {
-        this->transmit(9,6);
+        this->transmit(PROTOCOL3_1_HIGH_CYCLES,PROTOCOL3_1_LOW_CYCLES);
     }
     else if (this->nProtocol == 4) {
         this->transmit(3,1);
@@ -595,13 +607,13 @@ void RCSwitch::sendTF() {
 void RCSwitch::sendSync() {
 
     if (this->nProtocol == 1){
-        this->transmit(1,31);
+        this->transmit(1,PROTOCOL1_SYNC_FACTOR);
     }
     else if (this->nProtocol == 2) {
-        this->transmit(1,10);
+        this->transmit(1,PROTOCOL2_SYNC_FACTOR);
     }
     else if (this->nProtocol == 3) {
-        this->transmit(1,71);
+        this->transmit(1,PROTOCOL3_SYNC_FACTOR);
     }
     else if (this->nProtocol == 4) {
         this->transmit(1,6);
@@ -670,7 +682,7 @@ unsigned int* RCSwitch::getReceivedRawdata() {
 bool RCSwitch::receiveProtocol1(unsigned int changeCount){
     
       unsigned long code = 0;
-      unsigned long delay = RCSwitch::timings[0] / 31;
+      unsigned long delay = RCSwitch::timings[0] / PROTOCOL1_SYNC_FACTOR;
       unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
 
       for (unsigned int i = 1; i<changeCount ; i=i+2) {
@@ -700,7 +712,7 @@ bool RCSwitch::receiveProtocol1(unsigned int changeCount){
 bool RCSwitch::receiveProtocol2(unsigned int changeCount){
     
       unsigned long code = 0;
-      unsigned long delay = RCSwitch::timings[0] / 10;
+      unsigned long delay = RCSwitch::timings[0] / PROTOCOL2_SYNC_FACTOR;
       unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
 
       for (unsigned int i = 1; i<changeCount ; i=i+2) {

@@ -47,12 +47,6 @@
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
 
-#define PROTOCOL3_SYNC_FACTOR   71
-#define PROTOCOL3_0_HIGH_CYCLES  4
-#define PROTOCOL3_0_LOW_CYCLES  11
-#define PROTOCOL3_1_HIGH_CYCLES  9
-#define PROTOCOL3_1_LOW_CYCLES   6
-
 class RCSwitch {
 
   public:
