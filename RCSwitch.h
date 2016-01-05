@@ -60,18 +60,18 @@ class RCSwitch {
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
-    void switchOn(char* sGroup, int nSwitchNumber);
-    void switchOff(char* sGroup, int nSwitchNumber);
+    void switchOn(const char* sGroup, int nSwitchNumber);
+    void switchOff(const char* sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
-    void switchOn(char* sGroup, char* sDevice);
-    void switchOff(char* sGroup, char* sDevice);
+    void switchOn(const char* sGroup, const char* sDevice);
+    void switchOff(const char* sGroup, const char* sDevice);
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
 
-    void sendTriState(char* Code);
+    void sendTriState(const char* Code);
     void send(unsigned long Code, unsigned int length);
-    void send(char* Code);
+    void send(const char* Code);
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
@@ -99,8 +99,8 @@ class RCSwitch {
   
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(char* sGroup, char* sDevice, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, int nSwitchNumber, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     char* getCodeWordD(char group, int nDevice, boolean bStatus);
     void sendT0();
