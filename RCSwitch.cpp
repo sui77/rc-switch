@@ -29,17 +29,16 @@
 
 #include "RCSwitch.h"
 
-enum {
-    PROTOCOL1_SYNC_FACTOR       = 31,
-
-    PROTOCOL2_SYNC_FACTOR       = 10,
-
-    PROTOCOL3_SYNC_FACTOR       = 71,
-    PROTOCOL3_0_HIGH_CYCLES     = 4,
-    PROTOCOL3_0_LOW_CYCLES      = 11,
-    PROTOCOL3_1_HIGH_CYCLES     = 9,
-    PROTOCOL3_1_LOW_CYCLES      = 6
+static const RCSwitch::Protocol proto[] = {
+    {  -1, {  0,  0 }, {  0,  0 }, {  0,  0 } },    // dummy protocol
+    { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
+    { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
+    { 100, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
+    { 380, {  1,  6 }, {  1,  3 }, {  3,  1 } },    // protocol 4
+    { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
 };
+
+static const int numProto = sizeof(proto) / sizeof(proto[0]);
 
 #if not defined( RCSwitchDisableReceiving )
 unsigned long RCSwitch::nReceivedValue = 0;
@@ -56,7 +55,6 @@ unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
-  this->setPulseLength(350);
   this->setRepeatTransmit(10);
   this->setProtocol(1);
   #if not defined( RCSwitchDisableReceiving )
@@ -70,21 +68,23 @@ RCSwitch::RCSwitch() {
   * Sets the protocol to send.
   */
 void RCSwitch::setProtocol(int nProtocol) {
-  this->nProtocol = nProtocol;
-  switch (nProtocol) {
-    case 1: this->setPulseLength(350); break;
-    case 2: this->setPulseLength(650); break;
-    case 3: this->setPulseLength(100); break;
-    case 4: this->setPulseLength(380); break;
-    case 5: this->setPulseLength(500); break;
+  if (nProtocol <= 0 || nProtocol > numProto) {
+    this->nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
+  } else {
+    this->nProtocol = nProtocol;
   }
+  this->setPulseLength(proto[nProtocol].pulseLength);
 }
 
 /**
   * Sets the protocol to send with pulse length in microseconds.
   */
 void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
-  this->nProtocol = nProtocol;
+  if (nProtocol <= 0 || nProtocol > numProto) {
+    this->nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
+  } else {
+    this->nProtocol = nProtocol;
+  }
   this->setPulseLength(nPulseLength);
 }
 
@@ -504,6 +504,11 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
         #endif
     }
 }
+
+void RCSwitch::transmit(HighLow pulses) {
+    transmit(pulses.high, pulses.low);
+}
+
 /**
  * Sends a "0" Bit
  *                       _    
@@ -512,19 +517,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
  * Waveform Protocol 2: | |__
  */
 void RCSwitch::send0() {
-    switch (this->nProtocol) {
-    case 1:
-    case 4:
-        this->transmit(1,3);
-        break;
-    case 2:
-    case 5:
-        this->transmit(1,2);
-        break;
-    case 3:
-        this->transmit(PROTOCOL3_0_HIGH_CYCLES, PROTOCOL3_0_LOW_CYCLES);
-        break;
-    }
+    this->transmit(proto[nProtocol].zero);
 }
 
 /**
@@ -535,19 +528,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-    switch (this->nProtocol) {
-    case 1:
-    case 4:
-        this->transmit(3,1);
-        break;
-    case 2:
-    case 5:
-        this->transmit(2,1);
-        break;
-    case 3:
-        this->transmit(PROTOCOL3_1_HIGH_CYCLES, PROTOCOL3_1_LOW_CYCLES);
-        break;
-    }
+    this->transmit(proto[nProtocol].one);
 }
 
 
@@ -589,24 +570,7 @@ void RCSwitch::sendTF() {
  * Waveform Protocol 2: | |__________
  */
 void RCSwitch::sendSync() {
-
-    switch (this->nProtocol) {
-    case 1:
-        this->transmit(1,PROTOCOL1_SYNC_FACTOR);
-        break;
-    case 2:
-        this->transmit(1,PROTOCOL2_SYNC_FACTOR);
-        break;
-    case 3:
-        this->transmit(1,PROTOCOL3_SYNC_FACTOR);
-        break;
-    case 4:
-        this->transmit(1,6);
-        break;
-    case 5:
-        this->transmit(6,14);
-        break;
-    }
+    this->transmit(proto[nProtocol].syncFactor);
 }
 
 #if not defined( RCSwitchDisableReceiving )
@@ -670,19 +634,19 @@ static inline unsigned long diff(long A, long B) {
 /**
  *
  */
-bool RCSwitch::receiveProtocol1(unsigned int changeCount) {
+bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
 
     unsigned long code = 0;
-    const unsigned long delay = RCSwitch::timings[0] / PROTOCOL1_SYNC_FACTOR;
+    const unsigned long delay = RCSwitch::timings[0] / proto[p].syncFactor.low;
     const unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
     for (unsigned int i = 1; i < changeCount; i += 2) {
         code <<= 1;
-        if (diff(RCSwitch::timings[i], delay) < delayTolerance &&
-            diff(RCSwitch::timings[i + 1], delay * 3) < delayTolerance) {
+        if (diff(RCSwitch::timings[i], delay * proto[p].zero.high) < delayTolerance &&
+            diff(RCSwitch::timings[i + 1], delay * proto[p].zero.low) < delayTolerance) {
             // zero
-        } else if (diff(RCSwitch::timings[i], delay * 3) < delayTolerance &&
-                   diff(RCSwitch::timings[i + 1], delay) < delayTolerance) {
+        } else if (diff(RCSwitch::timings[i], delay * proto[p].one.high) < delayTolerance &&
+                   diff(RCSwitch::timings[i + 1], delay * proto[p].one.low) < delayTolerance) {
             // one
             code |= 1;
         } else {
@@ -695,72 +659,7 @@ bool RCSwitch::receiveProtocol1(unsigned int changeCount) {
         RCSwitch::nReceivedValue = code;
         RCSwitch::nReceivedBitlength = changeCount / 2;
         RCSwitch::nReceivedDelay = delay;
-        RCSwitch::nReceivedProtocol = 1;
-    }
-
-    return true;
-}
-
-bool RCSwitch::receiveProtocol2(unsigned int changeCount) {
-
-    unsigned long code = 0;
-    const unsigned long delay = RCSwitch::timings[0] / PROTOCOL2_SYNC_FACTOR;
-    const unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
-
-    for (unsigned int i = 1; i < changeCount; i += 2) {
-        code <<= 1;
-        if (diff(RCSwitch::timings[i], delay) < delayTolerance &&
-            diff(RCSwitch::timings[i + 1], delay * 2) < delayTolerance) {
-            // zero
-        } else if (diff(RCSwitch::timings[i], delay * 2) < delayTolerance &&
-                   diff(RCSwitch::timings[i + 1], delay) < delayTolerance) {
-            // one
-            code |= 1;
-        } else {
-            // Failed
-            return false;
-        }
-    }
-
-    if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-        RCSwitch::nReceivedValue = code;
-        RCSwitch::nReceivedBitlength = changeCount / 2;
-        RCSwitch::nReceivedDelay = delay;
-        RCSwitch::nReceivedProtocol = 2;
-    }
-
-    return true;
-}
-
-/** Protocol 3 is used by BL35P02.
- *
- */
-bool RCSwitch::receiveProtocol3(unsigned int changeCount) {
-
-    unsigned long code = 0;
-    const unsigned long delay = RCSwitch::timings[0] / PROTOCOL3_SYNC_FACTOR;
-    const unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
-
-    for (unsigned int i = 1; i < changeCount; i += 2) {
-        code <<= 1;
-        if (diff(RCSwitch::timings[i], delay * PROTOCOL3_0_HIGH_CYCLES) < delayTolerance &&
-            diff(RCSwitch::timings[i + 1], delay * PROTOCOL3_0_LOW_CYCLES) < delayTolerance) {
-            // zero
-        } else if (diff(RCSwitch::timings[i], delay * PROTOCOL3_1_HIGH_CYCLES) < delayTolerance &&
-                   diff(RCSwitch::timings[i + 1], delay * PROTOCOL3_1_LOW_CYCLES) < delayTolerance) {
-            // one
-            code |= 1;
-        } else {
-            // Failed
-            return false;
-        }
-    }
-
-    if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-        RCSwitch::nReceivedValue = code;
-        RCSwitch::nReceivedBitlength = changeCount / 2;
-        RCSwitch::nReceivedDelay = delay;
-        RCSwitch::nReceivedProtocol = 3;
+        RCSwitch::nReceivedProtocol = p;
     }
 
     return true;
@@ -781,9 +680,9 @@ void RCSwitch::handleInterrupt() {
     repeatCount++;
     changeCount--;
     if (repeatCount == 2) {
-      if (receiveProtocol1(changeCount) == false){
-        if (receiveProtocol2(changeCount) == false){
-          if (receiveProtocol3(changeCount) == false){
+      if (receiveProtocol(1, changeCount) == false) {
+        if (receiveProtocol(2, changeCount) == false) {
+          if (receiveProtocol(3, changeCount) == false) {
             //failed
           }
         }

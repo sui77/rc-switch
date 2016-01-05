@@ -88,9 +88,22 @@ class RCSwitch {
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
     #endif
+
+    struct HighLow {
+        byte high;
+        byte low;
+    };
+
+    struct Protocol {
+        int pulseLength;
+        HighLow syncFactor;
+        HighLow zero;
+        HighLow one;
+    };
+
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
-  
+
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     char* getCodeWordA(const char* sGroup, int nSwitchNumber, boolean bStatus);
@@ -104,21 +117,20 @@ class RCSwitch {
     void send1();
     void sendSync();
     void transmit(int nHighPulses, int nLowPulses);
+    void transmit(HighLow pulses);
 
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
     
     #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
-    static bool receiveProtocol1(unsigned int changeCount);
-    static bool receiveProtocol2(unsigned int changeCount);
-    static bool receiveProtocol3(unsigned int changeCount);
+    static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
     int nPulseLength;
     int nRepeatTransmit;
-    char nProtocol;
+    int nProtocol;
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
