@@ -683,7 +683,7 @@ bool RCSwitch::receiveProtocol1(unsigned int changeCount){
     
       unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / PROTOCOL1_SYNC_FACTOR;
-      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;    
 
       for (unsigned int i = 1; i<changeCount ; i=i+2) {
       
@@ -713,7 +713,7 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
     
       unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / PROTOCOL2_SYNC_FACTOR;
-      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;    
 
       for (unsigned int i = 1; i<changeCount ; i=i+2) {
       
@@ -746,7 +746,7 @@ bool RCSwitch::receiveProtocol3(unsigned int changeCount){
     
       unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / PROTOCOL3_SYNC_FACTOR;
-      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;    
 
       for (unsigned int i = 1; i<changeCount ; i=i+2) {
       
