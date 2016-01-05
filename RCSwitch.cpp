@@ -233,14 +233,16 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
 }
 
 /**
- * Returns a char[13], representing the Code Word to be send.
- * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
- * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
+ * Returns a char[13], representing the code word to be sent.
+ * A code word consists of 9 address bits, 3 data bits and one sync bit but
+ * in our case only the first 8 address bits and the last 2 data bits were used.
+ * A code bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (sync bit)
  *
- * +-------------------------------+--------------------------------+-----------------------------------------+-----------------------------------------+----------------------+------------+
- * | 4 bits address (switch group) | 4 bits address (switch number) | 1 bit address (not used, so never mind) | 1 bit address (not used, so never mind) | 2 data bits (on|off) | 1 sync bit |
- * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0   | 1=0FFF 2=F0FF 3=FF0F 4=FFF0    | F                                       | F                                       | on=FF off=F0         | S          |
- * +-------------------------------+--------------------------------+-----------------------------------------+-----------------------------------------+----------------------+------------+
+ * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
+ * | 4 bits address              | 4 bits address              | 1 bit    | 1 bit    | 2 bits       | 1 bit    |
+ * | switch group                | switch number               | not used | not used | on / off     | sync bit |
+ * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | F        | F        | on=FF off=F0 | S        |
+ * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
