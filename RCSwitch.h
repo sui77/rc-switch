@@ -120,7 +120,6 @@ class RCSwitch {
     void transmit(int nHighPulses, int nLowPulses);
     void transmit(HighLow pulses);
 
-    static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
     
     #if not defined( RCSwitchDisableReceiving )

@@ -326,7 +326,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
     return '\0';
   }
   
-  const char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
+  const char* sDeviceGroupCode =  dec2binWcharfill(  (nDevice-1) + (nGroup-1)*4, 4, '0'  );
   const char familycode[16][5] = {
       "0000", "F000", "0F00", "FF00",
       "00F0", "F0F0", "0FF0", "FFF0",
@@ -459,7 +459,7 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
 }
 
 void RCSwitch::send(unsigned long code, unsigned int length) {
-  this->send( this->dec2binWzerofill(code, length) );
+  this->send( this->dec2binWcharfill(code, length, '0') );
 }
 
 void RCSwitch::send(const char* sCodeWord) {
@@ -709,10 +709,6 @@ void RCSwitch::handleInterrupt() {
 /**
   * Turns a decimal value to its binary representation
   */
-char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
-    return dec2binWcharfill(Dec, bitLength, '0');
-}
-
 char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char fill){
   static char bin[64];
   unsigned int i=0;
