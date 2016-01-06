@@ -29,8 +29,7 @@
 
 #include "RCSwitch.h"
 
-static const RCSwitch::Protocol proto[] = {
-    {  -1, {  0,  0 }, {  0,  0 }, {  0,  0 } },    // dummy protocol
+static const RCSwitch::Protocol PROGMEM proto[] = {
     { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
     { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
     { 100, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
@@ -75,10 +74,10 @@ void RCSwitch::setProtocol(Protocol protocol) {
   * Sets the protocol to send, from a list of predefined protocols
   */
 void RCSwitch::setProtocol(int nProtocol) {
-  if (nProtocol <= 0 || nProtocol >= numProto) {
+  if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
-  this->protocol = proto[nProtocol];
+  memcpy_P(&this->protocol, &proto[nProtocol-1], sizeof(Protocol));
 }
 
 /**
@@ -637,17 +636,20 @@ static inline unsigned long diff(long A, long B) {
  */
 bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
 
+    Protocol pro;
+    memcpy_P(&pro, &proto[p-1], sizeof(Protocol));
+
     unsigned long code = 0;
-    const unsigned long delay = RCSwitch::timings[0] / proto[p].syncFactor.low;
+    const unsigned long delay = RCSwitch::timings[0] / pro.syncFactor.low;
     const unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
     for (unsigned int i = 1; i < changeCount; i += 2) {
         code <<= 1;
-        if (diff(RCSwitch::timings[i], delay * proto[p].zero.high) < delayTolerance &&
-            diff(RCSwitch::timings[i + 1], delay * proto[p].zero.low) < delayTolerance) {
+        if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
+            diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance) {
             // zero
-        } else if (diff(RCSwitch::timings[i], delay * proto[p].one.high) < delayTolerance &&
-                   diff(RCSwitch::timings[i + 1], delay * proto[p].one.low) < delayTolerance) {
+        } else if (diff(RCSwitch::timings[i], delay * pro.one.high) < delayTolerance &&
+                   diff(RCSwitch::timings[i + 1], delay * pro.one.low) < delayTolerance) {
             // one
             code |= 1;
         } else {
