@@ -709,23 +709,15 @@ void RCSwitch::handleInterrupt() {
 /**
   * Turns a decimal value to its binary representation
   */
-char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char fill){
-  static char bin[64];
-  unsigned int i=0;
+char* RCSwitch::dec2binWcharfill(unsigned long dec, unsigned int bitLength, char fill) {
+  static char bin[32];
 
-  while (Dec > 0) {
-    bin[32+i++] = ((Dec & 1) > 0) ? '1' : fill;
-    Dec = Dec >> 1;
-  }
-
-  for (unsigned int j = 0; j< bitLength; j++) {
-    if (j >= bitLength - i) {
-      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
-    }else {
-      bin[j] = fill;
-    }
-  }
   bin[bitLength] = '\0';
-  
+  while (bitLength > 0) {
+    bitLength--;
+    bin[bitLength] = (dec & 1) ? '1' : fill;
+    dec >>= 1;
+  }
+
   return bin;
 }
