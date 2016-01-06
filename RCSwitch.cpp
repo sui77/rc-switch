@@ -251,7 +251,7 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
- * @param bStatus       Wether to switch on (true) or off (false)
+ * @param bStatus       Whether to switch on (true) or off (false)
  *
  * @return char[13]
  */
@@ -287,7 +287,7 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
 }
 
 /**
- * Returns a char[13], representing the Code Word to be send.
+ * Returns a char[13], representing the code word to be send.
  *
  */
 char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bOn) {
