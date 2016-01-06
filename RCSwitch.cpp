@@ -67,24 +67,25 @@ RCSwitch::RCSwitch() {
 /**
   * Sets the protocol to send.
   */
+void RCSwitch::setProtocol(Protocol protocol) {
+  this->protocol = protocol;
+}
+
+/**
+  * Sets the protocol to send, from a list of predefined protocols
+  */
 void RCSwitch::setProtocol(int nProtocol) {
-  if (nProtocol <= 0 || nProtocol > numProto) {
-    this->nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
-  } else {
-    this->nProtocol = nProtocol;
+  if (nProtocol <= 0 || nProtocol >= numProto) {
+    nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
-  this->setPulseLength(proto[nProtocol].pulseLength);
+  this->protocol = proto[nProtocol];
 }
 
 /**
   * Sets the protocol to send with pulse length in microseconds.
   */
 void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
-  if (nProtocol <= 0 || nProtocol > numProto) {
-    this->nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
-  } else {
-    this->nProtocol = nProtocol;
-  }
+  setProtocol(nProtocol);
   this->setPulseLength(nPulseLength);
 }
 
@@ -93,7 +94,7 @@ void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
   * Sets pulse length in microseconds
   */
 void RCSwitch::setPulseLength(int nPulseLength) {
-  this->nPulseLength = nPulseLength;
+  this->protocol.pulseLength = nPulseLength;
 }
 
 /**
@@ -493,9 +494,9 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
         }
         #endif
         digitalWrite(this->nTransmitterPin, HIGH);
-        delayMicroseconds( this->nPulseLength * nHighPulses);
+        delayMicroseconds( this->protocol.pulseLength * nHighPulses);
         digitalWrite(this->nTransmitterPin, LOW);
-        delayMicroseconds( this->nPulseLength * nLowPulses);
+        delayMicroseconds( this->protocol.pulseLength * nLowPulses);
         
         #if not defined( RCSwitchDisableReceiving )
         if(disabled_Receive) {
@@ -517,7 +518,7 @@ void RCSwitch::transmit(HighLow pulses) {
  * Waveform Protocol 2: | |__
  */
 void RCSwitch::send0() {
-    this->transmit(proto[nProtocol].zero);
+    this->transmit(protocol.zero);
 }
 
 /**
@@ -528,7 +529,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-    this->transmit(proto[nProtocol].one);
+    this->transmit(protocol.one);
 }
 
 
@@ -570,7 +571,7 @@ void RCSwitch::sendTF() {
  * Waveform Protocol 2: | |__________
  */
 void RCSwitch::sendSync() {
-    this->transmit(proto[nProtocol].syncFactor);
+    this->transmit(protocol.syncFactor);
 }
 
 #if not defined( RCSwitchDisableReceiving )

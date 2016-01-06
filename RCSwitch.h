@@ -101,6 +101,7 @@ class RCSwitch {
         HighLow one;
     };
 
+    void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
 
@@ -128,9 +129,9 @@ class RCSwitch {
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
-    int nPulseLength;
     int nRepeatTransmit;
-    int nProtocol;
+    
+    Protocol protocol;
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
