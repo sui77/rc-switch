@@ -140,11 +140,11 @@ class RCSwitch {
     static unsigned int nReceivedDelay;
     static unsigned int nReceivedProtocol;
     const static unsigned int nSeparationLimit;
-    #endif
     /* 
      * timings[0] contains sync timing, followed by a number of bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
+    #endif
 
     
 };

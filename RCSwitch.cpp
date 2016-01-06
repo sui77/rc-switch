@@ -49,8 +49,8 @@ const unsigned int RCSwitch::nSeparationLimit = 4600;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
-#endif
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+#endif
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
