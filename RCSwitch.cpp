@@ -481,15 +481,11 @@ void RCSwitch::send(const char* sCodeWord) {
 }
 
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
-    #if not defined ( RCSwitchDisableReceiving )
-    boolean disabled_Receive = false;
-    int nReceiverInterrupt_backup = nReceiverInterrupt;
-    #endif
     if (this->nTransmitterPin != -1) {
         #if not defined( RCSwitchDisableReceiving )
-        if (this->nReceiverInterrupt != -1) {
+        int nReceiverInterrupt_backup = nReceiverInterrupt;
+        if (nReceiverInterrupt_backup != -1) {
             this->disableReceive();
-            disabled_Receive = true;
         }
         #endif
         digitalWrite(this->nTransmitterPin, HIGH);
@@ -498,7 +494,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
         delayMicroseconds( this->protocol.pulseLength * nLowPulses);
         
         #if not defined( RCSwitchDisableReceiving )
-        if(disabled_Receive) {
+        if (nReceiverInterrupt_backup != -1) {
             this->enableReceive(nReceiverInterrupt_backup);
         }
         #endif
