@@ -627,7 +627,7 @@ unsigned int* RCSwitch::getReceivedRawdata() {
 }
 
 /* helper function for the various receiveProtocol methods */
-static inline unsigned long diff(long A, long B) {
+static inline unsigned int diff(int A, int B) {
     return abs(A - B);
 }
 
@@ -640,8 +640,8 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
     memcpy_P(&pro, &proto[p-1], sizeof(Protocol));
 
     unsigned long code = 0;
-    const unsigned long delay = RCSwitch::timings[0] / pro.syncFactor.low;
-    const unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
+    const unsigned int delay = RCSwitch::timings[0] / pro.syncFactor.low;
+    const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
     for (unsigned int i = 1; i < changeCount; i += 2) {
         code <<= 1;
