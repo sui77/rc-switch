@@ -1,7 +1,7 @@
 /*
   Example for Intertechno outlets
   
-  http://code.google.com/p/rc-switch/
+  https://github.com/sui77/rc-switch/
 */
 
 #include <RCSwitch.h>

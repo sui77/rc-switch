@@ -9,7 +9,7 @@
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   
-  Project home: http://code.google.com/p/rc-switch/
+  Project home: https://github.com/sui77/rc-switch/
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public

@@ -1,7 +1,7 @@
 /*
   Example for receiving
   
-  http://code.google.com/p/rc-switch/
+  https://github.com/sui77/rc-switch/
   
   If you want to visualize a telegram copy the raw data and 
   paste it into http://test.sui.li/oszi/

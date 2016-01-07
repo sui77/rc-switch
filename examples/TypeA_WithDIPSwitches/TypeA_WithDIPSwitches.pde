@@ -1,7 +1,7 @@
 /*
   Example for outlets which are configured with a 10 pole DIP switch.
   
-  http://code.google.com/p/rc-switch/
+  https://github.com/sui77/rc-switch/
 */
 
 #include <RCSwitch.h>
