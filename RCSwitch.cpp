@@ -9,6 +9,7 @@
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Andreas Steinel / A.<lastname>(at)gmail(dot)com
+  - Max Horn / max(at)quendi(dot)de
   
   Project home: https://github.com/sui77/rc-switch/
 
