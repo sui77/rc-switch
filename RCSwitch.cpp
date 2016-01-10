@@ -596,7 +596,7 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
-#if not defined(RaspberryPi)
+#if not defined(RaspberryPi) // Arduino
   detachInterrupt(this->nReceiverInterrupt);
 #endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
