@@ -29,8 +29,11 @@
 */
 
 #include "RCSwitch.h"
-
+#if defined(RC_SWITCH_RASPBERRY_PI) // RaspberryPi specific
+static const RCSwitch::Protocol proto[] = {
+#else
 static const RCSwitch::Protocol PROGMEM proto[] = {
+#endif
     { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
     { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
     { 100, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
@@ -76,7 +79,8 @@ void RCSwitch::setProtocol(Protocol protocol) {
   */
 void RCSwitch::setProtocol(int nProtocol) {
   if (nProtocol < 1 || nProtocol > numProto) {
-    nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
+    printf("Warning | RCSwitch::setProtocol | Protocol must be between 1 and %i. Your choice was: %i\n", numProto, nProtocol);
+    nProtocol = 1;
   }
   memcpy_P(&this->protocol, &proto[nProtocol-1], sizeof(Protocol));
 }
@@ -583,7 +587,9 @@ void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = 0;
     RCSwitch::nReceivedBitlength = 0;
+    #ifndef RC_SWITCH_RASPBERRY_PI
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+    #endif
   }
 }
 
@@ -591,7 +597,9 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
+  #ifndef RC_SWITCH_RASPBERRY_PI
   detachInterrupt(this->nReceiverInterrupt);
+  #endif
   this->nReceiverInterrupt = -1;
 }
 

@@ -33,6 +33,15 @@
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"
+#elif defined(RC_SWITCH_RASPBERRY_PI) // RaspberryPi specific
+    #include <wiringPi.h>
+    #include <stdint.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <string.h>
+    typedef int byte;
+    typedef bool boolean;
+    #define memcpy_P memcpy
 #else
     #include "WProgram.h"
 #endif
