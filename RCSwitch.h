@@ -37,7 +37,7 @@
 #elif defined(RPI) // Raspberry Pi
     #define RaspberryPi
     // PROGMEM och _P functions are for AVR based microprocessors,
-	// so we must normalize these for the ARM processor:
+    // so we must normalize these for the ARM processor:
     #define PROGMEM
     #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
     // Include libraries for RPi:
@@ -97,7 +97,7 @@ class RCSwitch {
     void disableReceive();
     bool available();
     void resetAvailable();
-	
+
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
