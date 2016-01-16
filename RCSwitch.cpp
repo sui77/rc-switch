@@ -30,12 +30,13 @@
 
 #include "RCSwitch.h"
 
-static const RCSwitch::Protocol PROGMEM proto[] = {
-    { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
-    { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
-    { 100, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
-    { 380, {  1,  6 }, {  1,  3 }, {  3,  1 } },    // protocol 4
-    { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
+static RCSwitch::Protocol PROGMEM proto[] = {
+    { 350, 1, {  1, 31 }, {  1,  3 }, {  3,  1 } , true},    // protocol 1
+    { 650, 1, {  1, 10 }, {  1,  2 }, {  2,  1 } , true},    // protocol 2
+    { 100, 1, {  1, 71 }, {  4, 11 }, {  9,  6 } , true},    // protocol 3
+    { 380, 1, {  1,  6 }, {  1,  3 }, {  3,  1 } , false},    // protocol 4
+    { 500, 1, {  6, 14 }, {  1,  2 }, {  2,  1 } , false},    // protocol 5
+    { 500, 2, {  1, 23 }, {  2,  1 }, {  1,  2 } , false},    // protocol 6 (HT6P20.B)
 };
 
 static const int numProto = sizeof(proto) / sizeof(proto[0]);
@@ -113,6 +114,16 @@ void RCSwitch::setReceiveTolerance(int nPercent) {
 }
 #endif
   
+/**
+  * Enable/Disable protocol listening.
+  * Can improve performance by disabling unused protocols
+  */
+void RCSwitch::enableReceiveProtocol(int nProtocol, bool value) {
+  if (nProtocol < 1 || nProtocol > numProto) {
+    nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
+  }
+  (&proto[nProtocol-1])->enabled = value;
+}
 
 /**
  * Enable transmissions
@@ -640,7 +651,7 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
     const unsigned int delay = RCSwitch::timings[0] / pro.syncFactor.low;
     const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
-    for (unsigned int i = 1; i < changeCount; i += 2) {
+    for (unsigned int i = pro.startData; i < changeCount; i += 2) {
         code <<= 1;
         if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
             diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance) {
@@ -679,14 +690,15 @@ void RCSwitch::handleInterrupt() {
   if (duration > RCSwitch::nSeparationLimit && diff(duration, RCSwitch::timings[0]) < 200) {
     repeatCount++;
     changeCount--;
-    if (repeatCount == 2) {
-      if (receiveProtocol(1, changeCount) == false) {
-        if (receiveProtocol(2, changeCount) == false) {
-          if (receiveProtocol(3, changeCount) == false) {
-            //failed
+    if (repeatCount == 2) {   
+
+      // Try to decode enabled protocols.
+      for (unsigned int i = 0; i <= numProto; i++) {
+          if ((&proto[i])->enabled && receiveProtocol(i+1, changeCount)) {
+            break;
           }
-        }
       }
+
       repeatCount = 0;
     }
     changeCount = 0;
