@@ -48,6 +48,8 @@
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
 
+#define RCSWITCH_HT6P20B 6
+
 class RCSwitch {
 
   public:
@@ -97,14 +99,17 @@ class RCSwitch {
 
     struct Protocol {
         int pulseLength;
+        int startData;
         HighLow syncFactor;
         HighLow zero;
         HighLow one;
+        bool enabled;
     };
 
     void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
+    void enableReceiveProtocol(int nProtocol, bool value = true);
 
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
