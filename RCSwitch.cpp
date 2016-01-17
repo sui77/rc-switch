@@ -30,13 +30,13 @@
 
 #include "RCSwitch.h"
 
-static RCSwitch::Protocol PROGMEM proto[] = {
-    { 350, 1, {  1, 31 }, {  1,  3 }, {  3,  1 } , true},    // protocol 1
-    { 650, 1, {  1, 10 }, {  1,  2 }, {  2,  1 } , true},    // protocol 2
-    { 100, 1, {  1, 71 }, {  4, 11 }, {  9,  6 } , true},    // protocol 3
-    { 380, 1, {  1,  6 }, {  1,  3 }, {  3,  1 } , false},    // protocol 4
-    { 500, 1, {  6, 14 }, {  1,  2 }, {  2,  1 } , false},    // protocol 5
-    { 500, 2, {  1, 23 }, {  2,  1 }, {  1,  2 } , false},    // protocol 6 (HT6P20.B)
+static const RCSwitch::Protocol PROGMEM proto[] = { // See: enabledProtocols
+    { 350, 1, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
+    { 650, 1, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
+    { 100, 1, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
+    { 380, 1, {  1,  6 }, {  1,  3 }, {  3,  1 } },    // protocol 4
+    { 500, 1, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
+    { 500, 2, {  1, 23 }, {  2,  1 }, {  1,  2 } },    // protocol 6 (HT6P20.B)
 };
 
 static const int numProto = sizeof(proto) / sizeof(proto[0]);
@@ -46,6 +46,7 @@ unsigned long RCSwitch::nReceivedValue = 0;
 unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
 unsigned int RCSwitch::nReceivedProtocol = 0;
+unsigned int RCSwitch::enabledProtocols = B00000111;
 int RCSwitch::nReceiveTolerance = 60;
 const unsigned int RCSwitch::nSeparationLimit = 4600;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
@@ -122,7 +123,8 @@ void RCSwitch::enableReceiveProtocol(int nProtocol, bool value) {
   if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
-  (&proto[nProtocol-1])->enabled = value;
+  if(value) RCSwitch::enabledProtocols |= (1 << (nProtocol-1));
+  else RCSwitch::enabledProtocols &= ~(1 << (nProtocol-1));
 }
 
 /**
@@ -594,6 +596,9 @@ void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = 0;
     RCSwitch::nReceivedBitlength = 0;
+    #if defined(CORE_TEENSY)
+      pinMode(this->nReceiverInterrupt, INPUT);
+    #endif
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
   }
 }
@@ -694,7 +699,7 @@ void RCSwitch::handleInterrupt() {
 
       // Try to decode enabled protocols.
       for (unsigned int i = 0; i <= numProto; i++) {
-          if ((&proto[i])->enabled && receiveProtocol(i+1, changeCount)) {
+          if (((RCSwitch::enabledProtocols >> i) & 1) && receiveProtocol(i+1, changeCount)) {
             break;
           }
       }
