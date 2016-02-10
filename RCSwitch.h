@@ -9,6 +9,7 @@
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
+  - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -33,6 +34,30 @@
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"
+#elif defined(RPI) // Raspberry Pi
+    #define RaspberryPi
+    // PROGMEM och _P functions are for AVR based microprocessors,
+    // so we must normalize these for the ARM processor:
+    #define PROGMEM
+    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+    // Include libraries for RPi:
+    #include <string.h> /* memcpy */
+    #include <stdlib.h> /* abs */
+    #include <stddef.h> /* NULL */
+    #include <wiringPi.h>
+    #include <stdint.h>
+    #define CHANGE 1
+    // The following typedefs are needed to be able to compile RCSwitch.cpp
+    // with the RPi C++ compiler (g++)
+    #ifdef __cplusplus
+        extern "C"{
+    #endif
+        typedef uint8_t boolean;
+        typedef uint8_t byte;
+    #ifdef __cplusplus
+    }
+    #endif
+    // Last line within Raspberry Pi block
 #else
     #include "WProgram.h"
 #endif
@@ -74,7 +99,7 @@ class RCSwitch {
     void disableReceive();
     bool available();
     void resetAvailable();
-	
+
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();

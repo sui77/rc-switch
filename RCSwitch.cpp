@@ -10,6 +10,7 @@
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Andreas Steinel / A.<lastname>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
+  - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -30,6 +31,25 @@
 
 #include "RCSwitch.h"
 
+/* Format for protocol definitions:
+ * {pulselength, Sync bit, "0" bit, "1" bit}
+ * 
+ * pulselength: pulse length in microseconds, e.g. 350
+ * Sync bit: {1, 31} means 1 high pulse and 31 low pulses
+ *     (perceived as a 31*pulselength long pulse, total length of sync bit is
+ *     32*pulselength microseconds), i.e:
+ *      _
+ *     | |_______________________________ (don't count the vertical bars)
+ * "0" bit: waveform for a data bit of value "0", {1, 3} means 1 high pulse
+ *     and 3 low pulses, total length (1+3)*pulselength, i.e:
+ *      _
+ *     | |___
+ * "1" bit: waveform for a data bit of value "1", e.g. {3,1}:
+ *      ___
+ *     |   |_
+ *
+ * These are combined to form Tri-State bits when sending or receiving codes.
+ */
 static const RCSwitch::Protocol PROGMEM proto[] = {
     { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
     { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
@@ -583,7 +603,11 @@ void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = 0;
     RCSwitch::nReceivedBitlength = 0;
+#if defined(RaspberryPi) // Raspberry Pi
+    wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
+#else // Arduino
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+#endif
   }
 }
 
@@ -591,7 +615,9 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
+#if not defined(RaspberryPi) // Arduino
   detachInterrupt(this->nReceiverInterrupt);
+#endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
 }
 
