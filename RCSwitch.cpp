@@ -53,7 +53,7 @@
 static const RCSwitch::Protocol PROGMEM proto[] = {
     { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
     { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
-    { 100, {  1, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
+    { 100, { 30, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
     { 380, {  1,  6 }, {  1,  3 }, {  3,  1 } },    // protocol 4
     { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
 };
