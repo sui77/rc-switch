@@ -1,4 +1,6 @@
 # rc-switch
+[![Build Status](https://travis-ci.org/sui77/rc-switch.svg?branch=master)](https://travis-ci.org/sui77/rc-switch)
+
 Use your Arduino or Raspberry Pi to operate remote radio controlled devices
 
 ##Download
