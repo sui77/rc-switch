@@ -11,6 +11,7 @@
   - Andreas Steinel / A.<lastname>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
+  - Johann Richard / <first name>.<last name>(at)gmail(dot)com
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -706,13 +707,10 @@ void RCSwitch::handleInterrupt() {
     repeatCount++;
     changeCount--;
     if (repeatCount == 2) {
-      if (receiveProtocol(1, changeCount) == false) {
-        if (receiveProtocol(2, changeCount) == false) {
-          if (receiveProtocol(3, changeCount) == false) {
-            //failed
-          }
-        }
-      }
+	for(unsigned int i = 1; i < numProto; i++ ) {
+		if (receiveProtocol(i, changeCount))
+			exit;
+	}
       repeatCount = 0;
     }
     changeCount = 0;
