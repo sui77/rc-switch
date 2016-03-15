@@ -88,6 +88,8 @@ class RCSwitch {
     void switchOff(const char* sGroup, const char* sDevice);
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
+    void switchOnRSL(int sGroup, int nDevice);
+    void switchOffRSL(int sGroup, int nDevice);
 
     void sendTriState(const char* Code);
     void send(unsigned long Code, unsigned int length);
@@ -137,6 +139,8 @@ class RCSwitch {
     char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     char* getCodeWordD(char group, int nDevice, boolean bStatus);
+    char* getCodeWordE(int sGroup, int nDevice, boolean bStatus);
+
     void sendT0();
     void sendT1();
     void sendTF();

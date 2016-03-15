@@ -259,6 +259,26 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
 }
 
 /**
+ * Switch a remote switch on (Type E RSL by Conrad)
+ *
+ * @param sGroup   Number of the switch group (1..4)
+ * @param nDevice  Number of the switch itself (1..4)
+ */
+void RCSwitch::switchOnRSL(int sGroup, int nDevice) {
+	this->send( this->getCodeWordE(sGroup, nDevice, true) );
+}
+
+/**
+ * Switch a remote switch off (Type E RSL by Conrad)
+ *
+ * @param sGroup   Number of the switch group (1..4)
+ * @param nDevice  Number of the switch itself (1..4)
+ */
+void RCSwitch::switchOffRSL(int sGroup, int nDevice) {
+	this->send( this->getCodeWordE(sGroup, nDevice, false) );
+}
+
+/**
  * Returns a char[13], representing the code word to be sent.
  * A code word consists of 9 address bits, 3 data bits and one sync bit but
  * in our case only the first 8 address bits and the last 2 data bits were used.
@@ -455,6 +475,64 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
     return sReturn;
 
 }
+
+/**
+ * Get coding for Type E (RSL devices sold by Conrad)
+ * source: http://www.mikrocontroller.net/topic/252895
+ *
+ * @param sGroup   Number of the switch group (1..4)
+ * @param nDevice  Number of the switch itself (1..4)
+ * @param bStatus  Whether to switch on (true) or off (false)
+ */
+char* RCSwitch::getCodeWordE(int sGroup, int nDevice, boolean bStatus) {
+    int nReturnPos = 0;
+    static char sReturn[32];
+
+    //code for device numbers
+    const char* code[4] = { "11", "00", "10", "01" };
+
+    //regular commands for sGroup 1,3,4
+    const char* codeOn[4] =  { "0110", "1001", "0000", "1100" };
+    const char* codeOff[4] = { "1110", "0101", "1000", "0010" };
+
+    //irregular commands for sGroup 2
+    const char* codeOn2[4] =  { "1110", "0101", "1000", "0010" };
+    const char* codeOff2[4] = { "0001", "1101", "0100", "1010" };
+
+    const char* ptr;
+
+    //arbitrary sender id
+    const char* id = "010100110010111001001000";
+
+    if (sGroup < 1 || sGroup > 4 || nDevice < 1 || nDevice > 4) {
+        return '\0';
+    }
+
+    sReturn[nReturnPos++] = '1';
+    sReturn[nReturnPos++] = '0';
+
+    for (int i = 0; i<2; i++) {
+	    sReturn[nReturnPos++] = code[nDevice-1][i];
+    }
+
+    if(nDevice == 2) {
+        ptr = bStatus? codeOn2[sGroup-1] : codeOff2[sGroup-1];
+    } else {
+        ptr = bStatus? codeOn[sGroup-1] : codeOff[sGroup-1];
+    }
+
+    for(int i = 0; i<4; i++) {
+        sReturn[nReturnPos++] = ptr[i];
+    }
+
+    for (int i = 0; i<24; i++) {
+        sReturn[nReturnPos++] = id[i];
+    }
+
+    sReturn[nReturnPos] = '\0';
+    return sReturn;
+}
+
 
 /**
  * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
