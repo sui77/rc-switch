@@ -708,9 +708,11 @@ void RCSwitch::handleInterrupt() {
     changeCount--;
     if (repeatCount == 2) {
 	for(unsigned int i = 1; i < numProto; i++ ) {
-		if (receiveProtocol(i, changeCount))
-			exit;
-	}
+        if (receiveProtocol(i, changeCount)) {
+            // receive succeeded for protocol i
+            break;
+        }
+    }
       repeatCount = 0;
     }
     changeCount = 0;
