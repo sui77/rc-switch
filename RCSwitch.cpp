@@ -12,6 +12,7 @@
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
+  - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
   
   Project home: https://github.com/sui77/rc-switch/
 
