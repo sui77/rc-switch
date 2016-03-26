@@ -12,6 +12,7 @@
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
+  - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -707,10 +708,12 @@ void RCSwitch::handleInterrupt() {
     repeatCount++;
     changeCount--;
     if (repeatCount == 2) {
-	for(unsigned int i = 1; i < numProto; i++ ) {
-		if (receiveProtocol(i, changeCount))
-			exit;
-	}
+	for(unsigned int i = 1; i <= numProto; i++ ) {
+        if (receiveProtocol(i, changeCount)) {
+            // receive succeeded for protocol i
+            break;
+        }
+    }
       repeatCount = 0;
     }
     changeCount = 0;
