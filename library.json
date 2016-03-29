@@ -1,0 +1,13 @@
+{
+  "name": "RCSwitch",
+  "description": "Use your Arduino or Raspberry Pi to operate remote radio controlled devices",
+  "keywords": "rf, radio, wireless",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/sui77/rc-switch.git"
+  },
+  "version": "2.52",
+  "frameworks": "arduino",
+  "platforms": "atmelavr"
+}
