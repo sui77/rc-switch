@@ -12,6 +12,10 @@
     "url": "https://github.com/sui77/rc-switch.git"
   },
   "version": "2.52",
-  "frameworks": "arduino",
-  "platforms": "atmelavr"
+  "frameworks": [
+        "arduino",
+        "energia",
+        "wiringpi"
+  ],
+  "platforms": "*"
 }
