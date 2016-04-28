@@ -49,14 +49,8 @@
     #define CHANGE 1
     // The following typedefs are needed to be able to compile RCSwitch.cpp
     // with the RPi C++ compiler (g++)
-    #ifdef __cplusplus
-        extern "C"{
-    #endif
-        typedef uint8_t boolean;
-        typedef uint8_t byte;
-    #ifdef __cplusplus
-    }
-    #endif
+    typedef uint8_t boolean;
+    typedef uint8_t byte;
     // Last line within Raspberry Pi block
 #else
     #include "WProgram.h"
