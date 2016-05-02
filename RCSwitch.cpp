@@ -651,7 +651,7 @@ unsigned int* RCSwitch::getReceivedRawdata() {
     return RCSwitch::timings;
 }
 
-/* helper function for the various receiveProtocol methods */
+/* helper function for the receiveProtocol method */
 static inline unsigned int diff(int A, int B) {
     return abs(A - B);
 }
