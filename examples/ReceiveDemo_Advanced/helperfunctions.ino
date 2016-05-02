@@ -3,7 +3,7 @@ static char * dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
   unsigned int i=0;
 
   while (Dec > 0) {
-    bin[32+i++] = (Dec & 1 > 0) ? '1' : '0';
+    bin[32+i++] = ((Dec & 1) > 0) ? '1' : '0';
     Dec = Dec >> 1;
   }
 

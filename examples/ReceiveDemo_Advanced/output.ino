@@ -20,7 +20,7 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
   }
   
   Serial.print("Raw data: ");
-  for (int i=0; i<= length*2; i++) {
+  for (unsigned int i=0; i<= length*2; i++) {
     Serial.print(raw[i]);
     Serial.print(",");
   }
@@ -29,8 +29,8 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
 }
 
 
-static char* bin2tristate(char* bin) {
-  char returnValue[50];
+static const char* bin2tristate(char* bin) {
+  static char returnValue[50];
   int pos = 0;
   int pos2 = 0;
   while (bin[pos]!='\0' && bin[pos+1]!='\0') {

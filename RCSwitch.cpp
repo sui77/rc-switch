@@ -695,14 +695,12 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
 
 void RCSwitch::handleInterrupt() {
 
-  static unsigned int duration;
   static unsigned int changeCount;
   static unsigned long lastTime;
   static unsigned int repeatCount;
-  
 
-  long time = micros();
-  duration = time - lastTime;
+  const long time = micros();
+  const unsigned int duration = time - lastTime;
  
   if (duration > RCSwitch::nSeparationLimit && diff(duration, RCSwitch::timings[0]) < 200) {
     repeatCount++;
