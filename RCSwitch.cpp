@@ -623,7 +623,7 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
     const unsigned int delay = RCSwitch::timings[0] / pro.syncFactor.low;
     const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
-    for (unsigned int i = 1; i < changeCount; i += 2) {
+    for (unsigned int i = 1; i < changeCount - 1; i += 2) {
         code <<= 1;
         if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
             diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance) {
@@ -638,9 +638,9 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
         }
     }
 
-    if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
+    if (changeCount > 7) {    // ignore very short transmissions: no device sends them, so this must be noise
         RCSwitch::nReceivedValue = code;
-        RCSwitch::nReceivedBitlength = changeCount / 2;
+        RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
     }
@@ -667,7 +667,6 @@ void RCSwitch::handleInterrupt() {
       // here that a sender will send the signal multiple times,
       // with roughly the same gap between them).
       repeatCount++;
-      changeCount--;
       if (repeatCount == 2) {
         for(unsigned int i = 1; i <= numProto; i++) {
           if (receiveProtocol(i, changeCount)) {
