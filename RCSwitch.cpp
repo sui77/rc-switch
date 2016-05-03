@@ -246,7 +246,7 @@ void RCSwitch::switchOff(const char* sGroup, int nChannel) {
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
-    this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+  this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
 }
 
 /**
@@ -256,7 +256,7 @@ void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
-    this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+  this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
 /**
@@ -523,7 +523,7 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
 }
 
 void RCSwitch::transmit(HighLow pulses) {
-    transmit(pulses.high, pulses.low);
+  transmit(pulses.high, pulses.low);
 }
 
 /**
@@ -534,7 +534,7 @@ void RCSwitch::transmit(HighLow pulses) {
  * Waveform Protocol 2: | |__
  */
 void RCSwitch::send0() {
-    this->transmit(protocol.zero);
+  this->transmit(protocol.zero);
 }
 
 /**
@@ -545,7 +545,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-    this->transmit(protocol.one);
+  this->transmit(protocol.one);
 }
 
 
@@ -587,7 +587,7 @@ void RCSwitch::sendTF() {
  * Waveform Protocol 2: | |__________
  */
 void RCSwitch::sendSync() {
-    this->transmit(protocol.syncFactor);
+  this->transmit(protocol.syncFactor);
 }
 
 #if not defined( RCSwitchDisableReceiving )
@@ -630,7 +630,7 @@ void RCSwitch::resetAvailable() {
 }
 
 unsigned long RCSwitch::getReceivedValue() {
-    return RCSwitch::nReceivedValue;
+  return RCSwitch::nReceivedValue;
 }
 
 unsigned int RCSwitch::getReceivedBitlength() {
@@ -646,12 +646,12 @@ unsigned int RCSwitch::getReceivedProtocol() {
 }
 
 unsigned int* RCSwitch::getReceivedRawdata() {
-    return RCSwitch::timings;
+  return RCSwitch::timings;
 }
 
 /* helper function for the receiveProtocol method */
 static inline unsigned int diff(int A, int B) {
-    return abs(A - B);
+  return abs(A - B);
 }
 
 /**
