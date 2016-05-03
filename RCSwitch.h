@@ -132,9 +132,8 @@ class RCSwitch {
     void setProtocol(int nProtocol, int nPulseLength);
 
   private:
-    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(const char* sGroup, int nSwitchNumber, boolean bStatus);
     char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
+    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     char* getCodeWordD(char group, int nDevice, boolean bStatus);
     void sendT0();
