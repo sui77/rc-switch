@@ -344,32 +344,30 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bO
 char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
-  
-  if ( (byte)sFamily < 97 || (byte)sFamily > 112 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
-    return '\0';
+
+  int nFamily = (int)sFamily - 'a';
+  if ( nFamily < 0 || nFamily > 15 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
+    return 0;
   }
   
-  const char* sDeviceGroupCode =  dec2binWcharfill(  (nDevice-1) + (nGroup-1)*4, 4, '0'  );
-  const char familycode[16][5] = {
-      "0000", "F000", "0F00", "FF00",
-      "00F0", "F0F0", "0FF0", "FFF0",
-      "000F", "F00F", "0F0F", "FF0F",
-      "00FF", "F0FF", "0FFF", "FFFF"
-      };
-  for (int i = 0; i<4; i++) {
-    sReturn[nReturnPos++] = familycode[ (int)sFamily - 97 ][i];
-  }
-  for (int i = 0; i<4; i++) {
-    sReturn[nReturnPos++] = (sDeviceGroupCode[3-i] == '1' ? 'F' : '0');
-  }
+  // encode the family into four bits
+  sReturn[nReturnPos++] = (nFamily & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 2) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 4) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 8) ? 'F' : '0';
+
+  // encode the device and group
+  sReturn[nReturnPos++] = ((nDevice-1) & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nDevice-1) & 2) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nGroup-1) & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nGroup-1) & 2) ? 'F' : '0';
+
+  // encode the status code
   sReturn[nReturnPos++] = '0';
   sReturn[nReturnPos++] = 'F';
   sReturn[nReturnPos++] = 'F';
-  if (bStatus) {
-    sReturn[nReturnPos++] = 'F';
-  } else {
-    sReturn[nReturnPos++] = '0';
-  }
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
   sReturn[nReturnPos] = '\0';
   return sReturn;
 }
