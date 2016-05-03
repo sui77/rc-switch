@@ -650,9 +650,9 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
 
 void RCSwitch::handleInterrupt() {
 
-  static unsigned int changeCount;
-  static unsigned long lastTime;
-  static unsigned int repeatCount;
+  static unsigned int changeCount = 0;
+  static unsigned long lastTime = 0;
+  static unsigned int repeatCount = 0;
 
   const long time = micros();
   const unsigned int duration = time - lastTime;
