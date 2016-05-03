@@ -278,34 +278,29 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
  * @return char[13]
  */
 char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
-   int nReturnPos = 0;
-   static char sReturn[13];
-   
-   const char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
-   if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
-     return 0;
-   }
-   for (int i = 0; i<4; i++) {
-     sReturn[nReturnPos++] = code[nAddressCode][i];
-   }
+  static char sReturn[13];
+  int nReturnPos = 0;
 
-   for (int i = 0; i<4; i++) {
-     sReturn[nReturnPos++] = code[nChannelCode][i];
-   }
-   
-   sReturn[nReturnPos++] = 'F';
-   sReturn[nReturnPos++] = 'F';
-   sReturn[nReturnPos++] = 'F';
-   
-   if (bStatus) {
-      sReturn[nReturnPos++] = 'F';
-   } else {
-      sReturn[nReturnPos++] = '0';
-   }
-   
-   sReturn[nReturnPos] = '\0';
-   
-   return sReturn;
+  if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
+    return 0;
+  }
+
+  for (int i = 1; i <= 4; i++) {
+    sReturn[nReturnPos++] = (nAddressCode == i) ? '0' : 'F';
+  }
+
+  for (int i = 1; i <= 4; i++) {
+    sReturn[nReturnPos++] = (nChannelCode == i) ? '0' : 'F';
+  }
+
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
 }
 
 /**
