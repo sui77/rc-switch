@@ -259,6 +259,30 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
   this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
+
+/**
+ * Returns a char[13], representing the code word to be send.
+ *
+ */
+char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sGroup[i] == '0') ? 'F' : '0';
+  }
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sDevice[i] == '0') ? 'F' : '0';
+  }
+
+  sReturn[nReturnPos++] = bStatus ? '0' : 'F';
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
 /**
  * Returns a char[13], representing the code word to be sent.
  * A code word consists of 9 address bits, 3 data bits and one sync bit but
@@ -301,36 +325,6 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
 
   sReturn[nReturnPos] = '\0';
   return sReturn;
-}
-
-/**
- * Returns a char[13], representing the code word to be send.
- *
- */
-char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bOn) {
-    static char sDipSwitches[13];
-    int i = 0;
-    int j = 0;
-    
-    for (i = 0; i < 5; i++) {
-        sDipSwitches[j++] = (sGroup[i] == '0') ? 'F' : '0';
-    }
-
-    for (i = 0; i < 5; i++) {
-        sDipSwitches[j++] = (sDevice[i] == '0') ? 'F' : '0';
-    }
-
-    if (bOn) {
-        sDipSwitches[j++] = '0';
-        sDipSwitches[j++] = 'F';
-    } else {
-        sDipSwitches[j++] = 'F';
-        sDipSwitches[j++] = '0';
-    }
-
-    sDipSwitches[j] = '\0';
-
-    return sDipSwitches;
 }
 
 /**
