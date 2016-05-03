@@ -455,24 +455,28 @@ void RCSwitch::send(const char* sCodeWord) {
 }
 
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
-    if (this->nTransmitterPin != -1) {
-        #if not defined( RCSwitchDisableReceiving )
-        int nReceiverInterrupt_backup = nReceiverInterrupt;
-        if (nReceiverInterrupt_backup != -1) {
-            this->disableReceive();
-        }
-        #endif
-        digitalWrite(this->nTransmitterPin, HIGH);
-        delayMicroseconds( this->protocol.pulseLength * nHighPulses);
-        digitalWrite(this->nTransmitterPin, LOW);
-        delayMicroseconds( this->protocol.pulseLength * nLowPulses);
-        
-        #if not defined( RCSwitchDisableReceiving )
-        if (nReceiverInterrupt_backup != -1) {
-            this->enableReceive(nReceiverInterrupt_backup);
-        }
-        #endif
-    }
+  if (this->nTransmitterPin == -1)
+    return;
+
+#if not defined( RCSwitchDisableReceiving )
+  // make sure the receiver is disabled while we transmit
+  int nReceiverInterrupt_backup = nReceiverInterrupt;
+  if (nReceiverInterrupt_backup != -1) {
+    this->disableReceive();
+  }
+#endif
+
+  digitalWrite(this->nTransmitterPin, HIGH);
+  delayMicroseconds( this->protocol.pulseLength * nHighPulses);
+  digitalWrite(this->nTransmitterPin, LOW);
+  delayMicroseconds( this->protocol.pulseLength * nLowPulses);
+
+#if not defined( RCSwitchDisableReceiving )
+  // enable receiver again if we just disabled it
+  if (nReceiverInterrupt_backup != -1) {
+    this->enableReceive(nReceiverInterrupt_backup);
+  }
+#endif
 }
 
 void RCSwitch::transmit(HighLow pulses) {
