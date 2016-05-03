@@ -284,22 +284,21 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bS
 }
 
 /**
- * Returns a char[13], representing the code word to be sent.
- * A code word consists of 9 address bits, 3 data bits and one sync bit but
- * in our case only the first 8 address bits and the last 2 data bits were used.
- * A code bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (sync bit)
+ * Encoding for type B switches with two rotary/sliding switches.
  *
- * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
- * | 4 bits address              | 4 bits address              | 1 bit    | 1 bit    | 2 bits       | 1 bit    |
- * | switch group                | switch number               | not used | not used | on / off     | sync bit |
- * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | F        | F        | on=FF off=F0 | S        |
- * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
+ * The code word is a tristate word and with following bit pattern:
+ *
+ * +-----------------------------+-----------------------------+----------+------------+
+ * | 4 bits address              | 4 bits address              | 3 bits   | 1 bit      |
+ * | switch group                | switch number               | not used | on / off   |
+ * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | FFF      | on=F off=0 |
+ * +-----------------------------+-----------------------------+----------+------------+
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  * @param bStatus       Whether to switch on (true) or off (false)
  *
- * @return char[13]
+ * @return char[13], representing a tristate code word of length 12
  */
 char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
   static char sReturn[13];
@@ -362,16 +361,15 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
 }
 
 /**
- * Decoding for the REV Switch Type
+ * Encoding for the REV Switch Type
  *
- * Returns a char[13], representing the Tristate to be send.
- * A Code Word consists of 7 address bits and 5 command data bits.
- * A Code Bit can have 3 different states: "F" (floating), "0" (low), "1" (high)
+ * The code word is a tristate word and with following bit pattern:
  *
- * +-------------------------------+--------------------------------+-----------------------+
- * | 4 bits address (switch group) | 3 bits address (device number) | 5 bits (command data) |
- * | A=1FFF B=F1FF C=FF1F D=FFF1   | 1=0FFF 2=F0FF 3=FF0F 4=FFF0    | on=00010 off=00001    |
- * +-------------------------------+--------------------------------+-----------------------+
+ * +-----------------------------+-------------------+----------+--------------+
+ * | 4 bits address              | 3 bits address    | 3 bits   | 2 bits       |
+ * | switch group                | device number     | not used | on / off     |
+ * | A=1FFF B=F1FF C=FF1F D=FFF1 | 1=0FF 2=F0F 3=FF0 | 000      | on=10 off=01 |
+ * +-----------------------------+-------------------+----------+--------------+
  *
  * Source: http://www.the-intruder.net/funksteckdosen-von-rev-uber-arduino-ansteuern/
  *
@@ -379,10 +377,9 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
  * @param nDevice       Number of the switch itself (1..3)
  * @param bStatus       Whether to switch on (true) or off (false)
  *
- * @return char[13]
+ * @return char[13], representing a tristate code word of length 12
  */
-
-char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
+char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus) {
     static char sReturn[13];
     int nReturnPos = 0;
 
