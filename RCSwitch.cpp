@@ -409,7 +409,7 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus) {
 }
 
 /**
- * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
+ * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
  */
 void RCSwitch::sendTriState(const char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
