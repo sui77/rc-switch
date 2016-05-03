@@ -380,65 +380,32 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
  * @return char[13], representing a tristate code word of length 12
  */
 char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus) {
-    static char sReturn[13];
-    int nReturnPos = 0;
+  static char sReturn[13];
+  int nReturnPos = 0;
 
-    // Building 4 bits address
-    // (Potential problem if dec2binWcharfill not returning correct string)
-    char *sGroupCode;
-    switch(sGroup){
-        case 'a':
-        case 'A':
-            sGroupCode = dec2binWcharfill(8, 4, 'F'); break;
-        case 'b':
-        case 'B':
-            sGroupCode = dec2binWcharfill(4, 4, 'F'); break;
-        case 'c':
-        case 'C':
-            sGroupCode = dec2binWcharfill(2, 4, 'F'); break;
-        case 'd':
-        case 'D':
-            sGroupCode = dec2binWcharfill(1, 4, 'F'); break;
-        default:
-            return 0;
-    }
-    
-    for (int i = 0; i<4; i++) {
-        sReturn[nReturnPos++] = sGroupCode[i];
-    }
+  // sGroup must be one of the letters in "abcdABCD"
+  int nGroup = (sGroup >= 'a') ? (int)sGroup - 'a' : (int)sGroup - 'A';
+  if ( nGroup < 0 || nGroup > 3 || nDevice < 1 || nDevice > 3) {
+    return 0;
+  }
 
+  for (int i = 0; i < 4; i++) {
+    sReturn[nReturnPos++] = (nGroup == i) ? '1' : 'F';
+  }
 
-    // Building 3 bits address
-    // (Potential problem if dec2binWcharfill not returning correct string)
-    char *sDevice;
-    switch(nDevice) {
-        case 1:
-            sDevice = dec2binWcharfill(4, 3, 'F'); break;
-        case 2:
-            sDevice = dec2binWcharfill(2, 3, 'F'); break;
-        case 3:
-            sDevice = dec2binWcharfill(1, 3, 'F'); break;
-        default:
-            return 0;
-    }
+  for (int i = 1; i <= 3; i++) {
+    sReturn[nReturnPos++] = (nDevice == i) ? '1' : 'F';
+  }
 
-    for (int i = 0; i<3; i++)
-        sReturn[nReturnPos++] = sDevice[i];
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = '0';
 
-    // fill up rest with zeros
-    for (int i = 0; i<5; i++)
-        sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = bStatus ? '1' : '0';
+  sReturn[nReturnPos++] = bStatus ? '0' : '1';
 
-    // encode on or off
-    if (bStatus)
-        sReturn[10] = '1';
-    else
-        sReturn[11] = '1';
-
-    // last position terminate string
-    sReturn[12] = '\0';
-    return sReturn;
-
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
 }
 
 /**
