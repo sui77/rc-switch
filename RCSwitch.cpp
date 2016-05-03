@@ -656,28 +656,37 @@ void RCSwitch::handleInterrupt() {
 
   const long time = micros();
   const unsigned int duration = time - lastTime;
- 
-  if (duration > RCSwitch::nSeparationLimit && diff(duration, RCSwitch::timings[0]) < 200) {
-    repeatCount++;
-    changeCount--;
-    if (repeatCount == 2) {
-      for(unsigned int i = 1; i <= numProto; i++ ) {
-        if (receiveProtocol(i, changeCount)) {
-          // receive succeeded for protocol i
-          break;
+
+  if (duration > RCSwitch::nSeparationLimit) {
+    // A long stretch without signal level change occurred. This could
+    // be the gap between two transmission.
+    if (diff(duration, RCSwitch::timings[0]) < 200) {
+      // This long signal is close in length to the long signal which
+      // started the previously recorded timings; this suggests that
+      // it may indeed by a a gap between two transmissions (we assume
+      // here that a sender will send the signal multiple times,
+      // with roughly the same gap between them).
+      repeatCount++;
+      changeCount--;
+      if (repeatCount == 2) {
+        for(unsigned int i = 1; i <= numProto; i++) {
+          if (receiveProtocol(i, changeCount)) {
+            // receive succeeded for protocol i
+            break;
+          }
         }
+        repeatCount = 0;
       }
-      repeatCount = 0;
     }
-    changeCount = 0;
-  } else if (duration > RCSwitch::nSeparationLimit) {
     changeCount = 0;
   }
  
+  // detect overflow
   if (changeCount >= RCSWITCH_MAX_CHANGES) {
     changeCount = 0;
     repeatCount = 0;
   }
+
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
