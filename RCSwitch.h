@@ -36,22 +36,17 @@
     #include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
     #define RaspberryPi
-    // PROGMEM och _P functions are for AVR based microprocessors,
-    // so we must normalize these for the ARM processor:
-    #define PROGMEM
-    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+
     // Include libraries for RPi:
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
-    #include <stddef.h> /* NULL */
     #include <wiringPi.h>
     #include <stdint.h>
-    #define CHANGE 1
+
     // The following typedefs are needed to be able to compile RCSwitch.cpp
     // with the RPi C++ compiler (g++)
     typedef uint8_t boolean;
     typedef uint8_t byte;
-    // Last line within Raspberry Pi block
 #else
     #include "WProgram.h"
 #endif

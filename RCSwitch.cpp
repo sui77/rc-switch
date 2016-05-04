@@ -33,6 +33,13 @@
 
 #include "RCSwitch.h"
 
+#ifdef RaspberryPi
+    // PROGMEM and _P functions are for AVR based microprocessors,
+    // so we must normalize these for the ARM processor:
+    #define PROGMEM
+    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+#endif
+
 /* Format for protocol definitions:
  * {pulselength, Sync bit, "0" bit, "1" bit}
  * 
