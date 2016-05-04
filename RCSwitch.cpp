@@ -441,20 +441,22 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
   unsigned long code = 0;
   unsigned int length = 0;
-  for (const char* p = sCodeWord; *p; p++, length += 2) {
+  for (const char* p = sCodeWord; *p; p++) {
+    code <<= 2L;
     switch (*p) {
       case '0':
         // bit pattern 00
         break;
       case 'F':
-        // bit pattern 01 -- since 1 is the MSB, this is stored as binary 10, or decimal 2
-        code |= 2L << length;
+        // bit pattern 01
+        code |= 1L;
         break;
       case '1':
         // bit pattern 11
-        code |= 3L << length;
+        code |= 3L;
         break;
     }
+    length += 2;
   }
   this->send(code, length);
 }
@@ -466,17 +468,19 @@ void RCSwitch::send(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
   unsigned long code = 0;
   unsigned int length = 0;
-  for (const char* p = sCodeWord; *p; p++, length++) {
+  for (const char* p = sCodeWord; *p; p++) {
+    code <<= 1L;
     if (*p != '0')
-      code |= 1L << length;
+      code |= 1L;
+    length++;
   }
   this->send(code, length);
 }
 
 /**
  * Transmit the first 'length' bits of the integer 'code'. The
- * bits are sent from LSB to MSB, i.e., first the bit at position zero,
- * then the bit at position 1, and so on/
+ * bits are sent from MSB to LSB, i.e., first the bit at position length-1,
+ * then the bit at position length-2, and so on, till finally the bit at position 0.
  */
 void RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
@@ -491,7 +495,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 #endif
 
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
-    for (unsigned int i = 0; i < length; i++) {
+    for (int i = length-1; i >= 0; i--) {
       if (code & (1L << i))
         this->transmit(protocol.one);
       else
