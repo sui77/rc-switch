@@ -271,7 +271,7 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
  * Returns a char[13], representing the code word to be send.
  *
  */
-char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -307,7 +307,7 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bS
  *
  * @return char[13], representing a tristate code word of length 12
  */
-char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
+char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -336,7 +336,7 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
 /**
  * Like getCodeWord (Type C = Intertechno)
  */
-char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -386,7 +386,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
  *
  * @return char[13], representing a tristate code word of length 12
  */
-char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 

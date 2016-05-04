@@ -41,15 +41,11 @@
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
     #include <wiringPi.h>
-    #include <stdint.h>
-
-    // The following typedefs are needed to be able to compile RCSwitch.cpp
-    // with the RPi C++ compiler (g++)
-    typedef uint8_t boolean;
-    typedef uint8_t byte;
 #else
     #include "WProgram.h"
 #endif
+
+#include <stdint.h>
 
 
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
@@ -105,8 +101,8 @@ class RCSwitch {
     #endif
 
     struct HighLow {
-        byte high;
-        byte low;
+        uint8_t high;
+        uint8_t low;
     };
 
     struct Protocol {
@@ -121,10 +117,10 @@ class RCSwitch {
     void setProtocol(int nProtocol, int nPulseLength);
 
   private:
-    char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
-    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
-    char* getCodeWordD(char group, int nDevice, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);
+    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
+    char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
+    char* getCodeWordD(char group, int nDevice, bool bStatus);
     void sendT0();
     void sendT1();
     void sendTF();
