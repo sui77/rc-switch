@@ -80,7 +80,9 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
 };
 
-static const int numProto = sizeof(proto) / sizeof(proto[0]);
+enum {
+   numProto = sizeof(proto) / sizeof(proto[0])
+};
 
 #if not defined( RCSwitchDisableReceiving )
 unsigned long RCSwitch::nReceivedValue = 0;
@@ -490,7 +492,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
     for (unsigned int i = 0; i < length; i++) {
-      if (bitRead(code, i))
+      if (code & (1L << i))
         this->transmit(protocol.one);
       else
         this->transmit(protocol.zero);
