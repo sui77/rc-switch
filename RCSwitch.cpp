@@ -473,21 +473,6 @@ void RCSwitch::send(const char* sCodeWord) {
  * then the bit at position 1, and so on/
  */
 void RCSwitch::send(unsigned long code, unsigned int length) {
-  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
-    for (unsigned int i = 0; i < length; i++) {
-      if (bitRead(code, i))
-        this->transmit(protocol.one);
-      else
-        this->transmit(protocol.zero);
-    }
-    this->transmit(protocol.syncFactor);
-  }
-}
-
-/**
- * Transmit a single high-low pulse.
- */
-void RCSwitch::transmit(HighLow pulses) {
   if (this->nTransmitterPin == -1)
     return;
 
@@ -499,10 +484,15 @@ void RCSwitch::transmit(HighLow pulses) {
   }
 #endif
 
-  digitalWrite(this->nTransmitterPin, HIGH);
-  delayMicroseconds( this->protocol.pulseLength * pulses.high);
-  digitalWrite(this->nTransmitterPin, LOW);
-  delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    for (unsigned int i = 0; i < length; i++) {
+      if (bitRead(code, i))
+        this->transmit(protocol.one);
+      else
+        this->transmit(protocol.zero);
+    }
+    this->transmit(protocol.syncFactor);
+  }
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
@@ -510,6 +500,16 @@ void RCSwitch::transmit(HighLow pulses) {
     this->enableReceive(nReceiverInterrupt_backup);
   }
 #endif
+}
+
+/**
+ * Transmit a single high-low pulse.
+ */
+void RCSwitch::transmit(HighLow pulses) {
+  digitalWrite(this->nTransmitterPin, HIGH);
+  delayMicroseconds( this->protocol.pulseLength * pulses.high);
+  digitalWrite(this->nTransmitterPin, LOW);
+  delayMicroseconds( this->protocol.pulseLength * pulses.low);
 }
 
 
