@@ -487,7 +487,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 /**
  * Transmit a single high-low pulse.
  */
-void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
+void RCSwitch::transmit(HighLow pulses) {
   if (this->nTransmitterPin == -1)
     return;
 
@@ -500,9 +500,9 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
 #endif
 
   digitalWrite(this->nTransmitterPin, HIGH);
-  delayMicroseconds( this->protocol.pulseLength * nHighPulses);
+  delayMicroseconds( this->protocol.pulseLength * pulses.high);
   digitalWrite(this->nTransmitterPin, LOW);
-  delayMicroseconds( this->protocol.pulseLength * nLowPulses);
+  delayMicroseconds( this->protocol.pulseLength * pulses.low);
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
@@ -510,10 +510,6 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
     this->enableReceive(nReceiverInterrupt_backup);
   }
 #endif
-}
-
-void RCSwitch::transmit(HighLow pulses) {
-  transmit(pulses.high, pulses.low);
 }
 
 
