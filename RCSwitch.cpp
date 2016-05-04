@@ -432,48 +432,61 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
  * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
  */
 void RCSwitch::sendTriState(const char* sCodeWord) {
-  for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
-    int i = 0;
-    while (sCodeWord[i] != '\0') {
-      switch(sCodeWord[i]) {
-        case '0':
-          this->sendT0();
+  // turn the tristate code word into the corresponding bit pattern, then send it
+  unsigned long code = 0;
+  unsigned int length = 0;
+  for (const char* p = sCodeWord; *p; p++, length += 2) {
+    switch (*p) {
+      case '0':
+        // bit pattern 00
         break;
-        case 'F':
-          this->sendTF();
+      case 'F':
+        // bit pattern 01 -- since 1 is the MSB, this is stored as binary 10, or decimal 2
+        code |= 2L << length;
         break;
-        case '1':
-          this->sendT1();
+      case '1':
+        // bit pattern 11
+        code |= 3L << length;
         break;
-      }
-      i++;
     }
-    this->sendSync();    
   }
+  this->send(code, length);
 }
 
-void RCSwitch::send(unsigned long code, unsigned int length) {
-  this->send( this->dec2binWcharfill(code, length, '0') );
-}
-
+/**
+ * @param sCodeWord   a binary code word consisting of the letter 0, 1
+ */
 void RCSwitch::send(const char* sCodeWord) {
-  for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
-    int i = 0;
-    while (sCodeWord[i] != '\0') {
-      switch(sCodeWord[i]) {
-        case '0':
-          this->send0();
-        break;
-        case '1':
-          this->send1();
-        break;
-      }
-      i++;
+  // turn the tristate code word into the corresponding bit pattern, then send it
+  unsigned long code = 0;
+  unsigned int length = 0;
+  for (const char* p = sCodeWord; *p; p++, length++) {
+    if (*p != '0')
+      code |= 1L << length;
+  }
+  this->send(code, length);
+}
+
+/**
+ * Transmit the first 'length' bits of the integer 'code'. The
+ * bits are sent from LSB to MSB, i.e., first the bit at position zero,
+ * then the bit at position 1, and so on/
+ */
+void RCSwitch::send(unsigned long code, unsigned int length) {
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    for (unsigned int i = 0; i < length; i++) {
+      if (bitRead(code, i))
+        this->transmit(protocol.one);
+      else
+        this->transmit(protocol.zero);
     }
-    this->sendSync();
+    this->transmit(protocol.syncFactor);
   }
 }
 
+/**
+ * Transmit a single high-low pulse.
+ */
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
   if (this->nTransmitterPin == -1)
     return;
@@ -503,69 +516,6 @@ void RCSwitch::transmit(HighLow pulses) {
   transmit(pulses.high, pulses.low);
 }
 
-/**
- * Sends a "0" Bit
- *                       _    
- * Waveform Protocol 1: | |___
- *                       _  
- * Waveform Protocol 2: | |__
- */
-void RCSwitch::send0() {
-  this->transmit(protocol.zero);
-}
-
-/**
- * Sends a "1" Bit
- *                       ___  
- * Waveform Protocol 1: |   |_
- *                       __  
- * Waveform Protocol 2: |  |_
- */
-void RCSwitch::send1() {
-  this->transmit(protocol.one);
-}
-
-
-/**
- * Sends a Tri-State "0" Bit
- *            _     _
- * Waveform: | |___| |___
- */
-void RCSwitch::sendT0() {
-  this->send0();
-  this->send0();
-}
-
-/**
- * Sends a Tri-State "1" Bit
- *            ___   ___
- * Waveform: |   |_|   |_
- */
-void RCSwitch::sendT1() {
-  this->send1();
-  this->send1();
-}
-
-/**
- * Sends a Tri-State "F" Bit
- *            _     ___
- * Waveform: | |___|   |_
- */
-void RCSwitch::sendTF() {
-  this->send0();
-  this->send1();
-}
-
-/**
- * Sends a "Sync" Bit
- *                       _
- * Waveform Protocol 1: | |_______________________________
- *                       _
- * Waveform Protocol 2: | |__________
- */
-void RCSwitch::sendSync() {
-  this->transmit(protocol.syncFactor);
-}
 
 #if not defined( RCSwitchDisableReceiving )
 /**
@@ -713,19 +663,3 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
   lastTime = time;  
 }
 #endif
-
-/**
-  * Turns a decimal value to its binary representation
-  */
-char* RCSwitch::dec2binWcharfill(unsigned long dec, unsigned int bitLength, char fill) {
-  static char bin[32];
-
-  bin[bitLength] = '\0';
-  while (bitLength > 0) {
-    bitLength--;
-    bin[bitLength] = (dec & 1) ? '1' : fill;
-    dec >>= 1;
-  }
-
-  return bin;
-}

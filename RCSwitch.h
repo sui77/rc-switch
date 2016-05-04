@@ -74,9 +74,9 @@ class RCSwitch {
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
 
-    void sendTriState(const char* Code);
-    void send(unsigned long Code, unsigned int length);
-    void send(const char* Code);
+    void sendTriState(const char* sCodeWord);
+    void send(unsigned long code, unsigned int length);
+    void send(const char* sCodeWord);
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
@@ -121,17 +121,9 @@ class RCSwitch {
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
     char* getCodeWordD(char group, int nDevice, bool bStatus);
-    void sendT0();
-    void sendT1();
-    void sendTF();
-    void send0();
-    void send1();
-    void sendSync();
     void transmit(int nHighPulses, int nLowPulses);
     void transmit(HighLow pulses);
 
-    static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
-    
     #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
