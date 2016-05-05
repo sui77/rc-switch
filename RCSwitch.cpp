@@ -486,7 +486,7 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
  */
 char* RCSwitch::getCodeWordE(int sGroup, int nDevice, boolean bStatus) {
     int nReturnPos = 0;
-    static char sReturn[32];
+    static char sReturn[33];
 
     //code for device numbers
     const char* code[4] = { "11", "00", "10", "01" };
