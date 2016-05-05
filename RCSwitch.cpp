@@ -265,7 +265,7 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
  * @param nDevice  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOnRSL(int sGroup, int nDevice) {
-	this->send( this->getCodeWordE(sGroup, nDevice, true) );
+    this->send( this->getCodeWordE(sGroup, nDevice, true) );
 }
 
 /**
@@ -275,7 +275,7 @@ void RCSwitch::switchOnRSL(int sGroup, int nDevice) {
  * @param nDevice  Number of the switch itself (1..4)
  */
 void RCSwitch::switchOffRSL(int sGroup, int nDevice) {
-	this->send( this->getCodeWordE(sGroup, nDevice, false) );
+    this->send( this->getCodeWordE(sGroup, nDevice, false) );
 }
 
 /**
@@ -512,7 +512,7 @@ char* RCSwitch::getCodeWordE(int sGroup, int nDevice, boolean bStatus) {
     sReturn[nReturnPos++] = '0';
 
     for (int i = 0; i<2; i++) {
-	    sReturn[nReturnPos++] = code[nDevice-1][i];
+        sReturn[nReturnPos++] = code[nDevice-1][i];
     }
 
     if(nDevice == 2) {
