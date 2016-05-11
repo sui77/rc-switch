@@ -36,31 +36,16 @@
     #include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
     #define RaspberryPi
-    // PROGMEM och _P functions are for AVR based microprocessors,
-    // so we must normalize these for the ARM processor:
-    #define PROGMEM
-    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+
     // Include libraries for RPi:
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
-    #include <stddef.h> /* NULL */
     #include <wiringPi.h>
-    #include <stdint.h>
-    #define CHANGE 1
-    // The following typedefs are needed to be able to compile RCSwitch.cpp
-    // with the RPi C++ compiler (g++)
-    #ifdef __cplusplus
-        extern "C"{
-    #endif
-        typedef uint8_t boolean;
-        typedef uint8_t byte;
-    #ifdef __cplusplus
-    }
-    #endif
-    // Last line within Raspberry Pi block
 #else
     #include "WProgram.h"
 #endif
+
+#include <stdint.h>
 
 
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
@@ -91,9 +76,9 @@ class RCSwitch {
     void switchOnRSL(int sGroup, int nDevice);
     void switchOffRSL(int sGroup, int nDevice);
 
-    void sendTriState(const char* Code);
-    void send(unsigned long Code, unsigned int length);
-    void send(const char* Code);
+    void sendTriState(const char* sCodeWord);
+    void send(unsigned long code, unsigned int length);
+    void send(const char* sCodeWord);
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
@@ -118,8 +103,8 @@ class RCSwitch {
     #endif
 
     struct HighLow {
-        byte high;
-        byte low;
+        uint8_t high;
+        uint8_t low;
     };
 
     struct Protocol {
@@ -134,24 +119,14 @@ class RCSwitch {
     void setProtocol(int nProtocol, int nPulseLength);
 
   private:
-    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(const char* sGroup, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
-    char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
-    char* getCodeWordD(char group, int nDevice, boolean bStatus);
-    char* getCodeWordE(int sGroup, int nDevice, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);
+    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
+    char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
+    char* getCodeWordD(char group, int nDevice, bool bStatus);
+	char* getCodeWordE(int sGroup, int nDevice, bool bStatus);
 
-    void sendT0();
-    void sendT1();
-    void sendTF();
-    void send0();
-    void send1();
-    void sendSync();
-    void transmit(int nHighPulses, int nLowPulses);
     void transmit(HighLow pulses);
 
-    static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
-    
     #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);

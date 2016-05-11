@@ -9,8 +9,8 @@
 #include <RCSwitch.h>
 
 // Ethernet configuration
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // MAC Address
-byte ip[] = { 192,168,0, 2 };                        // IP Address
+uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // MAC Address
+uint8_t ip[] = { 192,168,0, 2 };                        // IP Address
 EthernetServer server(80);                           // Server Port 80
 
 // RCSwitch configuration

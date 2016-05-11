@@ -12,6 +12,7 @@
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
+  - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -32,6 +33,22 @@
 
 #include "RCSwitch.h"
 
+#ifdef RaspberryPi
+    // PROGMEM and _P functions are for AVR based microprocessors,
+    // so we must normalize these for the ARM processor:
+    #define PROGMEM
+    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+#endif
+
+#ifdef ESP8266
+    // interrupt handler and related code must be in RAM on ESP8266,
+    // according to issue #46.
+    #define RECEIVE_ATTR ICACHE_RAM_ATTR
+#else
+    #define RECEIVE_ATTR
+#endif
+
+
 /* Format for protocol definitions:
  * {pulselength, Sync bit, "0" bit, "1" bit}
  * 
@@ -51,7 +68,11 @@
  *
  * These are combined to form Tri-State bits when sending or receiving codes.
  */
+#ifdef ESP8266
+static const RCSwitch::Protocol proto[] = {
+#else
 static const RCSwitch::Protocol PROGMEM proto[] = {
+#endif
     { 350, {  1, 31 }, {  1,  3 }, {  3,  1 } },    // protocol 1
     { 650, {  1, 10 }, {  1,  2 }, {  2,  1 } },    // protocol 2
     { 100, { 30, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
@@ -59,7 +80,9 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
 };
 
-static const int numProto = sizeof(proto) / sizeof(proto[0]);
+enum {
+   numProto = sizeof(proto) / sizeof(proto[0])
+};
 
 #if not defined( RCSwitchDisableReceiving )
 unsigned long RCSwitch::nReceivedValue = 0;
@@ -99,7 +122,11 @@ void RCSwitch::setProtocol(int nProtocol) {
   if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
+#ifdef ESP8266
+  this->protocol = proto[nProtocol-1];
+#else
   memcpy_P(&this->protocol, &proto[nProtocol-1], sizeof(Protocol));
+#endif
 }
 
 /**
@@ -245,7 +272,7 @@ void RCSwitch::switchOff(const char* sGroup, int nChannel) {
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
-    this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+  this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
 }
 
 /**
@@ -255,10 +282,35 @@ void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
-    this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+  this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+}
+
+
+/**
+ * Returns a char[13], representing the code word to be send.
+ *
+ */
+char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sGroup[i] == '0') ? 'F' : '0';
+  }
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sDevice[i] == '0') ? 'F' : '0';
+  }
+
+  sReturn[nReturnPos++] = bStatus ? '0' : 'F';
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
 }
 
 /**
+<<<<<<< HEAD
  * Switch a remote switch on (Type E RSL by Conrad)
  *
  * @param sGroup   Number of the switch group (1..4)
@@ -283,127 +335,94 @@ void RCSwitch::switchOffRSL(int sGroup, int nDevice) {
  * A code word consists of 9 address bits, 3 data bits and one sync bit but
  * in our case only the first 8 address bits and the last 2 data bits were used.
  * A code bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (sync bit)
+=======
+ * Encoding for type B switches with two rotary/sliding switches.
  *
- * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
- * | 4 bits address              | 4 bits address              | 1 bit    | 1 bit    | 2 bits       | 1 bit    |
- * | switch group                | switch number               | not used | not used | on / off     | sync bit |
- * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | F        | F        | on=FF off=F0 | S        |
- * +-----------------------------+-----------------------------+----------+----------+--------------+----------+
+ * The code word is a tristate word and with following bit pattern:
+>>>>>>> c5645170be8cb3044f4a8ca8565bfd2d221ba182
+ *
+ * +-----------------------------+-----------------------------+----------+------------+
+ * | 4 bits address              | 4 bits address              | 3 bits   | 1 bit      |
+ * | switch group                | switch number               | not used | on / off   |
+ * | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | 1=0FFF 2=F0FF 3=FF0F 4=FFF0 | FFF      | on=F off=0 |
+ * +-----------------------------+-----------------------------+----------+------------+
  *
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  * @param bStatus       Whether to switch on (true) or off (false)
  *
- * @return char[13]
+ * @return char[13], representing a tristate code word of length 12
  */
-char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
-   int nReturnPos = 0;
-   static char sReturn[13];
-   
-   const char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
-   if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
-    return '\0';
-   }
-   for (int i = 0; i<4; i++) {
-     sReturn[nReturnPos++] = code[nAddressCode][i];
-   }
-
-   for (int i = 0; i<4; i++) {
-     sReturn[nReturnPos++] = code[nChannelCode][i];
-   }
-   
-   sReturn[nReturnPos++] = 'F';
-   sReturn[nReturnPos++] = 'F';
-   sReturn[nReturnPos++] = 'F';
-   
-   if (bStatus) {
-      sReturn[nReturnPos++] = 'F';
-   } else {
-      sReturn[nReturnPos++] = '0';
-   }
-   
-   sReturn[nReturnPos] = '\0';
-   
-   return sReturn;
-}
-
-/**
- * Returns a char[13], representing the code word to be send.
- *
- */
-char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, boolean bOn) {
-    static char sDipSwitches[13];
-    int i = 0;
-    int j = 0;
-    
-    for (i = 0; i < 5; i++) {
-        sDipSwitches[j++] = (sGroup[i] == '0') ? 'F' : '0';
-    }
-
-    for (i = 0; i < 5; i++) {
-        sDipSwitches[j++] = (sDevice[i] == '0') ? 'F' : '0';
-    }
-
-    if (bOn) {
-        sDipSwitches[j++] = '0';
-        sDipSwitches[j++] = 'F';
-    } else {
-        sDipSwitches[j++] = 'F';
-        sDipSwitches[j++] = '0';
-    }
-
-    sDipSwitches[j] = '\0';
-
-    return sDipSwitches;
-}
-
-/**
- * Like getCodeWord (Type C = Intertechno)
- */
-char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
-  
-  if ( (byte)sFamily < 97 || (byte)sFamily > 112 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
-    return '\0';
+
+  if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
+    return 0;
   }
-  
-  const char* sDeviceGroupCode =  dec2binWcharfill(  (nDevice-1) + (nGroup-1)*4, 4, '0'  );
-  const char familycode[16][5] = {
-      "0000", "F000", "0F00", "FF00",
-      "00F0", "F0F0", "0FF0", "FFF0",
-      "000F", "F00F", "0F0F", "FF0F",
-      "00FF", "F0FF", "0FFF", "FFFF"
-      };
-  for (int i = 0; i<4; i++) {
-    sReturn[nReturnPos++] = familycode[ (int)sFamily - 97 ][i];
+
+  for (int i = 1; i <= 4; i++) {
+    sReturn[nReturnPos++] = (nAddressCode == i) ? '0' : 'F';
   }
-  for (int i = 0; i<4; i++) {
-    sReturn[nReturnPos++] = (sDeviceGroupCode[3-i] == '1' ? 'F' : '0');
+
+  for (int i = 1; i <= 4; i++) {
+    sReturn[nReturnPos++] = (nChannelCode == i) ? '0' : 'F';
   }
-  sReturn[nReturnPos++] = '0';
+
   sReturn[nReturnPos++] = 'F';
   sReturn[nReturnPos++] = 'F';
-  if (bStatus) {
-    sReturn[nReturnPos++] = 'F';
-  } else {
-    sReturn[nReturnPos++] = '0';
-  }
+  sReturn[nReturnPos++] = 'F';
+
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
   sReturn[nReturnPos] = '\0';
   return sReturn;
 }
 
 /**
- * Decoding for the REV Switch Type
+ * Like getCodeWord (Type C = Intertechno)
+ */
+char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
+
+  int nFamily = (int)sFamily - 'a';
+  if ( nFamily < 0 || nFamily > 15 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
+    return 0;
+  }
+  
+  // encode the family into four bits
+  sReturn[nReturnPos++] = (nFamily & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 2) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 4) ? 'F' : '0';
+  sReturn[nReturnPos++] = (nFamily & 8) ? 'F' : '0';
+
+  // encode the device and group
+  sReturn[nReturnPos++] = ((nDevice-1) & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nDevice-1) & 2) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nGroup-1) & 1) ? 'F' : '0';
+  sReturn[nReturnPos++] = ((nGroup-1) & 2) ? 'F' : '0';
+
+  // encode the status code
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
+/**
+ * Encoding for the REV Switch Type
  *
- * Returns a char[13], representing the Tristate to be send.
- * A Code Word consists of 7 address bits and 5 command data bits.
- * A Code Bit can have 3 different states: "F" (floating), "0" (low), "1" (high)
+ * The code word is a tristate word and with following bit pattern:
  *
- * +-------------------------------+--------------------------------+-----------------------+
- * | 4 bits address (switch group) | 3 bits address (device number) | 5 bits (command data) |
- * | A=1FFF B=F1FF C=FF1F D=FFF1   | 1=0FFF 2=F0FF 3=FF0F 4=FFF0    | on=00010 off=00001    |
- * +-------------------------------+--------------------------------+-----------------------+
+ * +-----------------------------+-------------------+----------+--------------+
+ * | 4 bits address              | 3 bits address    | 3 bits   | 2 bits       |
+ * | switch group                | device number     | not used | on / off     |
+ * | A=1FFF B=F1FF C=FF1F D=FFF1 | 1=0FF 2=F0F 3=FF0 | 000      | on=10 off=01 |
+ * +-----------------------------+-------------------+----------+--------------+
  *
  * Source: http://www.the-intruder.net/funksteckdosen-von-rev-uber-arduino-ansteuern/
  *
@@ -411,72 +430,39 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
  * @param nDevice       Number of the switch itself (1..3)
  * @param bStatus       Whether to switch on (true) or off (false)
  *
- * @return char[13]
+ * @return char[13], representing a tristate code word of length 12
  */
+char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
 
-char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
-    static char sReturn[13];
-    int nReturnPos = 0;
+  // sGroup must be one of the letters in "abcdABCD"
+  int nGroup = (sGroup >= 'a') ? (int)sGroup - 'a' : (int)sGroup - 'A';
+  if ( nGroup < 0 || nGroup > 3 || nDevice < 1 || nDevice > 3) {
+    return 0;
+  }
 
-    // Building 4 bits address
-    // (Potential problem if dec2binWcharfill not returning correct string)
-    char *sGroupCode;
-    switch(sGroup){
-        case 'a':
-        case 'A':
-            sGroupCode = dec2binWcharfill(8, 4, 'F'); break;
-        case 'b':
-        case 'B':
-            sGroupCode = dec2binWcharfill(4, 4, 'F'); break;
-        case 'c':
-        case 'C':
-            sGroupCode = dec2binWcharfill(2, 4, 'F'); break;
-        case 'd':
-        case 'D':
-            sGroupCode = dec2binWcharfill(1, 4, 'F'); break;
-        default:
-            return '\0';
-    }
-    
-    for (int i = 0; i<4; i++) {
-        sReturn[nReturnPos++] = sGroupCode[i];
-    }
+  for (int i = 0; i < 4; i++) {
+    sReturn[nReturnPos++] = (nGroup == i) ? '1' : 'F';
+  }
 
+  for (int i = 1; i <= 3; i++) {
+    sReturn[nReturnPos++] = (nDevice == i) ? '1' : 'F';
+  }
 
-    // Building 3 bits address
-    // (Potential problem if dec2binWcharfill not returning correct string)
-    char *sDevice;
-    switch(nDevice) {
-        case 1:
-            sDevice = dec2binWcharfill(4, 3, 'F'); break;
-        case 2:
-            sDevice = dec2binWcharfill(2, 3, 'F'); break;
-        case 3:
-            sDevice = dec2binWcharfill(1, 3, 'F'); break;
-        default:
-            return '\0';
-    }
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = '0';
+  sReturn[nReturnPos++] = '0';
 
-    for (int i = 0; i<3; i++)
-        sReturn[nReturnPos++] = sDevice[i];
+  sReturn[nReturnPos++] = bStatus ? '1' : '0';
+  sReturn[nReturnPos++] = bStatus ? '0' : '1';
 
-    // fill up rest with zeros
-    for (int i = 0; i<5; i++)
-        sReturn[nReturnPos++] = '0';
-
-    // encode on or off
-    if (bStatus)
-        sReturn[10] = '1';
-    else
-        sReturn[11] = '1';
-
-    // last position terminate string
-    sReturn[12] = '\0';
-    return sReturn;
-
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
 }
 
 /**
+<<<<<<< HEAD
  * Get coding for Type E (RSL devices sold by Conrad)
  * source: http://www.mikrocontroller.net/topic/252895
  *
@@ -484,7 +470,7 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
  * @param nDevice  Number of the switch itself (1..4)
  * @param bStatus  Whether to switch on (true) or off (false)
  */
-char* RCSwitch::getCodeWordE(int sGroup, int nDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordE(int sGroup, int nDevice, bool bStatus) {
     int nReturnPos = 0;
     static char sReturn[33];
 
@@ -536,138 +522,95 @@ char* RCSwitch::getCodeWordE(int sGroup, int nDevice, boolean bStatus) {
 
 /**
  * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
+=======
+ * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
+>>>>>>> c5645170be8cb3044f4a8ca8565bfd2d221ba182
  */
 void RCSwitch::sendTriState(const char* sCodeWord) {
-  for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
-    int i = 0;
-    while (sCodeWord[i] != '\0') {
-      switch(sCodeWord[i]) {
-        case '0':
-          this->sendT0();
+  // turn the tristate code word into the corresponding bit pattern, then send it
+  unsigned long code = 0;
+  unsigned int length = 0;
+  for (const char* p = sCodeWord; *p; p++) {
+    code <<= 2L;
+    switch (*p) {
+      case '0':
+        // bit pattern 00
         break;
-        case 'F':
-          this->sendTF();
+      case 'F':
+        // bit pattern 01
+        code |= 1L;
         break;
-        case '1':
-          this->sendT1();
+      case '1':
+        // bit pattern 11
+        code |= 3L;
         break;
-      }
-      i++;
     }
-    this->sendSync();    
+    length += 2;
   }
+  this->send(code, length);
 }
 
-void RCSwitch::send(unsigned long code, unsigned int length) {
-  this->send( this->dec2binWcharfill(code, length, '0') );
-}
-
+/**
+ * @param sCodeWord   a binary code word consisting of the letter 0, 1
+ */
 void RCSwitch::send(const char* sCodeWord) {
-  for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
-    int i = 0;
-    while (sCodeWord[i] != '\0') {
-      switch(sCodeWord[i]) {
-        case '0':
-          this->send0();
-        break;
-        case '1':
-          this->send1();
-        break;
-      }
-      i++;
-    }
-    this->sendSync();
+  // turn the tristate code word into the corresponding bit pattern, then send it
+  unsigned long code = 0;
+  unsigned int length = 0;
+  for (const char* p = sCodeWord; *p; p++) {
+    code <<= 1L;
+    if (*p != '0')
+      code |= 1L;
+    length++;
   }
+  this->send(code, length);
 }
 
-void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
-    if (this->nTransmitterPin != -1) {
-        #if not defined( RCSwitchDisableReceiving )
-        int nReceiverInterrupt_backup = nReceiverInterrupt;
-        if (nReceiverInterrupt_backup != -1) {
-            this->disableReceive();
-        }
-        #endif
-        digitalWrite(this->nTransmitterPin, HIGH);
-        delayMicroseconds( this->protocol.pulseLength * nHighPulses);
-        digitalWrite(this->nTransmitterPin, LOW);
-        delayMicroseconds( this->protocol.pulseLength * nLowPulses);
-        
-        #if not defined( RCSwitchDisableReceiving )
-        if (nReceiverInterrupt_backup != -1) {
-            this->enableReceive(nReceiverInterrupt_backup);
-        }
-        #endif
+/**
+ * Transmit the first 'length' bits of the integer 'code'. The
+ * bits are sent from MSB to LSB, i.e., first the bit at position length-1,
+ * then the bit at position length-2, and so on, till finally the bit at position 0.
+ */
+void RCSwitch::send(unsigned long code, unsigned int length) {
+  if (this->nTransmitterPin == -1)
+    return;
+
+#if not defined( RCSwitchDisableReceiving )
+  // make sure the receiver is disabled while we transmit
+  int nReceiverInterrupt_backup = nReceiverInterrupt;
+  if (nReceiverInterrupt_backup != -1) {
+    this->disableReceive();
+  }
+#endif
+
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    for (int i = length-1; i >= 0; i--) {
+      if (code & (1L << i))
+        this->transmit(protocol.one);
+      else
+        this->transmit(protocol.zero);
     }
-}
-
-void RCSwitch::transmit(HighLow pulses) {
-    transmit(pulses.high, pulses.low);
-}
-
-/**
- * Sends a "0" Bit
- *                       _    
- * Waveform Protocol 1: | |___
- *                       _  
- * Waveform Protocol 2: | |__
- */
-void RCSwitch::send0() {
-    this->transmit(protocol.zero);
-}
-
-/**
- * Sends a "1" Bit
- *                       ___  
- * Waveform Protocol 1: |   |_
- *                       __  
- * Waveform Protocol 2: |  |_
- */
-void RCSwitch::send1() {
-    this->transmit(protocol.one);
-}
-
-
-/**
- * Sends a Tri-State "0" Bit
- *            _     _
- * Waveform: | |___| |___
- */
-void RCSwitch::sendT0() {
-  this->send0();
-  this->send0();
-}
-
-/**
- * Sends a Tri-State "1" Bit
- *            ___   ___
- * Waveform: |   |_|   |_
- */
-void RCSwitch::sendT1() {
-  this->send1();
-  this->send1();
-}
-
-/**
- * Sends a Tri-State "F" Bit
- *            _     ___
- * Waveform: | |___|   |_
- */
-void RCSwitch::sendTF() {
-  this->send0();
-  this->send1();
-}
-
-/**
- * Sends a "Sync" Bit
- *                       _
- * Waveform Protocol 1: | |_______________________________
- *                       _
- * Waveform Protocol 2: | |__________
- */
-void RCSwitch::sendSync() {
     this->transmit(protocol.syncFactor);
+  }
+
+#if not defined( RCSwitchDisableReceiving )
+  // enable receiver again if we just disabled it
+  if (nReceiverInterrupt_backup != -1) {
+    this->enableReceive(nReceiverInterrupt_backup);
+  }
+#endif
 }
+
+/**
+ * Transmit a single high-low pulse.
+ */
+void RCSwitch::transmit(HighLow pulses) {
+  digitalWrite(this->nTransmitterPin, HIGH);
+  delayMicroseconds( this->protocol.pulseLength * pulses.high);
+  digitalWrite(this->nTransmitterPin, LOW);
+  delayMicroseconds( this->protocol.pulseLength * pulses.low);
+}
+
 
 #if not defined( RCSwitchDisableReceiving )
 /**
@@ -709,7 +652,7 @@ void RCSwitch::resetAvailable() {
 }
 
 unsigned long RCSwitch::getReceivedValue() {
-    return RCSwitch::nReceivedValue;
+  return RCSwitch::nReceivedValue;
 }
 
 unsigned int RCSwitch::getReceivedBitlength() {
@@ -725,27 +668,30 @@ unsigned int RCSwitch::getReceivedProtocol() {
 }
 
 unsigned int* RCSwitch::getReceivedRawdata() {
-    return RCSwitch::timings;
+  return RCSwitch::timings;
 }
 
-/* helper function for the various receiveProtocol methods */
+/* helper function for the receiveProtocol method */
 static inline unsigned int diff(int A, int B) {
-    return abs(A - B);
+  return abs(A - B);
 }
 
 /**
  *
  */
-bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
-
+bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
+#ifdef ESP8266
+    const Protocol &pro = proto[p-1];
+#else
     Protocol pro;
     memcpy_P(&pro, &proto[p-1], sizeof(Protocol));
+#endif
 
     unsigned long code = 0;
     const unsigned int delay = RCSwitch::timings[0] / pro.syncFactor.low;
     const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
-    for (unsigned int i = 1; i < changeCount; i += 2) {
+    for (unsigned int i = 1; i < changeCount - 1; i += 2) {
         code <<= 1;
         if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
             diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance) {
@@ -760,9 +706,9 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
         }
     }
 
-    if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
+    if (changeCount > 7) {    // ignore very short transmissions: no device sends them, so this must be noise
         RCSwitch::nReceivedValue = code;
-        RCSwitch::nReceivedBitlength = changeCount / 2;
+        RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
     }
@@ -770,53 +716,45 @@ bool RCSwitch::receiveProtocol(const int p, unsigned int changeCount) {
     return true;
 }
 
-void RCSwitch::handleInterrupt() {
+void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
-  static unsigned int duration;
-  static unsigned int changeCount;
-  static unsigned long lastTime;
-  static unsigned int repeatCount;
-  
+  static unsigned int changeCount = 0;
+  static unsigned long lastTime = 0;
+  static unsigned int repeatCount = 0;
 
-  long time = micros();
-  duration = time - lastTime;
- 
-  if (duration > RCSwitch::nSeparationLimit && diff(duration, RCSwitch::timings[0]) < 200) {
-    repeatCount++;
-    changeCount--;
-    if (repeatCount == 2) {
-	for(unsigned int i = 1; i < numProto; i++ ) {
-		if (receiveProtocol(i, changeCount))
-			exit;
-	}
-      repeatCount = 0;
+  const long time = micros();
+  const unsigned int duration = time - lastTime;
+
+  if (duration > RCSwitch::nSeparationLimit) {
+    // A long stretch without signal level change occurred. This could
+    // be the gap between two transmission.
+    if (diff(duration, RCSwitch::timings[0]) < 200) {
+      // This long signal is close in length to the long signal which
+      // started the previously recorded timings; this suggests that
+      // it may indeed by a a gap between two transmissions (we assume
+      // here that a sender will send the signal multiple times,
+      // with roughly the same gap between them).
+      repeatCount++;
+      if (repeatCount == 2) {
+        for(unsigned int i = 1; i <= numProto; i++) {
+          if (receiveProtocol(i, changeCount)) {
+            // receive succeeded for protocol i
+            break;
+          }
+        }
+        repeatCount = 0;
+      }
     }
-    changeCount = 0;
-  } else if (duration > RCSwitch::nSeparationLimit) {
     changeCount = 0;
   }
  
+  // detect overflow
   if (changeCount >= RCSWITCH_MAX_CHANGES) {
     changeCount = 0;
     repeatCount = 0;
   }
+
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
 #endif
-
-/**
-  * Turns a decimal value to its binary representation
-  */
-char* RCSwitch::dec2binWcharfill(unsigned long dec, unsigned int bitLength, char fill) {
-  static char bin[32];
-
-  bin[bitLength] = '\0';
-  while (bitLength > 0) {
-    bitLength--;
-    bin[bitLength] = (dec & 1) ? '1' : fill;
-    dec >>= 1;
-  }
-
-  return bin;
-}
