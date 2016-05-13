@@ -331,15 +331,9 @@ void RCSwitch::switchOffRSL(int sGroup, int nDevice) {
 }
 
 /**
- * Returns a char[13], representing the code word to be sent.
- * A code word consists of 9 address bits, 3 data bits and one sync bit but
- * in our case only the first 8 address bits and the last 2 data bits were used.
- * A code bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (sync bit)
-=======
  * Encoding for type B switches with two rotary/sliding switches.
  *
  * The code word is a tristate word and with following bit pattern:
->>>>>>> c5645170be8cb3044f4a8ca8565bfd2d221ba182
  *
  * +-----------------------------+-----------------------------+----------+------------+
  * | 4 bits address              | 4 bits address              | 3 bits   | 1 bit      |
@@ -462,7 +456,6 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
 }
 
 /**
-<<<<<<< HEAD
  * Get coding for Type E (RSL devices sold by Conrad)
  * source: http://www.mikrocontroller.net/topic/252895
  *
@@ -521,10 +514,7 @@ char* RCSwitch::getCodeWordE(int sGroup, int nDevice, bool bStatus) {
 
 
 /**
- * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
-=======
  * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
->>>>>>> c5645170be8cb3044f4a8ca8565bfd2d221ba182
  */
 void RCSwitch::sendTriState(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
