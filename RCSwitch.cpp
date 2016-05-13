@@ -310,7 +310,6 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStat
 }
 
 /**
-<<<<<<< HEAD
  * Switch a remote switch on (Type E RSL by Conrad)
  *
  * @param sGroup   Number of the switch group (1..4)
