@@ -457,7 +457,9 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
 }
 
 /**
-* Switch a remote switch off (Type Intertechno self-learning)
+* Encoding for Intertechno self-learning switch type
+* Protocol info found at https://www.sweetpi.de/blog/329/ein-ueberblick-ueber-433mhz-funksteckdosen-und-deren-protokolle
+* Tested with ITLS-16 remote control and ITLR-3500 socket adapter. The allSwitches flag seems to have no effect in this combo.
 *
 * @param remote  unique 26bit code of the remote control
 * @param allSwitches	apply command to all switches of the remote at once
