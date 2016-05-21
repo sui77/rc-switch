@@ -48,10 +48,8 @@
 #include <stdint.h>
 
 
-// At least for the ATTiny X4/X5, receiving has to be disabled due to
-// missing libm depencies (udivmodhi4)
-#if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
-#define RCSwitchDisableReceiving
+#if defined( __AVR_ATtiny24__ ) ||  defined( __AVR_ATtiny44__ ) ||  defined( __AVR_ATtiny84__ ) || defined( __AVR_ATtiny25__ ) ||  defined( __AVR_ATtiny45__ ) ||  defined( __AVR_ATtiny85__ )
+	#include <PinChangeInterrupt.h> // https://github.com/NicoHood/PinChangeInterrupt
 #endif
 
 // Number of maximum High/Low changes per packet.
@@ -78,7 +76,6 @@ class RCSwitch {
     void send(unsigned long code, unsigned int length);
     void send(const char* sCodeWord);
     
-    #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
     void enableReceive();
     void disableReceive();
@@ -90,15 +87,12 @@ class RCSwitch {
     unsigned int getReceivedDelay();
     unsigned int getReceivedProtocol();
     unsigned int* getReceivedRawdata();
-    #endif
   
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
-    #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
-    #endif
 
     struct HighLow {
         uint8_t high;
@@ -123,17 +117,14 @@ class RCSwitch {
     char* getCodeWordD(char group, int nDevice, bool bStatus);
     void transmit(HighLow pulses);
 
-    #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
-    #endif
     int nTransmitterPin;
     int nRepeatTransmit;
     
     Protocol protocol;
 
-    #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
     static unsigned long nReceivedValue;
     static unsigned int nReceivedBitlength;
@@ -144,7 +135,6 @@ class RCSwitch {
      * timings[0] contains sync timing, followed by a number of bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
-    #endif
 
     
 };
