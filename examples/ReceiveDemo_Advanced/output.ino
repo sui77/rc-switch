@@ -3,7 +3,7 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
   if (decimal == 0) {
     Serial.print("Unknown encoding.");
   } else {
-    char* b = dec2binWzerofill(decimal, length);
+    const char* b = dec2binWzerofill(decimal, length);
     Serial.print("Decimal: ");
     Serial.print(decimal);
     Serial.print(" (");
@@ -28,8 +28,7 @@ void output(unsigned long decimal, unsigned int length, unsigned int delay, unsi
   Serial.println();
 }
 
-
-static const char* bin2tristate(char* bin) {
+static const char* bin2tristate(const char* bin) {
   static char returnValue[50];
   int pos = 0;
   int pos2 = 0;
@@ -50,3 +49,23 @@ static const char* bin2tristate(char* bin) {
   return returnValue;
 }
 
+static char * dec2binWzerofill(unsigned long Dec, unsigned int bitLength) {
+  static char bin[64]; 
+  unsigned int i=0;
+
+  while (Dec > 0) {
+    bin[32+i++] = ((Dec & 1) > 0) ? '1' : '0';
+    Dec = Dec >> 1;
+  }
+
+  for (unsigned int j = 0; j< bitLength; j++) {
+    if (j >= bitLength - i) {
+      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
+    } else {
+      bin[j] = '0';
+    }
+  }
+  bin[bitLength] = '\0';
+  
+  return bin;
+}
