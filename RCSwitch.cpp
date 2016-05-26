@@ -78,6 +78,7 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     { 100, { 30, 71 }, {  4, 11 }, {  9,  6 } },    // protocol 3
     { 380, {  1,  6 }, {  1,  3 }, {  3,  1 } },    // protocol 4
     { 500, {  6, 14 }, {  1,  2 }, {  2,  1 } },    // protocol 5
+    { 620, {  0, 64 }, {  0,  1 }, {  1,  0 } },    // protocol 6
 };
 
 enum {
@@ -466,7 +467,7 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
  */
 void RCSwitch::send(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
-  unsigned long code = 0;
+  unsigned long long code = 0;
   unsigned int length = 0;
   for (const char* p = sCodeWord; *p; p++) {
     code <<= 1L;
@@ -478,11 +479,11 @@ void RCSwitch::send(const char* sCodeWord) {
 }
 
 /**
- * Transmit the first 'length' bits of the integer 'code'. The
+ * Transmit the first 'length' bits of the integer 'code' up to 64 bits. The
  * bits are sent from MSB to LSB, i.e., first the bit at position length-1,
  * then the bit at position length-2, and so on, till finally the bit at position 0.
  */
-void RCSwitch::send(unsigned long code, unsigned int length) {
+void RCSwitch::send(unsigned long long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
 
@@ -516,10 +517,14 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
  * Transmit a single high-low pulse.
  */
 void RCSwitch::transmit(HighLow pulses) {
-  digitalWrite(this->nTransmitterPin, HIGH);
-  delayMicroseconds( this->protocol.pulseLength * pulses.high);
-  digitalWrite(this->nTransmitterPin, LOW);
-  delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  if (pulses.high) {
+    digitalWrite(this->nTransmitterPin, HIGH);
+    delayMicroseconds( this->protocol.pulseLength * pulses.high);
+  }
+  if (pulses.low) {
+    digitalWrite(this->nTransmitterPin, LOW);
+    delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  }
 }
 
 
