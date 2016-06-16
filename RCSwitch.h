@@ -112,6 +112,8 @@ class RCSwitch {
         HighLow syncFactor;
         HighLow zero;
         HighLow one;
+        /** @brief if true inverts the high and low logic levels in the HighLow structs */
+        bool invertedSignal;
     };
 
     void setProtocol(Protocol protocol);
