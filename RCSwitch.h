@@ -89,7 +89,7 @@ class RCSwitch {
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
     unsigned int getReceivedProtocol();
-    unsigned int* getReceivedRawdata();
+    volatile unsigned int* getReceivedRawdata();
     #endif
   
     void enableTransmit(int nTransmitterPin);
@@ -136,16 +136,16 @@ class RCSwitch {
     Protocol protocol;
 
     #if not defined( RCSwitchDisableReceiving )
-    static int nReceiveTolerance;
-    static unsigned long nReceivedValue;
-    static unsigned int nReceivedBitlength;
-    static unsigned int nReceivedDelay;
-    static unsigned int nReceivedProtocol;
+    static volatile int nReceiveTolerance;
+    static volatile unsigned long nReceivedValue;
+    static volatile unsigned int nReceivedBitlength;
+    static volatile unsigned int nReceivedDelay;
+    static volatile unsigned int nReceivedProtocol;
     const static unsigned int nSeparationLimit;
     /* 
      * timings[0] contains sync timing, followed by a number of bits
      */
-    static unsigned int timings[RCSWITCH_MAX_CHANGES];
+    static volatile unsigned int timings[RCSWITCH_MAX_CHANGES];
     #endif
 
     

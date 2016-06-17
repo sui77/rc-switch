@@ -86,16 +86,16 @@ enum {
 };
 
 #if not defined( RCSwitchDisableReceiving )
-unsigned long RCSwitch::nReceivedValue = 0;
-unsigned int RCSwitch::nReceivedBitlength = 0;
-unsigned int RCSwitch::nReceivedDelay = 0;
-unsigned int RCSwitch::nReceivedProtocol = 0;
-int RCSwitch::nReceiveTolerance = 60;
 const unsigned int RCSwitch::nSeparationLimit = 4600;
+volatile unsigned long RCSwitch::nReceivedValue = 0;
+volatile unsigned int RCSwitch::nReceivedBitlength = 0;
+volatile unsigned int RCSwitch::nReceivedDelay = 0;
+volatile unsigned int RCSwitch::nReceivedProtocol = 0;
+volatile int RCSwitch::nReceiveTolerance = 60;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
-unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+volatile unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 #endif
 
 RCSwitch::RCSwitch() {
@@ -582,7 +582,7 @@ unsigned int RCSwitch::getReceivedProtocol() {
   return RCSwitch::nReceivedProtocol;
 }
 
-unsigned int* RCSwitch::getReceivedRawdata() {
+volatile unsigned int* RCSwitch::getReceivedRawdata() {
   return RCSwitch::timings;
 }
 
@@ -654,9 +654,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
-  static unsigned int changeCount = 0;
-  static unsigned long lastTime = 0;
-  static unsigned int repeatCount = 0;
+  static volatile unsigned int changeCount = 0;
+  static volatile unsigned long lastTime = 0;
+  static volatile unsigned int repeatCount = 0;
 
   const long time = micros();
   const unsigned int duration = time - lastTime;
