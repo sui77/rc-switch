@@ -78,7 +78,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
   { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
   { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 6 (HT6P20B)
+  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
+  { 275, {  1, 10 }, {  1,  1 }, {  1,  5 }, false },    // protocol 7
 };
 
 enum {
@@ -286,6 +287,27 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
   this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
+/**
+* Switch a remote switch on (Type Intertechno self-learning)
+*
+* @param remote  unique 26bit code of the remote control
+  @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+*/
+void RCSwitch::switchOn(int remote, bool allSwitches, int nSwitchNumber) {
+  this->send(this->getCodeWordE(remote, allSwitches, nSwitchNumber, true));
+}
+
+/**
+* Switch a remote switch off (Type Intertechno self-learning)
+*
+* @param remote  unique 26bit code of the remote control
+* @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+*/
+void RCSwitch::switchOff(int remote, bool allSwitches, int nSwitchNumber) {
+  this->send(this->getCodeWordE(remote, allSwitches, nSwitchNumber, false));
+}
 
 /**
  * Returns a char[13], representing the code word to be send.
@@ -431,6 +453,53 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
   sReturn[nReturnPos++] = bStatus ? '1' : '0';
   sReturn[nReturnPos++] = bStatus ? '0' : '1';
 
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
+/**
+* Encoding for Intertechno self-learning switch type
+* Protocol info found at https://www.sweetpi.de/blog/329/ein-ueberblick-ueber-433mhz-funksteckdosen-und-deren-protokolle
+* Tested with ITLS-16 remote control and ITLR-3500 socket adapter. The allSwitches flag seems to have no effect in this combo.
+*
+* @param remote  unique 26bit code of the remote control
+* @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+* @param bStatus       Whether to switch on (true) or off (false)
+*
+* @return char[65], representing a binary code word of length 64
+*/
+char* RCSwitch::getCodeWordE(int remote, bool allSwitches, int nSwitchNumber, bool bStatus) {
+  static char sReturn[65];
+  int nReturnPos = 0;
+
+  for (int i = 25; i >= 0; i--) {
+    if (remote & (1 << i)) {
+      sReturn[nReturnPos++] = '1';
+      sReturn[nReturnPos++] = '0';
+    } else {
+      sReturn[nReturnPos++] = '0';
+      sReturn[nReturnPos++] = '1';
+    }
+  }
+  sReturn[nReturnPos++] = allSwitches ? '1' : '0';
+  sReturn[nReturnPos++] = allSwitches ? '0' : '1';
+  if (bStatus) {
+    sReturn[nReturnPos++] = '1';
+    sReturn[nReturnPos++] = '0';
+  } else {
+    sReturn[nReturnPos++] = '0';
+    sReturn[nReturnPos++] = '1';
+  }
+  for  (int i = 3; i >= 0; i--) {
+    if (nSwitchNumber & (1 << i)) {
+      sReturn[nReturnPos++] = '1';
+      sReturn[nReturnPos++] = '0';
+    } else {
+      sReturn[nReturnPos++] = '0';
+      sReturn[nReturnPos++] = '1';
+    }
+  }
   sReturn[nReturnPos] = '\0';
   return sReturn;
 }
