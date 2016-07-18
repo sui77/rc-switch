@@ -24,6 +24,7 @@ or more devices with one of the supported chipsets:
  - PT2262 / PT2272
  - EV1527 / RT1527 / FP1527 / HS1527 
  - Intertechno outlets
+ - HT6P20X
 
 ### Receive and decode RC codes
 
