@@ -97,10 +97,12 @@ const unsigned int RCSwitch::nSeparationLimit = 4600;
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 
+#if defined( RCSwitchEnableBlockingReceive )
 unsigned long RCSwitch::events[RCSWITCH_MAX_EVENTS];
 int RCSwitch::eventsHead = 0;
 int RCSwitch::eventsTail = 0;
 sem_t RCSwitch::eventSem;
+#endif
 #endif
 
 RCSwitch::RCSwitch() {
@@ -112,7 +114,9 @@ RCSwitch::RCSwitch() {
   this->setReceiveTolerance(60);
   RCSwitch::nReceivedValue = 0;
 
+  #if defined( RCSwitchEnableBlockingReceive )
   ::sem_init(&eventSem, 0, 0);
+  #endif
   #endif
 }
 
@@ -655,7 +659,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
 
+        #if defined( RCSwitchEnableBlockingReceive )
         RCSwitch::pushEvent(code);
+        #endif
     }
 
     return true;
@@ -703,6 +709,7 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
   lastTime = time;  
 }
 
+#if defined( RCSwitchEnableBlockingReceive )
 /**
  * Pushes an event onto the end of the events ring.
  */
@@ -726,4 +733,5 @@ unsigned long RCSwitch::popEvent() {
   }
   return event;
 }
+#endif
 #endif
