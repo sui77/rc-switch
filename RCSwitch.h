@@ -41,6 +41,11 @@
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
     #include <wiringPi.h>
+
+    #if not defined ( RCSwitchDisableReceiving )
+    #define RCSwitchEnableBlockingReceive
+    #include <semaphore.h>
+    #endif
 #else
     #include "WProgram.h"
 #endif
@@ -51,12 +56,16 @@
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
 // missing libm depencies (udivmodhi4)
 #if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
-#define RCSwitchDisableReceiving
+  #define RCSwitchDisableReceiving
 #endif
 
 // Number of maximum High/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
+
+#if defined( RCSwitchEnableBlockingReceive )
+  #define RCSWITCH_MAX_EVENTS 100
+#endif
 
 class RCSwitch {
 
@@ -84,6 +93,10 @@ class RCSwitch {
     void disableReceive();
     bool available();
     void resetAvailable();
+
+    #if defined( RCSwitchEnableBlockingReceive )
+    unsigned long popEvent();
+    #endif
 
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
@@ -146,6 +159,15 @@ class RCSwitch {
      * timings[0] contains sync timing, followed by a number of bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
+
+    #if defined( RCSwitchEnableBlockingReceive )
+    static void pushEvent(unsigned long);
+
+    static unsigned long events[RCSWITCH_MAX_EVENTS];
+    static int eventsHead;
+    static int eventsTail;
+    static sem_t eventSem;
+    #endif
     #endif
 
     

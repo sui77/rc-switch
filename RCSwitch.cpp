@@ -96,6 +96,13 @@ const unsigned int RCSwitch::nSeparationLimit = 4600;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+
+#if defined( RCSwitchEnableBlockingReceive )
+unsigned long RCSwitch::events[RCSWITCH_MAX_EVENTS];
+int RCSwitch::eventsHead = 0;
+int RCSwitch::eventsTail = 0;
+sem_t RCSwitch::eventSem;
+#endif
 #endif
 
 RCSwitch::RCSwitch() {
@@ -106,6 +113,10 @@ RCSwitch::RCSwitch() {
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
   RCSwitch::nReceivedValue = 0;
+
+  #if defined( RCSwitchEnableBlockingReceive )
+  ::sem_init(&eventSem, 0, 0);
+  #endif
   #endif
 }
 
@@ -647,6 +658,10 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
         RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
+
+        #if defined( RCSwitchEnableBlockingReceive )
+        RCSwitch::pushEvent(code);
+        #endif
     }
 
     return true;
@@ -693,4 +708,30 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
+
+#if defined( RCSwitchEnableBlockingReceive )
+/**
+ * Pushes an event onto the end of the events ring.
+ */
+void RCSwitch::pushEvent(unsigned long event) {
+  RCSwitch::events[RCSwitch::eventsTail++] = event;
+  if (RCSwitch::eventsTail >= RCSWITCH_MAX_EVENTS) {
+    RCSwitch::eventsTail = 0;
+  }
+  ::sem_post(&eventSem);
+}
+
+/**
+ * Blocks until the events ring contains at least one event then pops
+ * an event from the head of the events ring and returns it.
+ */
+unsigned long RCSwitch::popEvent() {
+  ::sem_wait(&eventSem);
+  unsigned long event = RCSwitch::events[RCSwitch::eventsHead++];
+  if (RCSwitch::eventsHead >= RCSWITCH_MAX_EVENTS) {
+    RCSwitch::eventsHead = 0;
+  }
+  return event;
+}
+#endif
 #endif
