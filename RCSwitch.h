@@ -41,6 +41,8 @@
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
     #include <wiringPi.h>
+#elif defined(SPARK)
+    #include "application.h"
 #else
     #include "WProgram.h"
 #endif
