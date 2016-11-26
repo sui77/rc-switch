@@ -32,7 +32,7 @@ void loop() {
   /* See Example: TypeA_WithDIPSwitches */
   mySwitch.switchOn("11111", "00010");
   delay(1000);
-  mySwitch.switchOn("11111", "00010");
+  mySwitch.switchOff("11111", "00010");
   delay(1000);
 
   /* Same switch as above, but using decimal code */
