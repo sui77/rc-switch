@@ -78,7 +78,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
   { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
   { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 6 (HT6P20B)
+  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
+  { 275, {  1, 10 }, {  1,  1 }, {  1,  5 }, false },    // protocol 7
 };
 
 enum {
@@ -86,16 +87,16 @@ enum {
 };
 
 #if not defined( RCSwitchDisableReceiving )
-unsigned long RCSwitch::nReceivedValue = 0;
-unsigned int RCSwitch::nReceivedBitlength = 0;
-unsigned int RCSwitch::nReceivedDelay = 0;
-unsigned int RCSwitch::nReceivedProtocol = 0;
-int RCSwitch::nReceiveTolerance = 60;
 const unsigned int RCSwitch::nSeparationLimit = 4600;
+volatile unsigned long RCSwitch::nReceivedValue = 0;
+volatile unsigned int RCSwitch::nReceivedBitlength = 0;
+volatile unsigned int RCSwitch::nReceivedDelay = 0;
+volatile unsigned int RCSwitch::nReceivedProtocol = 0;
+volatile int RCSwitch::nReceiveTolerance = 60;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
-unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+volatile unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 #endif
 
 RCSwitch::RCSwitch() {
@@ -286,6 +287,27 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
   this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
+/**
+* Switch a remote switch on (Type Intertechno self-learning)
+*
+* @param remote  unique 26bit code of the remote control
+  @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+*/
+void RCSwitch::switchOn(int remote, bool allSwitches, int nSwitchNumber) {
+  this->send(this->getCodeWordE(remote, allSwitches, nSwitchNumber, true));
+}
+
+/**
+* Switch a remote switch off (Type Intertechno self-learning)
+*
+* @param remote  unique 26bit code of the remote control
+* @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+*/
+void RCSwitch::switchOff(int remote, bool allSwitches, int nSwitchNumber) {
+  this->send(this->getCodeWordE(remote, allSwitches, nSwitchNumber, false));
+}
 
 /**
  * Returns a char[13], representing the code word to be send.
@@ -436,6 +458,53 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
 }
 
 /**
+* Encoding for Intertechno self-learning switch type
+* Protocol info found at https://www.sweetpi.de/blog/329/ein-ueberblick-ueber-433mhz-funksteckdosen-und-deren-protokolle
+* Tested with ITLS-16 remote control and ITLR-3500 socket adapter. The allSwitches flag seems to have no effect in this combo.
+*
+* @param remote  unique 26bit code of the remote control
+* @param allSwitches  apply command to all switches of the remote at once
+* @param nSwitchNumber  Number of switch button pair (1..16)
+* @param bStatus       Whether to switch on (true) or off (false)
+*
+* @return char[65], representing a binary code word of length 64
+*/
+char* RCSwitch::getCodeWordE(int remote, bool allSwitches, int nSwitchNumber, bool bStatus) {
+  static char sReturn[65];
+  int nReturnPos = 0;
+
+  for (int i = 25; i >= 0; i--) {
+    if (remote & (1 << i)) {
+      sReturn[nReturnPos++] = '1';
+      sReturn[nReturnPos++] = '0';
+    } else {
+      sReturn[nReturnPos++] = '0';
+      sReturn[nReturnPos++] = '1';
+    }
+  }
+  sReturn[nReturnPos++] = allSwitches ? '1' : '0';
+  sReturn[nReturnPos++] = allSwitches ? '0' : '1';
+  if (bStatus) {
+    sReturn[nReturnPos++] = '1';
+    sReturn[nReturnPos++] = '0';
+  } else {
+    sReturn[nReturnPos++] = '0';
+    sReturn[nReturnPos++] = '1';
+  }
+  for  (int i = 3; i >= 0; i--) {
+    if (nSwitchNumber & (1 << i)) {
+      sReturn[nReturnPos++] = '1';
+      sReturn[nReturnPos++] = '0';
+    } else {
+      sReturn[nReturnPos++] = '0';
+      sReturn[nReturnPos++] = '1';
+    }
+  }
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
+/**
  * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
  */
 void RCSwitch::sendTriState(const char* sCodeWord) {
@@ -466,16 +535,36 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
  * @param sCodeWord   a binary code word consisting of the letter 0, 1
  */
 void RCSwitch::send(const char* sCodeWord) {
-  // turn the tristate code word into the corresponding bit pattern, then send it
-  unsigned long code = 0;
-  unsigned int length = 0;
-  for (const char* p = sCodeWord; *p; p++) {
-    code <<= 1L;
-    if (*p != '0')
-      code |= 1L;
-    length++;
+  // turn the binary code word into the corresponding bit pattern, then send it
+  if (this->nTransmitterPin == -1)
+    return;
+
+#if not defined( RCSwitchDisableReceiving )
+  // make sure the receiver is disabled while we transmit
+  int nReceiverInterrupt_backup = nReceiverInterrupt;
+  if (nReceiverInterrupt_backup != -1) {
+    this->disableReceive();
   }
-  this->send(code, length);
+#endif
+
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    for (const char* p = sCodeWord; *p; p++) {
+      if ((*p != '0')) {
+        this->transmit(protocol.one);
+      }
+      else {
+        this->transmit(protocol.zero);
+      }
+    }
+    this->transmit(protocol.syncFactor);
+  }
+
+#if not defined( RCSwitchDisableReceiving )
+  // enable receiver again if we just disabled it
+  if (nReceiverInterrupt_backup != -1) {
+    this->enableReceive(nReceiverInterrupt_backup);
+  }
+#endif
 }
 
 /**
@@ -582,7 +671,7 @@ unsigned int RCSwitch::getReceivedProtocol() {
   return RCSwitch::nReceivedProtocol;
 }
 
-unsigned int* RCSwitch::getReceivedRawdata() {
+volatile unsigned int* RCSwitch::getReceivedRawdata() {
   return RCSwitch::timings;
 }
 
@@ -654,9 +743,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
-  static unsigned int changeCount = 0;
-  static unsigned long lastTime = 0;
-  static unsigned int repeatCount = 0;
+  static volatile unsigned int changeCount = 0;
+  static volatile unsigned long lastTime = 0;
+  static volatile unsigned int repeatCount = 0;
 
   const long time = micros();
   const unsigned int duration = time - lastTime;
