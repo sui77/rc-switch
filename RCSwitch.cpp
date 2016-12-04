@@ -647,9 +647,10 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
         RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
