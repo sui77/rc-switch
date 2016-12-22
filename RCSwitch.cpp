@@ -504,6 +504,8 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
         this->transmit(protocol.zero);
     }
   }
+  // (start) and end every transmission with a sync bit => issue #82  
+  this->transmit(protocol.syncFactor);
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
