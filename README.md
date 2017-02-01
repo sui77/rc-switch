@@ -6,6 +6,8 @@ Use your Arduino or Raspberry Pi to operate remote radio controlled devices
 ## Download
 https://github.com/sui77/rc-switch/releases/latest
 
+rc-switch is also listed in the arduino library manager.
+
 ## Wiki
 https://github.com/sui77/rc-switch/wiki
 
