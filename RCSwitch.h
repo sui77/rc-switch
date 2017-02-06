@@ -109,6 +109,7 @@ class RCSwitch {
 
     struct Protocol {
         int pulseLength;
+        HighLow preamble;
         HighLow syncFactor;
         HighLow zero;
         HighLow one;
