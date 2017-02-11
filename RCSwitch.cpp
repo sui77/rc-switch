@@ -85,7 +85,6 @@ enum {
    numProto = sizeof(proto) / sizeof(proto[0])
 };
 
-#if not defined( RCSwitchDisableReceiving )
 unsigned long RCSwitch::nReceivedValue = 0;
 unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
@@ -96,17 +95,14 @@ const unsigned int RCSwitch::nSeparationLimit = 4300;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
-#endif
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
   this->setRepeatTransmit(10);
   this->setProtocol(1);
-  #if not defined( RCSwitchDisableReceiving )
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
   RCSwitch::nReceivedValue = 0;
-  #endif
 }
 
 /**
@@ -156,11 +152,9 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
 /**
  * Set Receiving Tolerance
  */
-#if not defined( RCSwitchDisableReceiving )
 void RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
 }
-#endif
   
 
 /**
@@ -487,13 +481,11 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
 
-#if not defined( RCSwitchDisableReceiving )
   // make sure the receiver is disabled while we transmit
   int nReceiverInterrupt_backup = nReceiverInterrupt;
   if (nReceiverInterrupt_backup != -1) {
     this->disableReceive();
   }
-#endif
 
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
     for (int i = length-1; i >= 0; i--) {
@@ -505,12 +497,10 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
     this->transmit(protocol.syncFactor);
   }
 
-#if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
   if (nReceiverInterrupt_backup != -1) {
     this->enableReceive(nReceiverInterrupt_backup);
   }
-#endif
 }
 
 /**
@@ -527,7 +517,6 @@ void RCSwitch::transmit(HighLow pulses) {
 }
 
 
-#if not defined( RCSwitchDisableReceiving )
 /**
  * Enable receiving data
  */
@@ -543,7 +532,11 @@ void RCSwitch::enableReceive() {
 #if defined(RaspberryPi) // Raspberry Pi
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
 #else // Arduino
-    attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+	#if defined( __AVR_ATtiny24__ ) ||  defined( __AVR_ATtiny44__ ) ||  defined( __AVR_ATtiny84__ ) || defined( __AVR_ATtiny25__ ) ||  defined( __AVR_ATtiny45__ ) ||  defined( __AVR_ATtiny85__ )
+    	attachPinChangeInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+    #else
+    	attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+    #endif
 #endif
   }
 }
@@ -553,7 +546,11 @@ void RCSwitch::enableReceive() {
  */
 void RCSwitch::disableReceive() {
 #if not defined(RaspberryPi) // Arduino
-  detachInterrupt(this->nReceiverInterrupt);
+	#if defined( __AVR_ATtiny24__ ) ||  defined( __AVR_ATtiny44__ ) ||  defined( __AVR_ATtiny84__ ) || defined( __AVR_ATtiny25__ ) ||  defined( __AVR_ATtiny45__ ) ||  defined( __AVR_ATtiny85__ )
+		detachPinChangeInterrupt(this->nReceiverInterrupt);
+    #else
+    	detachInterrupt(this->nReceiverInterrupt);
+    #endif
 #endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
 }
@@ -694,4 +691,3 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
-#endif
