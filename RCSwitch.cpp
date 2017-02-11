@@ -73,12 +73,13 @@ static const RCSwitch::Protocol proto[] = {
 #else
 static const RCSwitch::Protocol PROGMEM proto[] = {
 #endif
-  { 350, {  1, 31 }, {  1,  3 }, {  3,  1 }, false },    // protocol 1
-  { 650, {  1, 10 }, {  1,  2 }, {  2,  1 }, false },    // protocol 2
-  { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
-  { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
-  { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 6 (HT6P20B)
+  { 350, { 0, 0 }, {  1, 31 }, {  1,  3 }, {  3,  1 }, false },    // protocol 1
+  { 650, { 0, 0 }, {  1, 10 }, {  1,  2 }, {  2,  1 }, false },    // protocol 2
+  { 100, { 0, 0 }, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
+  { 380, { 0, 0 }, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
+  { 500, { 0, 0 }, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
+  { 450, { 0, 0 }, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
+  { 700, { 0, 1 }, { 116, 0 }, {  1,  2 }, {  2,  1 }, true }      // protocol 7 (Quigg GT-7000)
 };
 
 enum {
@@ -496,6 +497,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 #endif
 
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    this->transmit(protocol.preamble);
     for (int i = length-1; i >= 0; i--) {
       if (code & (1L << i))
         this->transmit(protocol.one);
