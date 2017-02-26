@@ -33,7 +33,7 @@
 
 #include "RCSwitch.h"
 
-#ifdef RaspberryPi
+#if defined(RaspberryPi) || defined(__linux__)
     // PROGMEM and _P functions are for AVR based microprocessors,
     // so we must normalize these for the ARM processor:
     #define PROGMEM
@@ -48,6 +48,27 @@
     #define RECEIVE_ATTR
 #endif
 
+#ifdef __linux__
+    #include <time.h>
+    #include <fcntl.h>
+    #include <termios.h>
+    #include <sys/ioctl.h>
+
+    #define pinMode(a, b)
+    #define LOW 0
+    #define HIGH 1
+
+    static void delayMicroseconds(unsigned int usec) {
+        struct timespec tv = { usec / 1000000, (usec % 1000000) * 1000 };
+    	nanosleep(&tv, NULL);
+    }
+
+    static void digitalWrite(int pin, uint8_t level) {
+    	unsigned long req = HIGH==level?TIOCMBIS:TIOCMBIC;
+    	int rts_flag = TIOCM_RTS;
+        ioctl(pin, req, &rts_flag);
+    }
+#endif
 
 /* Format for protocol definitions:
  * {pulselength, Sync bit, "0" bit, "1" bit}
@@ -172,6 +193,12 @@ void RCSwitch::enableTransmit(int nTransmitterPin) {
   this->nTransmitterPin = nTransmitterPin;
   pinMode(this->nTransmitterPin, OUTPUT);
 }
+
+#ifdef __linux__
+void RCSwitch::enableTransmit(const char *serial) {
+  this->nTransmitterPin = open(serial, O_RDWR | O_NOCTTY);
+}
+#endif
 
 /**
   * Disable transmissions

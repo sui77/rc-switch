@@ -43,6 +43,9 @@
     #include <wiringPi.h>
 #elif defined(SPARK)
     #include "application.h"
+#elif defined(__linux__)
+    #include <string.h> /* memcpy */
+    #include <stdlib.h> /* abs */
 #else
     #include "WProgram.h"
 #endif
@@ -95,6 +98,9 @@ class RCSwitch {
     #endif
   
     void enableTransmit(int nTransmitterPin);
+#ifdef __linux__
+    void enableTransmit(const char *serial);
+#endif
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
