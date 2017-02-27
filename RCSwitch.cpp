@@ -452,6 +452,10 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
         // bit pattern 01
         code |= 1L;
         break;
+      case 'X':
+        // bit pattern 10
+        code |= 2L;
+        break;
       case '1':
         // bit pattern 11
         code |= 3L;
