@@ -167,10 +167,10 @@ class RCSwitch {
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
-    static unsigned long nReceivedValue;
-    static unsigned int nReceivedBitlength;
-    static unsigned int nReceivedDelay;
-    static unsigned int nReceivedProtocol;
+    volatile static unsigned long nReceivedValue;
+    volatile static unsigned int nReceivedBitlength;
+    volatile static unsigned int nReceivedDelay;
+    volatile static unsigned int nReceivedProtocol;
     const static unsigned int nSeparationLimit;
     /* 
      * timings[0] contains sync timing, followed by a number of bits
