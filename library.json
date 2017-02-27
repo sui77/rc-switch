@@ -1,11 +1,7 @@
 {
-  "name": "RCSwitch",
-  "description": "Use your Arduino or Raspberry Pi to operate remote radio controlled devices",
+  "name": "rc-switch",
+  "description": "Arduino lib to operate 433/315Mhz devices like power outlet sockets",
   "keywords": "rf, radio, wireless",
-  "authors":
-  {
-    "name": "Suat Ozgur"
-  },
   "repository":
   {
     "type": "git",
