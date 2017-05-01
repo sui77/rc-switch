@@ -505,6 +505,9 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
     this->transmit(protocol.syncFactor);
   }
 
+  // Disable transmit after sending (i.e., for inverted protocols)
+  digitalWrite(this->nTransmitterPin, LOW);
+
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
   if (nReceiverInterrupt_backup != -1) {
