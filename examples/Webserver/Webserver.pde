@@ -1,7 +1,7 @@
 /*
   A simple RCSwitch/Ethernet/Webserver demo
   
-  http://code.google.com/p/rc-switch/
+  https://github.com/sui77/rc-switch/
 */
 
 #include <SPI.h>
@@ -79,7 +79,7 @@ void httpResponseHome(EthernetClient c) {
   c.println(        "<li><a href=\"./?2-off\">Switch #2 off</a></li>");
   c.println(    "</ul>");
   c.println(    "<hr>");
-  c.println(    "<a href=\"http://code.google.com/p/rc-switch/\">http://code.google.com/p/rc-switch/</a>");
+  c.println(    "<a href=\"https://github.com/sui77/rc-switch/\">https://github.com/sui77/rc-switch/</a>");
   c.println("</body>");
   c.println("</html>");
 }

@@ -3,7 +3,7 @@
   the 10 pole dip switch sockets. It saves a lot of memory and thus might be 
   very useful to use with ATTinys :)
   
-  http://code.google.com/p/rc-switch/
+  https://github.com/sui77/rc-switch/
 */
 
 int RCLpin = 7;

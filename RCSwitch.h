@@ -8,8 +8,10 @@
   - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=46
   - Dominik Fischer / dom_fischer(at)web(dot)de
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
+  - Max Horn / max(at)quendi(dot)de
+  - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   
-  Project home: http://code.google.com/p/rc-switch/
+  Project home: https://github.com/sui77/rc-switch/
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -31,24 +33,25 @@
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
-    #include "Energia.h"	
+    #include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
     #define RaspberryPi
+    // PROGMEM och _P functions are for AVR based microprocessors,
+    // so we must normalize these for the ARM processor:
+    #define PROGMEM
+    #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
+    // Include libraries for RPi:
+    #include <string.h> /* memcpy */
+    #include <stdlib.h> /* abs */
+    #include <stddef.h> /* NULL */
     #include <wiringPi.h>
     #include <stdint.h>
-    #define NULL 0
     #define CHANGE 1
-#ifdef __cplusplus
-extern "C"{
-#endif
-typedef uint8_t boolean;
-typedef uint8_t byte;
-
-#if !defined(NULL)
-#endif
-#ifdef __cplusplus
-}
-#endif // Last line inside Raspberry Pi block
+    // The following typedefs are needed to be able to compile RCSwitch.cpp
+    // with the RPi C++ compiler (g++)
+    typedef uint8_t boolean;
+    typedef uint8_t byte;
+    // Last line within Raspberry Pi block
 #else
     #include "WProgram.h"
 #endif
@@ -64,12 +67,6 @@ typedef uint8_t byte;
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
 
-#define PROTOCOL3_SYNC_FACTOR   71
-#define PROTOCOL3_0_HIGH_CYCLES  4
-#define PROTOCOL3_0_LOW_CYCLES  11
-#define PROTOCOL3_1_HIGH_CYCLES  9
-#define PROTOCOL3_1_LOW_CYCLES   6
-
 class RCSwitch {
 
   public:
@@ -77,18 +74,18 @@ class RCSwitch {
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
-    void switchOn(char* sGroup, int nSwitchNumber);
-    void switchOff(char* sGroup, int nSwitchNumber);
+    void switchOn(const char* sGroup, int nSwitchNumber);
+    void switchOff(const char* sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
-    void switchOn(char* sGroup, char* sDevice);
-    void switchOff(char* sGroup, char* sDevice);
+    void switchOn(const char* sGroup, const char* sDevice);
+    void switchOff(const char* sGroup, const char* sDevice);
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
 
-    void sendTriState(char* Code);
+    void sendTriState(const char* Code);
     void send(unsigned long Code, unsigned int length);
-    void send(char* Code);
+    void send(const char* Code);
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
@@ -96,7 +93,7 @@ class RCSwitch {
     void disableReceive();
     bool available();
     void resetAvailable();
-	
+
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
@@ -111,13 +108,27 @@ class RCSwitch {
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
     #endif
+
+    struct HighLow {
+        byte high;
+        byte low;
+    };
+
+    struct Protocol {
+        int pulseLength;
+        HighLow syncFactor;
+        HighLow zero;
+        HighLow one;
+    };
+
+    void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
-  
+
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
-    char* getCodeWordA(char* sGroup, char* sDevice, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, int nSwitchNumber, boolean bStatus);
+    char* getCodeWordA(const char* sGroup, const char* sDevice, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     char* getCodeWordD(char group, int nDevice, boolean bStatus);
     void sendT0();
@@ -127,21 +138,19 @@ class RCSwitch {
     void send1();
     void sendSync();
     void transmit(int nHighPulses, int nLowPulses);
+    void transmit(HighLow pulses);
 
-    static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
     
     #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
-    static bool receiveProtocol1(unsigned int changeCount);
-    static bool receiveProtocol2(unsigned int changeCount);
-    static bool receiveProtocol3(unsigned int changeCount);
+    static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
-    int nPulseLength;
     int nRepeatTransmit;
-    char nProtocol;
+    
+    Protocol protocol;
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
@@ -149,12 +158,12 @@ class RCSwitch {
     static unsigned int nReceivedBitlength;
     static unsigned int nReceivedDelay;
     static unsigned int nReceivedProtocol;
-    static unsigned int nSeparationLimit;
-    #endif
+    const static unsigned int nSeparationLimit;
     /* 
      * timings[0] contains sync timing, followed by a number of bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
+    #endif
 
     
 };
