@@ -73,12 +73,13 @@ static const RCSwitch::Protocol proto[] = {
 #else
 static const RCSwitch::Protocol PROGMEM proto[] = {
 #endif
-  { 350, {  1, 31 }, {  1,  3 }, {  3,  1 }, false },    // protocol 1
-  { 650, {  1, 10 }, {  1,  2 }, {  2,  1 }, false },    // protocol 2
-  { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
-  { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
-  { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 6 (HT6P20B)
+  { 350, {  1, 31 }, {  1,  3 }, {  3,  1 }, false, 0 },    // protocol 1
+  { 650, {  1, 10 }, {  1,  2 }, {  2,  1 }, false, 0 },    // protocol 2
+  { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false, 0 },    // protocol 3
+  { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false, 0 },    // protocol 4
+  { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false, 0 },    // protocol 5
+  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true,  0 },    // protocol 6 (HT6P20B)
+  { 220, {  1, 46 }, {  1,  6 }, {  1,  1 }, false, 2 }     // protocol 7 (NEXA)
 };
 
 enum {
@@ -625,7 +626,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
      *
      * The 2nd saved duration starts the data
      */
-    const unsigned int firstDataTiming = (pro.invertedSignal) ? (2) : (1);
+    const unsigned int firstDataTiming = (pro.invertedSignal) ? (2) : (1)
+                                         + pro.skipPulses;
 
     for (unsigned int i = firstDataTiming; i < changeCount - 1; i += 2) {
         code <<= 1;
