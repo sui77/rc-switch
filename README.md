@@ -1,7 +1,7 @@
 # rc-switch
 [![Build Status](https://travis-ci.org/sui77/rc-switch.svg?branch=master)](https://travis-ci.org/sui77/rc-switch)
 
-Use your Arduino or Raspberry Pi to operate remote radio controlled devices
+Use your Arduino, Raspberry Pi or C.H.I.P to operate remote radio controlled devices
 
 ## Download
 https://github.com/sui77/rc-switch/releases/latest
@@ -14,11 +14,11 @@ https://github.com/sui77/rc-switch/wiki
 ## Info
 ### Send RC codes
 
-Use your Arduino or Raspberry Pi to operate remote radio controlled devices.
+Use your Arduino, Raspberry Pi or C.H.I.P to operate remote radio controlled devices.
 This will most likely work with all popular low cost power outlet sockets. If
 yours doesn't work, you might need to adjust the pulse length.
 
-All you need is a Arduino or Raspberry Pi, a 315/433MHz AM transmitter and one
+All you need is a Arduino, Raspberry Pi or C.H.I.P, a 315/433MHz AM transmitter and one
 or more devices with one of the supported chipsets:
 
  - SC5262 / SC5272
@@ -37,5 +37,11 @@ All you need is an Arduino, a 315/433MHz AM receiver (altough there is no
 instruction yet, yes it is possible to hack an existing device) and a remote
 hand set.
 
-For the Raspberry Pi, clone the https://github.com/ninjablocks/433Utils project to
-compile a sniffer tool and transmission commands.
+For the Raspberry Pi, clone the
+https://github.com/ninjablocks/433Utils project to compile a sniffer tool and
+transmission commands.
+
+For the [C.H.I.P](http://getchip.com), clone the
+https://github.com/xtacocorex/CHIP_IO project into this directory for the
+required C libraries, then clone the https://github.com/ninjablocks/433Utils
+project to compile a sniffer tool and transmission commands.
