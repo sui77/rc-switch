@@ -166,7 +166,11 @@ class RCSwitch {
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
+
+    #ifdef GETCHIP
     static void handleInterrupt(int gpio, void* data);
+    #endif
+
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;

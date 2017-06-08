@@ -672,10 +672,11 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     return false;
 }
 
-// For CHIP
+#ifdef GETCHIP
 void RECEIVE_ATTR RCSwitch::handleInterrupt(int gpio, void* data) {
 	RCSwitch::handleInterrupt();
 }
+#endif
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
