@@ -53,7 +53,7 @@
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
 // missing libm depencies (udivmodhi4)
 #if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
-#define RCSwitchDisableReceiving
+#ifndef RCSwitchDisableReceiving
 #endif
 
 // Number of maximum high/Low changes per packet.
@@ -80,7 +80,7 @@ class RCSwitch {
     void send(unsigned long code, unsigned int length);
     void send(const char* sCodeWord);
     
-    #if not defined( RCSwitchDisableReceiving )
+    #ifndef RCSwitchDisableReceiving
     void enableReceive(int interrupt);
     void enableReceive();
     void disableReceive();
@@ -98,7 +98,7 @@ class RCSwitch {
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
-    #if not defined( RCSwitchDisableReceiving )
+    #ifndef RCSwitchDisableReceiving
     void setReceiveTolerance(int nPercent);
     #endif
 
@@ -155,7 +155,7 @@ class RCSwitch {
     char* getCodeWordD(char group, int nDevice, bool bStatus);
     void transmit(HighLow pulses);
 
-    #if not defined( RCSwitchDisableReceiving )
+    #ifndef RCSwitchDisableReceiving
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
@@ -165,7 +165,7 @@ class RCSwitch {
     
     Protocol protocol;
 
-    #if not defined( RCSwitchDisableReceiving )
+    #ifndef RCSwitchDisableReceiving
     static int nReceiveTolerance;
     volatile static unsigned long nReceivedValue;
     volatile static unsigned int nReceivedBitlength;

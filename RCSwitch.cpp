@@ -86,7 +86,7 @@ enum {
    numProto = sizeof(proto) / sizeof(proto[0])
 };
 
-#if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
 volatile unsigned long RCSwitch::nReceivedValue = 0;
 volatile unsigned int RCSwitch::nReceivedBitlength = 0;
 volatile unsigned int RCSwitch::nReceivedDelay = 0;
@@ -103,7 +103,7 @@ RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
   this->setRepeatTransmit(10);
   this->setProtocol(1);
-  #if not defined( RCSwitchDisableReceiving )
+  #ifndef RCSwitchDisableReceiving
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
   RCSwitch::nReceivedValue = 0;
@@ -157,7 +157,7 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
 /**
  * Set Receiving Tolerance
  */
-#if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
 void RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
 }
@@ -488,7 +488,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
 
-#if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
   // make sure the receiver is disabled while we transmit
   int nReceiverInterrupt_backup = nReceiverInterrupt;
   if (nReceiverInterrupt_backup != -1) {
@@ -506,7 +506,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
     this->transmit(protocol.syncFactor);
   }
 
-#if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
   // enable receiver again if we just disabled it
   if (nReceiverInterrupt_backup != -1) {
     this->enableReceive(nReceiverInterrupt_backup);
@@ -528,7 +528,7 @@ void RCSwitch::transmit(HighLow pulses) {
 }
 
 
-#if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
 /**
  * Enable receiving data
  */
