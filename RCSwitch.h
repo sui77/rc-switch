@@ -34,6 +34,16 @@
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"
+#elif defined(GETCHIP) // C.H.I.P
+    // Include libraries for RPi:
+    #include <string.h> /* memcpy */
+    #include <stdlib.h> /* abs */
+
+    extern "C" {
+      #include "CHIP_IO/source/common.h"
+      #include "CHIP_IO/source/event_gpio.h"
+    }
+
 #elif defined(RPI) // Raspberry Pi
     #define RaspberryPi
 
@@ -156,6 +166,11 @@ class RCSwitch {
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
+
+    #ifdef GETCHIP
+    static void handleInterrupt(int gpio, void* data);
+    #endif
+
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;

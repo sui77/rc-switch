@@ -33,7 +33,23 @@
 
 #include "RCSwitch.h"
 
-#ifdef RaspberryPi
+#if defined(GETCHIP)
+    #define pinMode gpio_set_direction
+    #define detachInterrupt remove_edge_detect
+    #define digitalWrite gpio_set_value
+
+    #include <sys/time.h>
+    #include <unistd.h>
+    #define delayMicroseconds usleep
+
+    long micros() {
+      struct timeval tv;
+      gettimeofday(&tv,NULL);
+      return 1000000 * tv.tv_sec + tv.tv_usec;
+    }
+#endif
+
+#if defined(RaspberryPi) || defined(GETCHIP)
     // PROGMEM and _P functions are for AVR based microprocessors,
     // so we must normalize these for the ARM processor:
     #define PROGMEM
@@ -546,6 +562,9 @@ void RCSwitch::enableReceive() {
     RCSwitch::nReceivedBitlength = 0;
 #if defined(RaspberryPi) // Raspberry Pi
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
+#elif defined(GETCHIP)
+    add_edge_detect(nReceiverInterrupt, BOTH_EDGE);
+    add_edge_callback(this->nReceiverInterrupt, BOTH_EDGE, &handleInterrupt, NULL);
 #else // Arduino
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
 #endif
@@ -656,6 +675,12 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
     return false;
 }
+
+#ifdef GETCHIP
+void RECEIVE_ATTR RCSwitch::handleInterrupt(int gpio, void* data) {
+	RCSwitch::handleInterrupt();
+}
+#endif
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
