@@ -10,6 +10,7 @@
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
+  - Phil Ashby / https://ashbysoft.com/wiki/Phlash
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -46,6 +47,8 @@
 #elif defined(__linux__)
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
+	#define LOW 0
+	#define HIGH 1
 #else
     #include "WProgram.h"
 #endif
@@ -62,6 +65,13 @@
 // Number of maximum high/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
+
+// Callback interface (pure virtual class) used to separate RCSwitch from I/O logic
+class DigitalIO {
+  public:
+    virtual void digitalWrite(uint8_t level) = 0;
+    virtual void delayMicroseconds(unsigned int usec) = 0;
+};
 
 class RCSwitch {
 
@@ -98,9 +108,7 @@ class RCSwitch {
     #endif
   
     void enableTransmit(int nTransmitterPin);
-#ifdef __linux__
-    void enableTransmit(const char *serial);
-#endif
+    void enableTransmit(DigitalIO *pIO);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
@@ -167,6 +175,7 @@ class RCSwitch {
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
+    DigitalIO *pIO;
     int nRepeatTransmit;
     
     Protocol protocol;

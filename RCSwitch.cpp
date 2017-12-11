@@ -13,6 +13,7 @@
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
   - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
+  - Phil Ashby / https://ashbysoft.com/wiki/Phlash
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -40,34 +41,20 @@
     #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
 #endif
 
+#if defined(__linux__)
+	// Dummy hardware routines for Linux, use DigitalIO mechanism
+	#define OUTPUT	1
+	#define pinMode(a, b)
+	static void delayMicroseconds(unsigned int x) {}
+	static void digitalWrite(int a, uint8_t b) {}
+#endif
+
 #if defined(ESP8266) || defined(ESP32)
     // interrupt handler and related code must be in RAM on ESP8266,
     // according to issue #46.
     #define RECEIVE_ATTR ICACHE_RAM_ATTR
 #else
     #define RECEIVE_ATTR
-#endif
-
-#ifdef __linux__
-    #include <time.h>
-    #include <fcntl.h>
-    #include <termios.h>
-    #include <sys/ioctl.h>
-
-    #define pinMode(a, b)
-    #define LOW 0
-    #define HIGH 1
-
-    static void delayMicroseconds(unsigned int usec) {
-        struct timespec tv = { usec / 1000000, (usec % 1000000) * 1000 };
-    	nanosleep(&tv, NULL);
-    }
-
-    static void digitalWrite(int pin, uint8_t level) {
-    	unsigned long req = HIGH==level?TIOCMBIS:TIOCMBIC;
-    	int rts_flag = TIOCM_RTS;
-        ioctl(pin, req, &rts_flag);
-    }
 #endif
 
 /* Format for protocol definitions:
@@ -122,6 +109,7 @@ unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
+  this->pIO = NULL;
   this->setRepeatTransmit(10);
   this->setProtocol(1);
   #if not defined( RCSwitchDisableReceiving )
@@ -195,11 +183,14 @@ void RCSwitch::enableTransmit(int nTransmitterPin) {
   pinMode(this->nTransmitterPin, OUTPUT);
 }
 
-#ifdef __linux__
-void RCSwitch::enableTransmit(const char *serial) {
-  this->nTransmitterPin = open(serial, O_RDWR | O_NOCTTY);
+/**
+ * Enable transmissions
+ *
+ * @param pIO    DigitalIO interface to call back for hardware access and timing
+ */
+void RCSwitch::enableTransmit(DigitalIO *pIO) {
+  this->pIO = pIO;
 }
-#endif
 
 /**
   * Disable transmissions
@@ -512,7 +503,7 @@ void RCSwitch::send(const char* sCodeWord) {
  * then the bit at position length-2, and so on, till finally the bit at position 0.
  */
 void RCSwitch::send(unsigned long code, unsigned int length) {
-  if (this->nTransmitterPin == -1)
+  if (this->pIO == NULL && this->nTransmitterPin == -1)
     return;
 
 #if not defined( RCSwitchDisableReceiving )
@@ -534,7 +525,10 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
   }
 
   // Disable transmit after sending (i.e., for inverted protocols)
-  digitalWrite(this->nTransmitterPin, LOW);
+  if (this->pIO != NULL)
+    this->pIO->digitalWrite(LOW);
+  else
+    digitalWrite(this->nTransmitterPin, LOW);
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
@@ -551,10 +545,17 @@ void RCSwitch::transmit(HighLow pulses) {
   uint8_t firstLogicLevel = (this->protocol.invertedSignal) ? LOW : HIGH;
   uint8_t secondLogicLevel = (this->protocol.invertedSignal) ? HIGH : LOW;
   
-  digitalWrite(this->nTransmitterPin, firstLogicLevel);
-  delayMicroseconds( this->protocol.pulseLength * pulses.high);
-  digitalWrite(this->nTransmitterPin, secondLogicLevel);
-  delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  if (this->pIO != NULL) {
+    this->pIO->digitalWrite(firstLogicLevel);
+    this->pIO->delayMicroseconds( this->protocol.pulseLength * pulses.high);
+    this->pIO->digitalWrite(secondLogicLevel);
+    this->pIO->delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  } else {
+    digitalWrite(this->nTransmitterPin, firstLogicLevel);
+    delayMicroseconds( this->protocol.pulseLength * pulses.high);
+    digitalWrite(this->nTransmitterPin, secondLogicLevel);
+    delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  }
 }
 
 

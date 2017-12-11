@@ -1,7 +1,36 @@
 // Simple test program for RCSwitch.so, switch a Type B device on/off
 
 #include <stdio.h>
+#include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #include "RCSwitch.h"
+
+class IO : public DigitalIO {
+public:
+	IO(const char *serial) {
+		fd = open(serial, O_RDWR | O_NOCTTY);
+	}
+	~IO() {
+		if (fd > 0)
+			close(fd);
+	}
+
+	virtual void delayMicroseconds(unsigned int usec) {
+		struct timespec tv = { usec / 1000000, (usec % 1000000) * 1000 };
+		nanosleep(&tv, NULL);
+	}
+
+	virtual void digitalWrite(uint8_t level) {
+		unsigned long req = HIGH==level?TIOCMBIS:TIOCMBIC;
+		int rts_flag = TIOCM_RTS;
+		ioctl(fd, req, &rts_flag);
+	}
+private:
+	int fd;
+};
 
 int main(int argc, char **argv) {
 	bool on = false;
@@ -23,7 +52,8 @@ int main(int argc, char **argv) {
 	}
 	printf("Switching device %d:%d %s via %s\n", grp, chn, on?"on":"off", serial);
 	RCSwitch *dev = new RCSwitch();
-	dev->enableTransmit(serial);
+	IO *io = new IO(serial);
+	dev->enableTransmit(io);
 	if (on)
 		dev->switchOn(grp, chn);
 	else
