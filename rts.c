@@ -1,6 +1,9 @@
+// Exclude from Arduino IDE, which greedily compiles every .c[pp] it can find :(
+#ifdef __linux__
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <time.h>
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -46,3 +49,4 @@ int main(int argc, char **argv) {
 	close(arg);
 	return 0;
 }
+#endif

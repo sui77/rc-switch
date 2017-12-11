@@ -1,5 +1,6 @@
 // Simple test program for RCSwitch.so, switch a Type B device on/off
-
+// Exclude from Arduino IDE, which greedily compiles every .c[pp] it can find :(
+#ifdef __linux__
 #include <stdio.h>
 #include <time.h>
 #include <fcntl.h>
@@ -60,4 +61,5 @@ int main(int argc, char **argv) {
 		dev->switchOff(grp, chn);
 	return 0;
 }
+#endif
 
