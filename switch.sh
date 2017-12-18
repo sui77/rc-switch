@@ -1,9 +1,11 @@
-#! /bin/sh
+#! /bin/bash
 # Poke the rctest application a couple of times to ensure state is reached
 HERE=`dirname $0`
-LD_LIBRARY_PATH=$HERE $HERE/rctest $*
-sleep 3
-LD_LIBRARY_PATH=$HERE $HERE/rctest $*
-sleep 3
-LD_LIBRARY_PATH=$HERE $HERE/rctest $*
+CNT=3
+[ -n "$SWITCHES" ] && CNT=$SWITCHES
+while [ $CNT -gt 0 ]; do
+	LD_LIBRARY_PATH=$HERE $HERE/rctest $*
+	sleep 3
+	CNT=$(($CNT - 1))
+done
 $HERE/rts off
