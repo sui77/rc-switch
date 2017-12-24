@@ -44,10 +44,15 @@
     // interrupt handler and related code must be in RAM on ESP8266,
     // according to issue #46.
     #define RECEIVE_ATTR ICACHE_RAM_ATTR
+    #define PROGMEM
 #else
     #define RECEIVE_ATTR
 #endif
 
+// defined if compiled with ESP8266 SDK, otherwise make an empty define here
+#ifndef ICACHE_FLASH_ATTR
+	#define ICACHE_FLASH_ATTR
+#endif
 
 /* Format for protocol definitions:
  * {pulselength, Sync bit, "0" bit, "1" bit}
@@ -68,17 +73,13 @@
  *
  * These are combined to form Tri-State bits when sending or receiving codes.
  */
-#if defined(ESP8266) || defined(ESP32)
-static const RCSwitch::Protocol proto[] = {
-#else
 static const RCSwitch::Protocol PROGMEM proto[] = {
-#endif
   { 350, {  1, 31 }, {  1,  3 }, {  3,  1 }, false },    // protocol 1
   { 650, {  1, 10 }, {  1,  2 }, {  2,  1 }, false },    // protocol 2
   { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
   { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
   { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },      // protocol 6 (HT6P20B)
+  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
   { 150, {  2, 62 }, {  1,  6 }, {  6,  1 }, false }     // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
 };
 
@@ -113,14 +114,14 @@ RCSwitch::RCSwitch() {
 /**
   * Sets the protocol to send.
   */
-void RCSwitch::setProtocol(Protocol protocol) {
+void ICACHE_FLASH_ATTR RCSwitch::setProtocol(Protocol protocol) {
   this->protocol = protocol;
 }
 
 /**
   * Sets the protocol to send, from a list of predefined protocols
   */
-void RCSwitch::setProtocol(int nProtocol) {
+void ICACHE_FLASH_ATTR RCSwitch::setProtocol(int nProtocol) {
   if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
@@ -134,23 +135,22 @@ void RCSwitch::setProtocol(int nProtocol) {
 /**
   * Sets the protocol to send with pulse length in microseconds.
   */
-void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
+void ICACHE_FLASH_ATTR RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
   setProtocol(nProtocol);
   this->setPulseLength(nPulseLength);
 }
 
-
 /**
   * Sets pulse length in microseconds
   */
-void RCSwitch::setPulseLength(int nPulseLength) {
+void ICACHE_FLASH_ATTR RCSwitch::setPulseLength(int nPulseLength) {
   this->protocol.pulseLength = nPulseLength;
 }
 
 /**
  * Sets Repeat Transmits
  */
-void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
+void ICACHE_FLASH_ATTR RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
   this->nRepeatTransmit = nRepeatTransmit;
 }
 
@@ -158,7 +158,7 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
  * Set Receiving Tolerance
  */
 #if not defined( RCSwitchDisableReceiving )
-void RCSwitch::setReceiveTolerance(int nPercent) {
+void ICACHE_FLASH_ATTR RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
 }
 #endif
@@ -169,7 +169,7 @@ void RCSwitch::setReceiveTolerance(int nPercent) {
  *
  * @param nTransmitterPin    Arduino Pin to which the sender is connected to
  */
-void RCSwitch::enableTransmit(int nTransmitterPin) {
+void ICACHE_FLASH_ATTR RCSwitch::enableTransmit(int nTransmitterPin) {
   this->nTransmitterPin = nTransmitterPin;
   pinMode(this->nTransmitterPin, OUTPUT);
 }
@@ -177,7 +177,7 @@ void RCSwitch::enableTransmit(int nTransmitterPin) {
 /**
   * Disable transmissions
   */
-void RCSwitch::disableTransmit() {
+void ICACHE_FLASH_ATTR RCSwitch::disableTransmit() {
   this->nTransmitterPin = -1;
 }
 
@@ -187,7 +187,7 @@ void RCSwitch::disableTransmit() {
  * @param sGroup        Code of the switch group (A,B,C,D)
  * @param nDevice       Number of the switch itself (1..3)
  */
-void RCSwitch::switchOn(char sGroup, int nDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOn(char sGroup, int nDevice) {
   this->sendTriState( this->getCodeWordD(sGroup, nDevice, true) );
 }
 
@@ -197,7 +197,7 @@ void RCSwitch::switchOn(char sGroup, int nDevice) {
  * @param sGroup        Code of the switch group (A,B,C,D)
  * @param nDevice       Number of the switch itself (1..3)
  */
-void RCSwitch::switchOff(char sGroup, int nDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOff(char sGroup, int nDevice) {
   this->sendTriState( this->getCodeWordD(sGroup, nDevice, false) );
 }
 
@@ -208,7 +208,7 @@ void RCSwitch::switchOff(char sGroup, int nDevice) {
  * @param nGroup   Number of group (1..4)
  * @param nDevice  Number of device (1..4)
   */
-void RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
   this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, true) );
 }
 
@@ -219,7 +219,7 @@ void RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
  * @param nGroup   Number of group (1..4)
  * @param nDevice  Number of device (1..4)
  */
-void RCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
   this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, false) );
 }
 
@@ -229,7 +229,7 @@ void RCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
   this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, true) );
 }
 
@@ -239,7 +239,7 @@ void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
   this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, false) );
 }
 
@@ -250,7 +250,7 @@ void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..5)
  */
-void RCSwitch::switchOn(const char* sGroup, int nChannel) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOn(const char* sGroup, int nChannel) {
   const char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
   this->switchOn(sGroup, code[nChannel]);
 }
@@ -262,7 +262,7 @@ void RCSwitch::switchOn(const char* sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..5)
  */
-void RCSwitch::switchOff(const char* sGroup, int nChannel) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOff(const char* sGroup, int nChannel) {
   const char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
   this->switchOff(sGroup, code[nChannel]);
 }
@@ -273,7 +273,7 @@ void RCSwitch::switchOff(const char* sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
-void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
   this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
 }
 
@@ -283,7 +283,7 @@ void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
-void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
+void ICACHE_FLASH_ATTR RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
   this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
@@ -292,7 +292,7 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
  * Returns a char[13], representing the code word to be send.
  *
  */
-char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
+char* ICACHE_FLASH_ATTR RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -328,7 +328,7 @@ char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStat
  *
  * @return char[13], representing a tristate code word of length 12
  */
-char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
+char* ICACHE_FLASH_ATTR RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -357,7 +357,7 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
 /**
  * Like getCodeWord (Type C = Intertechno)
  */
-char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus) {
+char* ICACHE_FLASH_ATTR RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -407,7 +407,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus
  *
  * @return char[13], representing a tristate code word of length 12
  */
-char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
+char* ICACHE_FLASH_ATTR RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
 
@@ -439,7 +439,7 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
 /**
  * @param sCodeWord   a tristate code word consisting of the letter 0, 1, F
  */
-void RCSwitch::sendTriState(const char* sCodeWord) {
+void ICACHE_FLASH_ATTR RCSwitch::sendTriState(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
   unsigned long code = 0;
   unsigned int length = 0;
@@ -466,7 +466,7 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
 /**
  * @param sCodeWord   a binary code word consisting of the letter 0, 1
  */
-void RCSwitch::send(const char* sCodeWord) {
+void ICACHE_FLASH_ATTR RCSwitch::send(const char* sCodeWord) {
   // turn the tristate code word into the corresponding bit pattern, then send it
   unsigned long code = 0;
   unsigned int length = 0;
@@ -484,7 +484,7 @@ void RCSwitch::send(const char* sCodeWord) {
  * bits are sent from MSB to LSB, i.e., first the bit at position length-1,
  * then the bit at position length-2, and so on, till finally the bit at position 0.
  */
-void RCSwitch::send(unsigned long code, unsigned int length) {
+void ICACHE_FLASH_ATTR RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
 
@@ -520,7 +520,7 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 /**
  * Transmit a single high-low pulse.
  */
-void RCSwitch::transmit(HighLow pulses) {
+void ICACHE_FLASH_ATTR RCSwitch::transmit(HighLow pulses) {
   uint8_t firstLogicLevel = (this->protocol.invertedSignal) ? LOW : HIGH;
   uint8_t secondLogicLevel = (this->protocol.invertedSignal) ? HIGH : LOW;
   
@@ -535,12 +535,12 @@ void RCSwitch::transmit(HighLow pulses) {
 /**
  * Enable receiving data
  */
-void RCSwitch::enableReceive(int interrupt) {
+void ICACHE_FLASH_ATTR RCSwitch::enableReceive(int interrupt) {
   this->nReceiverInterrupt = interrupt;
   this->enableReceive();
 }
 
-void RCSwitch::enableReceive() {
+void ICACHE_FLASH_ATTR RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = 0;
     RCSwitch::nReceivedBitlength = 0;
@@ -555,38 +555,38 @@ void RCSwitch::enableReceive() {
 /**
  * Disable receiving data
  */
-void RCSwitch::disableReceive() {
+void ICACHE_FLASH_ATTR RCSwitch::disableReceive() {
 #if not defined(RaspberryPi) // Arduino
   detachInterrupt(this->nReceiverInterrupt);
 #endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
 }
 
-bool RCSwitch::available() {
+bool ICACHE_FLASH_ATTR RCSwitch::available() {
   return RCSwitch::nReceivedValue != 0;
 }
 
-void RCSwitch::resetAvailable() {
+void ICACHE_FLASH_ATTR RCSwitch::resetAvailable() {
   RCSwitch::nReceivedValue = 0;
 }
 
-unsigned long RCSwitch::getReceivedValue() {
+unsigned long ICACHE_FLASH_ATTR RCSwitch::getReceivedValue() {
   return RCSwitch::nReceivedValue;
 }
 
-unsigned int RCSwitch::getReceivedBitlength() {
+unsigned int ICACHE_FLASH_ATTR RCSwitch::getReceivedBitlength() {
   return RCSwitch::nReceivedBitlength;
 }
 
-unsigned int RCSwitch::getReceivedDelay() {
+unsigned int ICACHE_FLASH_ATTR RCSwitch::getReceivedDelay() {
   return RCSwitch::nReceivedDelay;
 }
 
-unsigned int RCSwitch::getReceivedProtocol() {
+unsigned int ICACHE_FLASH_ATTR RCSwitch::getReceivedProtocol() {
   return RCSwitch::nReceivedProtocol;
 }
 
-unsigned int* RCSwitch::getReceivedRawdata() {
+unsigned int* ICACHE_FLASH_ATTR RCSwitch::getReceivedRawdata() {
   return RCSwitch::timings;
 }
 
