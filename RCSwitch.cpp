@@ -153,6 +153,14 @@ void RCSwitch::setProtocol(int nProtocol, int nPulseLength)
 }
 
 /**
+  * gets the protocol
+  */
+RCSwitch::Protocol RCSwitch::getProtocol()
+{
+  return this->protocol;
+}
+
+/**
   * Sets pulse length in microseconds
   */
 void RCSwitch::setPulseLength(int nPulseLength)
@@ -603,6 +611,11 @@ void RCSwitch::enableReceive()
   }
 }
 
+int RCSwitch::getReceiverInterrupt()
+{
+  return RCSwitch::nReceiverInterrupt;
+}
+
 /**
  * Disable receiving data
  */
@@ -661,7 +674,7 @@ static inline unsigned int diff(int A, int B)
 }
 
 /* helper function for debugging decoding binary inputs (used in the receiveProtocol method) */
-static char *dec2binWzerofill(unsigned long Dec, unsigned int bitLength)
+char *RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength)
 {
   static char bin[64];
   unsigned int i = 0;
@@ -858,7 +871,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   if (code > 0)
   {
     Serial.print("decoded ");
-    Serial.println(dec2binWzerofill(code, receivedBitlength / 2));
+    Serial.println(RCSwitch::dec2binWzerofill(code, receivedBitlength / 2));
   }
 #endif
 

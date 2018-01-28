@@ -96,6 +96,7 @@ class RCSwitch
     char *getReceivedRawBits();
 #endif
 
+    char *dec2binWzerofill(unsigned long Dec, unsigned int bitLength);
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
@@ -152,13 +153,15 @@ class RCSwitch
     void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
+    Protocol getProtocol();
+    void transmit(HighLow pulses);
+    int getReceiverInterrupt();
 
   private:
     char *getCodeWordA(const char *sGroup, const char *sDevice, bool bStatus);
     char *getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
     char *getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
     char *getCodeWordD(char group, int nDevice, bool bStatus);
-    void transmit(HighLow pulses);
 
 #if not defined(RCSwitchDisableReceiving)
     static void handleInterrupt();
