@@ -4,9 +4,13 @@
 Use your Arduino or Raspberry Pi to operate remote radio controlled devices
 
 ## Download
+Original:
 https://github.com/sui77/rc-switch/releases/latest
 
 rc-switch is also listed in the arduino library manager.
+
+Modified to support Nexa and Everflourish
+https://github.com/perivar/rc-switch
 
 ## Wiki
 https://github.com/sui77/rc-switch/wiki
@@ -27,6 +31,8 @@ or more devices with one of the supported chipsets:
  - EV1527 / RT1527 / FP1527 / HS1527 
  - Intertechno outlets
  - HT6P20X
+ - Everflourish like EMW100T
+ - Nexa like LMLT-711
 
 ### Receive and decode RC codes
 
