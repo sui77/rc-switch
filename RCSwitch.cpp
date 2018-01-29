@@ -521,21 +521,57 @@ void RCSwitch::sendTriState(const char *sCodeWord)
 }
 
 /**
- * @param sCodeWord   a binary code word consisting of the letter 0, 1
+ * @param sBitString   a binary string consisting of the letters 0, 1
  */
-void RCSwitch::send(const char *sCodeWord)
+void RCSwitch::send(const char *sBitString)
 {
-  // turn the tristate code word into the corresponding bit pattern, then send it
-  unsigned long code = 0;
-  unsigned int length = 0;
-  for (const char *p = sCodeWord; *p; p++)
+  if (this->nTransmitterPin == -1)
+    return;
+
+#if not defined(RCSwitchDisableReceiving)
+  // make sure the receiver is disabled while we transmit
+  int nReceiverInterrupt_backup = nReceiverInterrupt;
+  if (nReceiverInterrupt_backup != -1)
   {
-    code <<= 1L;
-    if (*p != '0')
-      code |= 1L;
-    length++;
+    this->disableReceive();
   }
-  this->send(code, length);
+#endif
+
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++)
+  {
+    // transmit sync bits at the beginning if they are defined
+    if (protocol.sync.high > 0 && protocol.sync.low > 0)
+    {
+      this->transmit(protocol.sync);
+    }
+
+    // transmit the data bits
+    for (const char *p = sBitString; *p; p++)
+    {
+      if (*p != '0')
+      {
+        this->transmit(protocol.one);
+      }
+      else
+      {
+        this->transmit(protocol.zero);
+      }
+    }
+
+    // transmit the pause bits at the end
+    this->transmit(protocol.pause);
+  }
+
+  // Disable transmit after sending (i.e., for inverted protocols)
+  digitalWrite(this->nTransmitterPin, LOW);
+
+#if not defined(RCSwitchDisableReceiving)
+  // enable receiver again if we just disabled it
+  if (nReceiverInterrupt_backup != -1)
+  {
+    this->enableReceive(nReceiverInterrupt_backup);
+  }
+#endif
 }
 
 /**
