@@ -125,7 +125,7 @@ class RCSwitch
         /** base pulse length in microseconds, e.g. 350 */
         uint16_t pulseLength;
 
-        HighLow sync;  // [optional] sync bit before the data bits
+        HighLow sync;  // sync bit before the data bits (normally zero, i.e. 0, 0)
         HighLow zero;  // zero bit
         HighLow one;   // one bit
         HighLow pause; // pause bit

@@ -52,10 +52,17 @@
 #endif
 
 /* Format for protocol definitions:
- * {pulselength, Sync bit, "0" bit, "1" bit, bool inverted signal, optional first timing data index}
+ * { 
+ *  pulselength, 
+ *  sync bit before the data bits. Normally zero, i.e. {0, 0},
+ *  "0" bit, 
+ *  "1" bit, 
+ *  pause bit,
+ *  bool inverted signal
+ * }
  * 
  * pulselength: pulse length in microseconds, e.g. 350
- * Sync bit: {1, 31} means 1 high pulse and 31 low pulses
+ * pause/sync bit: {1, 31} means 1 high pulse and 31 low pulses
  *     (perceived as a 31*pulselength long pulse, total length of sync bit is
  *     32*pulselength microseconds), i.e:
  *      _
@@ -658,11 +665,13 @@ unsigned int RCSwitch::getReceivedProtocol()
   return RCSwitch::nReceivedProtocol;
 }
 
+/* use getReceivedBitlength() * 2 to output the number of raw bits */
 unsigned int *RCSwitch::getReceivedRawdata()
 {
   return RCSwitch::timings_copy;
 }
 
+/* use getReceivedBitlength() to output the number of raw bits */
 char *RCSwitch::getReceivedRawBits()
 {
   return RCSwitch::receivedBits;
@@ -721,7 +730,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
   // store bits in the receivedBits char array (to support longer frames)
-  const unsigned int receivedBitlength = (changeCount - 1) / 2;
+  // if we have sync bits (like Nexa), don't count the initial pause bit and the two sync bits
+  // otherwise, just ignore the initial pause bit
+  const unsigned int receivedBitlength = (pro.sync.high > 0 && pro.sync.low > 0) ? (changeCount - 3) / 2 : (changeCount - 1) / 2;
   unsigned int receivedBitsPos = 0;
 
   /* For protocols that start low, the pause period looks like
@@ -773,7 +784,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
   for (unsigned int i = firstDataTiming; i < changeCount - 1; i += 2)
   {
-    // if the protocol contains a sync bit, use it (e.g. Nexa)
+    // if the protocol contains a sync bit, check for it (e.g. Nexa)
     if ((pro.sync.high > 0 && pro.sync.low > 0) &&
         diff(RCSwitch::timings[i], delay * pro.sync.high) < delayTolerance &&
         diff(RCSwitch::timings[i + 1], delay * pro.sync.low) < delayTolerance)
