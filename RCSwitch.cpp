@@ -75,15 +75,15 @@ static const RCSwitch::Protocol proto[] = {
 #else
 static const RCSwitch::Protocol PROGMEM proto[] = {
 #endif
-    {350, {1, 31}, {1, 3}, {3, 1}, false},    // protocol 1
-    {650, {1, 10}, {1, 2}, {2, 1}, false},    // protocol 2
-    {100, {30, 71}, {4, 11}, {9, 6}, false},  // protocol 3
-    {380, {1, 6}, {1, 3}, {3, 1}, false},     // protocol 4
-    {500, {6, 14}, {1, 2}, {2, 1}, false},    // protocol 5
-    {450, {23, 1}, {1, 2}, {2, 1}, true},     // protocol 6 (HT6P20B)
-    {150, {2, 62}, {1, 6}, {6, 1}, false},    // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
-    {250, {1, 40}, {1, 5}, {1, 1}, false, 3}, // protocol 8 (Nexa)
-    {600, {1, 25}, {1, 1}, {1, 2}, false}     // protocol 9 (Everflourish)
+    {350, {0, 0}, {1, 3}, {3, 1}, {1, 31}, false},   // protocol 1
+    {650, {0, 0}, {1, 2}, {2, 1}, {1, 10}, false},   // protocol 2
+    {100, {0, 0}, {4, 11}, {9, 6}, {30, 71}, false}, // protocol 3
+    {380, {0, 0}, {1, 3}, {3, 1}, {1, 6}, false},    // protocol 4
+    {500, {0, 0}, {1, 2}, {2, 1}, {6, 14}, false},   // protocol 5
+    {450, {0, 0}, {1, 2}, {2, 1}, {23, 1}, true},    // protocol 6 (HT6P20B)
+    {150, {0, 0}, {1, 6}, {6, 1}, {2, 62}, false},   // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
+    {250, {1, 10}, {1, 5}, {1, 1}, {1, 40}, false},  // protocol 8 (Nexa)
+    {600, {0, 0}, {1, 1}, {1, 2}, {1, 25}, false}    // protocol 9 (Everflourish)
 };
 
 enum
@@ -102,6 +102,7 @@ const unsigned int RCSwitch::nSeparationLimit = 4300;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+unsigned int RCSwitch::timings_copy[RCSWITCH_MAX_CHANGES];
 
 // array to hold the bits received as chars (to support longer frames)
 char RCSwitch::receivedBits[RCSWITCH_MAX_CHANGES];
@@ -558,7 +559,7 @@ void RCSwitch::send(unsigned long code, unsigned int length)
       else
         this->transmit(protocol.zero);
     }
-    this->transmit(protocol.syncFactor);
+    this->transmit(protocol.pause);
   }
 
   // Disable transmit after sending (i.e., for inverted protocols)
@@ -659,7 +660,7 @@ unsigned int RCSwitch::getReceivedProtocol()
 
 unsigned int *RCSwitch::getReceivedRawdata()
 {
-  return RCSwitch::timings;
+  return RCSwitch::timings_copy;
 }
 
 char *RCSwitch::getReceivedRawBits()
@@ -715,15 +716,15 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
   unsigned long code = 0;
   //Assuming the longer pulse length is the pulse captured in timings[0]
-  const unsigned int syncLengthInPulses = ((pro.syncFactor.low) > (pro.syncFactor.high)) ? (pro.syncFactor.low) : (pro.syncFactor.high);
-  const unsigned int delay = RCSwitch::timings[0] / syncLengthInPulses;
+  const unsigned int pauseLengthInPulses = ((pro.pause.low) > (pro.pause.high)) ? (pro.pause.low) : (pro.pause.high);
+  const unsigned int delay = RCSwitch::timings[0] / pauseLengthInPulses;
   const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
 
   // store bits in the receivedBits char array (to support longer frames)
   const unsigned int receivedBitlength = (changeCount - 1) / 2;
   unsigned int receivedBitsPos = 0;
 
-  /* For protocols that start low, the sync period looks like
+  /* For protocols that start low, the pause period looks like
      *               _________
      * _____________|         |XXXXXXXXXXXX|
      *
@@ -731,7 +732,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
      *
      * The 3rd saved duration starts the data.
      *
-     * For protocols that start high, the sync period looks like
+     * For protocols that start high, the pause period looks like
      *
      *  ______________
      * |              |____________|XXXXXXXXXXXXX|
@@ -740,8 +741,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
      *
      * The 2nd saved duration starts the data
      */
-  // if firstDataTiming index is specified, use that. Otherwise use the invertedSignal property to decide
-  const unsigned int firstDataTiming = (pro.firstDataTiming > 0) ? pro.firstDataTiming : ((pro.invertedSignal) ? (2) : (1));
+  const unsigned int firstDataTiming = (pro.invertedSignal) ? (2) : (1);
 
 #ifdef DEBUG
   if (p > 7)
@@ -751,8 +751,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     Serial.print(p);
     Serial.print(" using ");
     Serial.print(changeCount);
-    Serial.print(" timings. SyncLengthInPulses: ");
-    Serial.print(syncLengthInPulses);
+    Serial.print(" timings. PauseLengthInPulses: ");
+    Serial.print(pauseLengthInPulses);
     Serial.print(". Delay: ");
     Serial.print(delay);
     Serial.print(". Delay tolerance: ");
@@ -761,7 +761,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     Serial.print(firstDataTiming);
     Serial.println();
 
-    Serial.print("Raw data: ");
+    Serial.print("Raw timing data: ");
     for (unsigned int p = 0; p < changeCount; p++)
     {
       Serial.print(RCSwitch::timings[p]);
@@ -773,8 +773,21 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
   for (unsigned int i = firstDataTiming; i < changeCount - 1; i += 2)
   {
-    if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
-        diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance)
+    // if the protocol contains a sync bit, use it (e.g. Nexa)
+    if ((pro.sync.high > 0 && pro.sync.low > 0) &&
+        diff(RCSwitch::timings[i], delay * pro.sync.high) < delayTolerance &&
+        diff(RCSwitch::timings[i + 1], delay * pro.sync.low) < delayTolerance)
+    {
+    // sync bit
+#ifdef DEBUG
+      if (p > 7)
+      {
+        Serial.print("sync ");
+      }
+#endif
+    }
+    else if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
+             diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance)
     {
     // zero
 #ifdef DEBUG
@@ -819,11 +832,11 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   if (receivedBitsPos > 0)
   {
     Serial.println();
+    Serial.print("vrfy ");
     for (unsigned int j = 0; j < receivedBitsPos; j++)
     {
       Serial.print(RCSwitch::receivedBits[j]);
     }
-    Serial.print(" (check)");
     Serial.println();
   }
 #endif
@@ -870,7 +883,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   // print the decoded bit stream
   if (code > 0)
   {
-    Serial.print("decoded ");
+    Serial.print("lgic ");
     Serial.println(RCSwitch::dec2binWzerofill(code, receivedBitlength / 2));
   }
 #endif
@@ -881,6 +894,12 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     RCSwitch::nReceivedBitlength = receivedBitlength;
     RCSwitch::nReceivedDelay = delay;
     RCSwitch::nReceivedProtocol = p;
+
+    // copy the timings array to the timings_copy array, so that the
+    // raw timings returned in the method getReceivedRawdata is not modified by
+    // the interrupt-handler
+    memcpy(timings_copy, timings, sizeof(timings));
+
     return true;
   }
 
@@ -931,6 +950,9 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt()
     repeatCount = 0;
   }
 
+  // this stores the timings. Notes that it also overwrites the timings even if
+  // receiveProtocol was successfull, so the returned raw timings (getReceivedRawdata)
+  // will always have been modified after it has been used.
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;
 }
