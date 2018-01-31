@@ -791,7 +791,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   const unsigned int firstDataTiming = (pro.invertedSignal) ? (2) : (1);
 
 #ifdef DEBUG
-  if (p > 7)
+  if (p > 7) // debugging protocols 8 and 9
   {
     Serial.println();
     Serial.print("Testing if this is protocol ");
@@ -827,7 +827,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     {
     // sync bit
 #ifdef DEBUG
-      if (p > 7)
+      if (p > 7) // debugging protocols 8 and 9
       {
         Serial.print("sync ");
       }
@@ -838,7 +838,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     {
     // zero
 #ifdef DEBUG
-      if (p > 7)
+      if (p > 7) // debugging protocols 8 and 9
       {
         Serial.print("0");
       }
@@ -851,7 +851,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     {
     // one
 #ifdef DEBUG
-      if (p > 7)
+      if (p > 7) // debugging protocols 8 and 9
       {
         Serial.print("1");
       }
@@ -862,7 +862,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     else
     {
 #ifdef DEBUG
-      if (p > 7)
+      if (p > 7) // debugging protocols 8 and 9
       {
         Serial.print(" failed(i=");
         Serial.print(i);
@@ -897,7 +897,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     // '0' => '01'
     // '1' => '10'
     // Example the logical datastream 0111 is sent over the air as 01101010.
-    // I.e. keep every second byte
+    // I.e. the solution is to keep every second byte
     if (receivedBitsPos > 0)
     {
       for (unsigned int k = 0; k < receivedBitsPos; k += 2)
@@ -997,9 +997,10 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt()
     repeatCount = 0;
   }
 
-  // this stores the timings. Notes that it also overwrites the timings even if
+  // This stores the timings. Notes that it also overwrites the timings even if
   // receiveProtocol was successfull, so the returned raw timings (getReceivedRawdata)
   // will always have been modified after it has been used.
+  // Therefore the timings are copied to a copy (timings_copy) before returned to the user.
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;
 }
