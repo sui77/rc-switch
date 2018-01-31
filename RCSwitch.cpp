@@ -805,25 +805,25 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   if (p > 7) // debugging protocols 8 and 9
   {
     Serial.println();
-    Serial.print("Testing if this is protocol ");
+    Serial.print(F("Testing if this is protocol "));
     Serial.print(p);
-    Serial.print(" using ");
+    Serial.print(F(" using "));
     Serial.print(changeCount);
-    Serial.print(" timings. PauseLengthInPulses: ");
+    Serial.print(F(" timings. PauseLengthInPulses: "));
     Serial.print(pauseLengthInPulses);
-    Serial.print(". Delay: ");
+    Serial.print(F(". Delay: "));
     Serial.print(delay);
-    Serial.print(". Delay tolerance: ");
+    Serial.print(F(". Delay tolerance: "));
     Serial.print(delayTolerance);
-    Serial.print(". First Data Timing Index: ");
+    Serial.print(F(". First Data Timing Index: "));
     Serial.print(firstDataTiming);
     Serial.println();
 
-    Serial.print("Raw timing data: ");
+    Serial.print(F("Raw timing data: "));
     for (unsigned int p = 0; p < changeCount; p++)
     {
       Serial.print(RCSwitch::timings[p]);
-      Serial.print(",");
+      Serial.print(F(","));
     }
     Serial.println();
   }
@@ -840,7 +840,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 #ifdef DEBUG
       if (p > 7) // debugging protocols 8 and 9
       {
-        Serial.print("sync ");
+        Serial.print(F("sync "));
       }
 #endif
     }
@@ -851,7 +851,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 #ifdef DEBUG
       if (p > 7) // debugging protocols 8 and 9
       {
-        Serial.print("0");
+        Serial.print(F("0"));
       }
 #endif
       // store zero in receivedBits char array
@@ -864,7 +864,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 #ifdef DEBUG
       if (p > 7) // debugging protocols 8 and 9
       {
-        Serial.print("1");
+        Serial.print(F("1"));
       }
 #endif
       // store one in receivedBits char array
@@ -875,9 +875,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 #ifdef DEBUG
       if (p > 7) // debugging protocols 8 and 9
       {
-        Serial.print(" failed(i=");
+        Serial.print(F(" failed(i="));
         Serial.print(i);
-        Serial.println(")");
+        Serial.println(")"));
       }
 #endif
       // Failed
@@ -890,7 +890,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   if (receivedBitsPos > 0)
   {
     Serial.println();
-    Serial.print("vrfy ");
+    Serial.print(F("vrfy "));
     for (unsigned int j = 0; j < receivedBitsPos; j++)
     {
       Serial.print(RCSwitch::receivedBits[j]);
@@ -941,7 +941,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   // print the decoded bit stream
   if (code > 0)
   {
-    Serial.print("lgic ");
+    Serial.print(F("lgic "));
     Serial.println(RCSwitch::dec2binWzerofill(code, receivedBitlength / 2));
   }
 #endif
