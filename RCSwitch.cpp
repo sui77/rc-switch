@@ -90,7 +90,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     {450, {0, 0}, {1, 2}, {2, 1}, {23, 1}, true},    // protocol 6 (HT6P20B)
     {150, {0, 0}, {1, 6}, {6, 1}, {2, 62}, false},   // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
     {250, {1, 10}, {1, 5}, {1, 1}, {1, 40}, false},  // protocol 8 (Nexa)
-    {100, {0, 0}, {6, 6}, {6, 12}, {6, 169}, false}  // protocol 9 (Everflourish)
+    {100, {0, 0}, {6, 6}, {6, 12}, {6, 169}, false}, // protocol 9 (Everflourish Single Button)
+    {100, {0, 0}, {6, 6}, {6, 12}, {6, 120}, false}, // protocol 10 (Everflourish All Buttons)
 };
 
 enum
@@ -629,14 +630,16 @@ void RCSwitch::transmit(HighLow pulses)
   // so use a while loop instead of delayMicroseconds
   unsigned long microsDelayHigh = this->protocol.pulseLength * pulses.high;
   unsigned long microsDelayLow = this->protocol.pulseLength * pulses.low;
+  unsigned long startMicros = 0;
 
+  // transmit "high" or the inverted signal
   digitalWrite(this->nTransmitterPin, firstLogicLevel);
-  //delayMicroseconds(this->protocol.pulseLength * pulses.high);
-  unsigned long startMicros = micros();
+  startMicros = micros();
   while (micros() - startMicros < microsDelayHigh)
     continue;
+
+  // transmit "low" or the inverted signal
   digitalWrite(this->nTransmitterPin, secondLogicLevel);
-  //delayMicroseconds(this->protocol.pulseLength * pulses.low);
   startMicros = micros();
   while (micros() - startMicros < microsDelayLow)
     continue;
@@ -877,7 +880,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
       {
         Serial.print(F(" failed(i="));
         Serial.print(i);
-        Serial.println(")"));
+        Serial.print(F(")"));
+        Serial.println();
       }
 #endif
       // Failed
