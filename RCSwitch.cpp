@@ -766,6 +766,11 @@ char *RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength)
  */
 bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCount)
 {
+  if (changeCount <= 7)
+  { // ignore very short transmissions: no device sends them, so this must be noise
+    return false;
+  }
+
 #if defined(ESP8266) || defined(ESP32)
   const Protocol &pro = proto[p - 1];
 #else
@@ -818,6 +823,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     Serial.print(delay);
     Serial.print(F(". Delay tolerance: "));
     Serial.print(delayTolerance);
+    Serial.print(F(". Received Bitlength: "));
+    Serial.print(receivedBitlength);
     Serial.print(F(". First Data Timing Index: "));
     Serial.print(firstDataTiming);
     Serial.println();
@@ -952,15 +959,20 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
   if (changeCount > 7)
   { // ignore very short transmissions: no device sends them, so this must be noise
-    RCSwitch::nReceivedValue = code;
-    RCSwitch::nReceivedBitlength = receivedBitlength;
-    RCSwitch::nReceivedDelay = delay;
-    RCSwitch::nReceivedProtocol = p;
 
     // copy the timings array to the timings_copy array, so that the
     // raw timings returned in the method getReceivedRawdata is not modified by
     // the interrupt-handler
     memcpy(timings_copy, timings, sizeof(timings));
+
+    RCSwitch::nReceivedValue = code;
+    RCSwitch::nReceivedBitlength = receivedBitlength;
+    RCSwitch::nReceivedDelay = delay;
+    RCSwitch::nReceivedProtocol = p;
+
+#ifdef DEBUG
+    Serial.println(F("Successfully found protocol, returning."));
+#endif
 
     return true;
   }
