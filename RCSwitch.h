@@ -10,6 +10,7 @@
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
+  - Gerben van Eerten / gerbenvaneerten(at)gmail(dot)com
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -30,6 +31,9 @@
 #ifndef _RCSwitch_h
 #define _RCSwitch_h
 
+#if defined(__arm__)
+  #define RPI
+#endif
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
