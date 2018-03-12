@@ -53,7 +53,8 @@
 #endif
 
 /* Format for protocol definitions:
- * { 
+ * {
+ *  protocol ID,
  *  pulselength, 
  *  sync bit before the data bits. Normally zero, i.e. {0, 0},
  *  "0" bit, 
@@ -93,7 +94,7 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     {8, 250, {1, 10}, {1, 5}, {1, 1}, {1, 40}, false},  // protocol 8 (Nexa)
     {9, 100, {0, 0}, {6, 6}, {6, 12}, {6, 169}, false}, // protocol 9 (Everflourish Single Button)
     {10, 100, {0, 0}, {6, 6}, {6, 12}, {6, 120}, false}, // protocol 10 (Everflourish All Buttons)
-    {11, 500, {7, 7}, {1, 1}, {1, 2}, {1, 40}, false},   // protocol 11 (Cixi Yidong Electronics , sold as AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.)
+    {11, 250, {14, 14}, {2, 2}, {2, 5}, {2, 80}, false}, // protocol 11 (Cixi Yidong Electronics , sold as AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.)
 };
 
 enum
@@ -1001,7 +1002,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   // For protocol 11 (Cixi Yidong), the first 16 bits of the 40 bits stores the remote control ID,
   // the second 16 bit is the ones' complement of the fir two bytes.
   // The last byte is the button code and command odd numbers are ON, even number are OFF commands.
-  // Number 0b10100101/0xA5/165 measn all ON, 
+  // Number 0b10100101/0xA5/165 means all ON, 
   // number 0b01011010/0X5A/90 means all OFF assigned to the same remote ID.
   // As one integer number, it is enough to store the first 16 and the last 8 bits to rebuild the whole 40 bits bitsream.
   {
