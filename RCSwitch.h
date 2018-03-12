@@ -81,7 +81,7 @@ class RCSwitch
     void send(unsigned long code, unsigned int length);
     void send(const char *sBitString);
 
-#if not defined(RCSwitchDisableReceiving)
+#ifndef RCSwitchDisableReceiving
     void enableReceive(int interrupt);
     void enableReceive();
     void disableReceive();
@@ -100,7 +100,7 @@ class RCSwitch
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
-#if not defined(RCSwitchDisableReceiving)
+#ifndef RCSwitchDisableReceiving
     void setReceiveTolerance(int nPercent);
 #endif
 
@@ -122,6 +122,7 @@ class RCSwitch
      */
     struct Protocol
     {
+        uint8_t protocolId;
         /** base pulse length in microseconds, e.g. 350 */
         uint16_t pulseLength;
 
@@ -167,7 +168,7 @@ class RCSwitch
     char *getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
     char *getCodeWordD(char group, int nDevice, bool bStatus);
 
-#if not defined(RCSwitchDisableReceiving)
+#ifndef RCSwitchDisableReceiving
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
@@ -177,7 +178,7 @@ class RCSwitch
 
     Protocol protocol;
 
-#if not defined(RCSwitchDisableReceiving)
+#ifndef RCSwitchDisableReceiving
     static int nReceiveTolerance;
     volatile static unsigned long nReceivedValue;
     volatile static unsigned int nReceivedBitlength;
