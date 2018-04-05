@@ -55,12 +55,12 @@
 /* Format for protocol definitions:
  * {
  *  protocol ID,
- *  pulselength, 
- *  sync bit before the data bits. Normally zero, i.e. {0, 0},
- *  "0" bit, 
- *  "1" bit, 
- *  pause bit,
- *  bool inverted signal
+ *  pulselength (microseconds), 
+ *  sync bit before the data bits. Normally zero, i.e. {0, 0} {high pulse length, low pulse length},
+ *  "0" bit {high pulse length, low pulse length}, 
+ *  "1" bit {high pulse length, low pulse length}, 
+ *  pause bit {high pulse length, low pulse length},
+ *  bool inverted signal (bit starts on falling edge)
  * }
  * 
  * pulselength: pulse length in microseconds, e.g. 350
@@ -93,8 +93,9 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     {7, 150, {0, 0}, {1, 6}, {6, 1}, {2, 62}, false},   // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
     {8, 250, {1, 10}, {1, 5}, {1, 1}, {1, 40}, false},  // protocol 8 (Nexa)
     {9, 100, {0, 0}, {6, 6}, {6, 12}, {6, 169}, false}, // protocol 9 (Everflourish Single Button)
-    {10, 100, {0, 0}, {6, 6}, {6, 12}, {6, 120}, false}, // protocol 10 (Everflourish All Buttons)
-    {11, 250, {14, 14}, {2, 2}, {2, 5}, {2, 80}, false}, // protocol 11 (Cixi Yidong Electronics , sold as AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.)
+    {10, 100, {0, 0}, {6, 6}, {6, 12}, {6, 120}, false},// protocol 10 (Everflourish All Buttons)
+    {11, 100, {34, 34}, {5, 4}, {5, 13}, {2, 200}, false},// protocol 11 (Cixi Yidong Electronics , sold as AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.)
+    {12, 333, {0, 1}, {1, 2}, {2, 1}, {45, 0}, true},   // protocol 12 (CAME)
 };
 
 enum
@@ -107,7 +108,7 @@ volatile unsigned long RCSwitch::nReceivedValue = 0;
 volatile unsigned int RCSwitch::nReceivedBitlength = 0;
 volatile unsigned int RCSwitch::nReceivedDelay = 0;
 volatile unsigned int RCSwitch::nReceivedProtocol = 0;
-int RCSwitch::nReceiveTolerance = 60;
+int RCSwitch::nReceiveTolerance = 0;
 const unsigned int RCSwitch::nSeparationLimit = 4300;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
@@ -126,7 +127,7 @@ RCSwitch::RCSwitch()
   this->setProtocol(1);
 #ifndef RCSwitchDisableReceiving
   this->nReceiverInterrupt = -1;
-  this->setReceiveTolerance(60);
+  this->setReceiveTolerance(35);
   RCSwitch::nReceivedValue = 0;
 #endif
 }
@@ -544,7 +545,7 @@ void RCSwitch::send(const char *sBitString)
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++)
   {
     // transmit sync bits at the beginning if they are defined
-    if (protocol.sync.high > 0 && protocol.sync.low > 0)
+    if (protocol.sync.high > 0 || protocol.sync.low > 0)
     {
       this->transmit(protocol.sync);
     }
@@ -601,7 +602,7 @@ void RCSwitch::send(unsigned long code, unsigned int length)
   {
 
     // transmit sync bits at the beginning if they are defined
-    if (protocol.sync.high > 0 && protocol.sync.low > 0)
+    if (protocol.sync.high > 0 || protocol.sync.low > 0)
     {
       this->transmit(protocol.sync);
     }
@@ -823,10 +824,45 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   // Assuming the longer pulse length is the pulse captured in timings[0]
   const unsigned int pauseLengthInPulses = ((pro.pause.low) > (pro.pause.high)) ? (pro.pause.low) : (pro.pause.high);
   // Caluclate the pulse length in microseconds from the pause/gap stored in the firts place of the  RCSwitch::timings[] array
-  // divided by the longer part of the pause/end part of the protocol parameters
-  const unsigned int delay = RCSwitch::timings[0] / pauseLengthInPulses;
-  // Calculate the tolerance in microseconds (RCSwitch::nReceiveTolerance % of the pulse length)
-  const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
+  // divided by the longer part of the pause/end part of the protocol parameters. It should be near to the protocol specified pulse length.
+  const unsigned int calculatedPulseLength = RCSwitch::timings[0] / pauseLengthInPulses;
+
+  //First test for the pause length. The pause/end length is protocol specific.
+  //The first place of the received timings array holds the pause length (low period). It is compared to the protocol specified low period length.
+    unsigned int pauseLowDuration;
+  pauseLowDuration = (pro.invertedSignal) ? (pro.pulseLength * pro.pause.high) : (pro.pulseLength * pro.pause.low);
+  const unsigned int pauseTolerance = (pauseLowDuration * RCSwitch::nReceiveTolerance / 100) / 4; //25% of the general tolerance is enough here
+#ifdef DEBUG
+    Serial.print(F("Protocol pause/end LOW duration: "));
+    Serial.println(pauseLowDuration);
+    Serial.print(F("First value in timing array: "));
+    Serial.println(RCSwitch::timings[0]);
+    Serial.print(F("Difference: "));
+    Serial.println(diff(RCSwitch::timings[0], pauseLowDuration));
+    Serial.print(F("Pause tolerance: "));
+    Serial.println(pauseTolerance);
+#endif
+
+  if ((pauseLowDuration > 0) && diff(RCSwitch::timings[0], pauseLowDuration) < pauseTolerance)
+  {
+#ifdef DEBUG
+    Serial.print(F("Captured pause/end length is matching the protocol: "));
+    Serial.println(p);
+#endif
+  }
+  else { //If the protocol deffinition is not matching the pause length
+    return false;
+  }
+  
+
+  //Calculate the different tolerance values (RCSwitch::nReceiveTolerance % of the low or high durations)
+  const unsigned int syncLowTolerance = calculatedPulseLength * pro.sync.low * RCSwitch::nReceiveTolerance / 100;
+  const unsigned int syncHighTolerance = calculatedPulseLength * pro.sync.high * RCSwitch::nReceiveTolerance / 100;
+  const unsigned int oneLowTolerance = calculatedPulseLength * pro.one.low * RCSwitch::nReceiveTolerance / 100;
+  const unsigned int oneHighTolerance = calculatedPulseLength * pro.one.high * RCSwitch::nReceiveTolerance / 100;
+  const unsigned int zeroLowTolerance = calculatedPulseLength * pro.zero.low * RCSwitch::nReceiveTolerance / 100;
+  const unsigned int zeroHighTolerance = calculatedPulseLength * pro.zero.high * RCSwitch::nReceiveTolerance / 100;
+  
 
   // store bits in the receivedBits char array (to support longer frames)
   // if we have sync bits (like Nexa), don't count the initial pause bit and the two sync bits
@@ -882,7 +918,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   unsigned int firstDataTiming;
   switch (p)
   {
-  // For protocol 11 (Cixi Yidong), sync starts at position 5
+  // For protocol 11 (Cixi Yidong), sync starts at position 5 (firstDataTiming might include the SYNC bit)
   case 11:
     firstDataTiming = 5;
     break;
@@ -894,19 +930,28 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 #ifdef DEBUG
   if (p > 7) // debugging protocols > 7
   {
-    Serial.println();
     Serial.print(F("Testing if this is protocol "));
     Serial.print(p);
     Serial.print(F(" using "));
     Serial.print(changeCount);
     Serial.print(F(" timings. PauseLengthInPulses: "));
     Serial.print(pauseLengthInPulses);
-    Serial.print(F(". Delay: "));
-    Serial.print(delay);
+    Serial.print(F(". Calculated pulse length: "));
+    Serial.print(calculatedPulseLength);
     Serial.print(F(" us"));
-    Serial.print(F(". Delay tolerance: "));
-    Serial.print(delayTolerance);
-    Serial.print(F(" us"));
+    Serial.print(F(". Tolerance values (us): "));
+    Serial.print(syncLowTolerance);
+    Serial.print(F("/"));
+    Serial.print(syncHighTolerance);
+    Serial.print(F("/"));
+    Serial.print(oneLowTolerance);
+    Serial.print(F("/"));
+    Serial.print(oneHighTolerance);
+    Serial.print(F("/"));
+    Serial.print(zeroLowTolerance);
+    Serial.print(F("/"));
+    Serial.print(zeroHighTolerance);
+    
     Serial.print(F(". Received Bitlength: "));
     Serial.print(receivedBitlength);
     Serial.print(F(". First Data Timing Index: "));
@@ -928,8 +973,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
   {
     // if the protocol contains a sync bit, check for it (e.g. Nexa)
     if ((pro.sync.high > 0 && pro.sync.low > 0) &&
-        diff(RCSwitch::timings[i], delay * pro.sync.high) < delayTolerance &&
-        diff(RCSwitch::timings[i + 1], delay * pro.sync.low) < delayTolerance)
+        diff(RCSwitch::timings[i], calculatedPulseLength * pro.sync.high) < syncHighTolerance &&
+        diff(RCSwitch::timings[i + 1], calculatedPulseLength * pro.sync.low) < syncLowTolerance)
     {
     // sync bit
 #ifdef DEBUG
@@ -939,8 +984,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
       }
 #endif
     }
-    else if (diff(RCSwitch::timings[i], delay * pro.zero.high) < delayTolerance &&
-             diff(RCSwitch::timings[i + 1], delay * pro.zero.low) < delayTolerance)
+    else if (diff(RCSwitch::timings[i], calculatedPulseLength * pro.zero.high) < zeroHighTolerance &&
+             diff(RCSwitch::timings[i + 1], calculatedPulseLength * pro.zero.low) < zeroLowTolerance)
     {
     // zero
 #ifdef DEBUG
@@ -952,8 +997,8 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
       // store zero in receivedBits char array
       RCSwitch::receivedBits[receivedBitsPos++] = '0';
     }
-    else if (diff(RCSwitch::timings[i], delay * pro.one.high) < delayTolerance &&
-             diff(RCSwitch::timings[i + 1], delay * pro.one.low) < delayTolerance)
+    else if (diff(RCSwitch::timings[i], calculatedPulseLength * pro.one.high) < oneHighTolerance &&
+             diff(RCSwitch::timings[i + 1], calculatedPulseLength * pro.one.low) < oneLowTolerance)
     {
     // one
 #ifdef DEBUG
@@ -983,6 +1028,9 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
       return false;
     }
   }
+
+  //Insert 0 to the end of the character array to close the string
+  RCSwitch::receivedBits[receivedBitsPos] = 0;
 
 #ifdef DEBUG
   // print check bit stream
@@ -1089,7 +1137,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
     RCSwitch::nReceivedValue = code;
     RCSwitch::nReceivedBitlength = receivedBitlength;
-    RCSwitch::nReceivedDelay = delay;
+    RCSwitch::nReceivedDelay = calculatedPulseLength;
     RCSwitch::nReceivedProtocol = p;
 
 #ifdef DEBUG
@@ -1116,13 +1164,16 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt()
   {
     // A long stretch without signal level change occurred. This could
     // be the gap between two transmission.
-    if (diff(duration, RCSwitch::timings[0]) < 200)
+    if (diff(duration, RCSwitch::timings[0]) < 300 ) 
     {
       // This long signal is close in length to the long signal which
       // started the previously recorded timings; this suggests that
       // it may indeed be a gap between two transmissions (we assume
       // here that a sender will send the signal multiple times,
       // with roughly the same gap between them).
+      #ifdef DEBUG
+      Serial.println(F("Long silence, matching the previous capture, has occured again."));
+      #endif
       repeatCount++;
       if (repeatCount == 2)
       {
@@ -1131,6 +1182,12 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt()
         for (unsigned int i = 1; i <= numProto; i++)
         {
           // Test if timings array corresponds to protocol i.
+          #ifdef DEBUG
+          Serial.println();
+          Serial.println(F("---------------------------------------------------"));
+          Serial.print(F("Attempt to decode received timing as protocol: "));
+          Serial.println(i);
+          #endif
           if (receiveProtocol(i, changeCount))
           {
             // receive succeeded for protocol i
