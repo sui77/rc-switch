@@ -47,6 +47,8 @@
     #include "WProgram.h"
 #endif
 
+#define HAS_RC_ONRXBUFFER
+
 #include <stdint.h>
 
 
@@ -58,7 +60,7 @@
 
 // Number of maximum high/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
-#define RCSWITCH_MAX_CHANGES 67
+#define RCSWITCH_MAX_CHANGES 131
 
 class RCSwitch {
 
@@ -176,9 +178,13 @@ class RCSwitch {
      * timings[0] contains sync timing, followed by a number of bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
+
+    #ifdef HAS_RC_ONRXBUFFER
+    public:
+    static void (*onRxBufferDebug)(int count, unsigned int *timings);
     #endif
 
-    
+    #endif
 };
 
 #endif
