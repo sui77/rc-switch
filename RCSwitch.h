@@ -60,6 +60,8 @@
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 #define RCSWITCH_MAX_CHANGES 67
 
+typedef void (*pFunc)(); // function Pointer for functions like --> void foo() {...}, no return value, no arguments
+
 class RCSwitch {
 
   public:
@@ -92,6 +94,9 @@ class RCSwitch {
     unsigned int getReceivedDelay();
     unsigned int getReceivedProtocol();
     unsigned int* getReceivedRawdata();
+  
+    static void setCallback(pFunc __callback); // member function declaration for setting the callback function
+  
     #endif
   
     void enableTransmit(int nTransmitterPin);
