@@ -97,6 +97,7 @@ const unsigned int RCSwitch::nSeparationLimit = 4300;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+pFunc cb = NULL; // callback function pointer storage
 #endif
 
 RCSwitch::RCSwitch() {
@@ -590,6 +591,10 @@ unsigned int* RCSwitch::getReceivedRawdata() {
   return RCSwitch::timings;
 }
 
+static void RCSwitch::setCallback(pFunc __callback) { // setter function for callback function storage
+  cb = __callback;
+}
+  
 /* helper function for the receiveProtocol method */
 static inline unsigned int diff(int A, int B) {
   return abs(A - B);
@@ -680,6 +685,8 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
         for(unsigned int i = 1; i <= numProto; i++) {
           if (receiveProtocol(i, changeCount)) {
             // receive succeeded for protocol i
+            if (cb != NULL) // finally call the callback function
+              cb();
             break;
           }
         }
