@@ -398,7 +398,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus
 }
 
 /**
- * Encoding for the REV Switch Type
+ * Encoding for the REV Switch Type (Type D REV)
  *
  * The code word is a tristate word and with following bit pattern:
  *
