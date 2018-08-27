@@ -30,7 +30,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <stdio.h>
 #include "RCSwitch.h"
 
 #ifdef RaspberryPi
@@ -486,7 +485,6 @@ char* RCSwitch::getCodeWordE(const char* sGroup, const char* sDevice, bool bStat
   sReturn[nReturnPos++] = bStatus ? '0' : 'F';
 
   sReturn[nReturnPos] = '\0';
-  printf("tristate code word: %s\n", sReturn);
   return sReturn;
 }
 
