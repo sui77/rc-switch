@@ -289,7 +289,16 @@ void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
 
 
 /**
+ * Encoding for type A switches (10 pole DIP switches).
  * Returns a char[13], representing the code word to be send.
+ *
+ * The code word is a tristate word and with following bit pattern:
+ *
+ * +-----------------------------------------+-----------------------------------------+--------------+
+ * | 5 bits address                          | 5 bits address                          | 2 bits       |
+ * | switch group                            | switch number                           | on / off     |
+ * | 1=0FFFF 2=FF0FF 3=FF0FF 4=FFF0F 5=FFFF0 | 1=0FFFF 2=F0FFF 3=FF0FF 4=FFF0F 5=FFFF0 | on=0F off=F0 |
+ * +-----------------------------------------+-----------------------------------------+--------------+
  *
  */
 char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
@@ -487,7 +496,6 @@ void RCSwitch::send(const char* sCodeWord) {
 void RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
-
 #if not defined( RCSwitchDisableReceiving )
   // make sure the receiver is disabled while we transmit
   int nReceiverInterrupt_backup = nReceiverInterrupt;
