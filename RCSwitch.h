@@ -103,7 +103,7 @@ class RCSwitch {
     #endif
 
     /**
-     * Description of a single pule, which consists of a high signal
+     * Description of a single pulse, which consists of a high signal
      * whose duration is "high" times the base pulse length, followed
      * by a low signal lasting "low" times the base pulse length.
      * Thus, the pulse overall lasts (high+low)*pulseLength
@@ -153,6 +153,7 @@ class RCSwitch {
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
     char* getCodeWordD(char group, int nDevice, bool bStatus);
+    char* getCodeWordE(const char* sGroup, const char* sDevice, bool bStatus);
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
@@ -163,6 +164,7 @@ class RCSwitch {
     int nTransmitterPin;
     int nRepeatTransmit;
     
+    int protocolNumber;
     Protocol protocol;
 
     #if not defined( RCSwitchDisableReceiving )

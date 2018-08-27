@@ -30,7 +30,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "RCSwitch.h"
 
 #ifdef RaspberryPi
@@ -78,9 +77,11 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
   { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
   { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },      // protocol 6 (HT6P20B)
-  { 150, {  2, 62 }, {  1,  6 }, {  6,  1 }, false }     // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
+  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
+  { 150, {  2, 62 }, {  1,  6 }, {  6,  1 }, false },    // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
+  { 150, {  1, 31 }, {  1,  3 }, {  3,  1 }, false }     // protocol 8 (FHT-7901, uses type E encoding hence different from protocol 1)
 };
+// Please don't change order of protocols as other programs rely on it.
 
 enum {
    numProto = sizeof(proto) / sizeof(proto[0])
@@ -115,6 +116,7 @@ RCSwitch::RCSwitch() {
   */
 void RCSwitch::setProtocol(Protocol protocol) {
   this->protocol = protocol;
+  this->protocolNumber = 0; // Possibly a custom protocol, we don't know
 }
 
 /**
@@ -124,6 +126,7 @@ void RCSwitch::setProtocol(int nProtocol) {
   if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
+  this->protocolNumber = nProtocol;
 #if defined(ESP8266) || defined(ESP32)
   this->protocol = proto[nProtocol-1];
 #else
@@ -268,28 +271,45 @@ void RCSwitch::switchOff(const char* sGroup, int nChannel) {
 }
 
 /**
- * Switch a remote switch on (Type A with 10 pole DIP switches)
+ * Switch a remote switch on (Type A with 10 pole DIP switches, or type E depending on the protocol set)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOn(const char* sGroup, const char* sDevice) {
-  this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+  if (this->protocolNumber == 8) {
+      this->sendTriState( this->getCodeWordE(sGroup, sDevice, true) );
+  } else {
+      this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+  }
 }
 
 /**
- * Switch a remote switch off (Type A with 10 pole DIP switches)
+ * Switch a remote switch off (Type A with 10 pole DIP switches, or type E depending on the protocol set)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
 void RCSwitch::switchOff(const char* sGroup, const char* sDevice) {
-  this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+  if (this->protocolNumber == 8) {
+      this->sendTriState( this->getCodeWordE(sGroup, sDevice, false) );
+  } else {
+      this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+  }
 }
 
 
 /**
+ * Encoding for type A switches (10 pole DIP switches).
  * Returns a char[13], representing the code word to be send.
+ *
+ * The code word is a tristate word and with following bit pattern:
+ *
+ * +-----------------------------------------+-----------------------------------------+--------------+
+ * | 5 bits address                          | 5 bits address                          | 2 bits       |
+ * | switch group                            | switch number                           | on / off     |
+ * | 1=0FFFF 2=FF0FF 3=FF0FF 4=FFF0F 5=FFFF0 | 1=0FFFF 2=F0FFF 3=FF0FF 4=FFF0F 5=FFFF0 | on=0F off=F0 |
+ * +-----------------------------------------+-----------------------------------------+--------------+
  *
  */
 char* RCSwitch::getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus) {
@@ -389,7 +409,7 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus
 }
 
 /**
- * Encoding for the REV Switch Type
+ * Encoding for the REV Switch Type (Type D REV)
  *
  * The code word is a tristate word and with following bit pattern:
  *
@@ -431,6 +451,38 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
 
   sReturn[nReturnPos++] = bStatus ? '1' : '0';
   sReturn[nReturnPos++] = bStatus ? '0' : '1';
+
+  sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
+/**
+ * Encoding for type E switches (10 pole DIP switches with alternative encoding, e.g. FHT-7901).
+ * Returns a char[13], representing the code word to be send.
+ *
+ * The code word is a tristate word and with following bit pattern:
+ *
+ * +-----------------------------------------+-----------------------------------------+--------------+
+ * | 5 bits address                          | 5 bits address                          | 2 bits       |
+ * | switch group                            | switch number                           | on / off     |
+ * | 1=1FFFF 2=FF1FF 3=FF1FF 4=FFF1F 5=FFFF1 | 1=0FFFF 2=F0FFF 3=FF0FF 4=FFF0F 5=FFFF0 | on=F0 off=0F |
+ * +-----------------------------------------+-----------------------------------------+--------------+
+ *
+ */
+char* RCSwitch::getCodeWordE(const char* sGroup, const char* sDevice, bool bStatus) {
+  static char sReturn[13];
+  int nReturnPos = 0;
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sGroup[i] == '1') ? '1' : 'F';
+  }
+
+  for (int i = 0; i < 5; i++) {
+    sReturn[nReturnPos++] = (sDevice[i] == '0') ? 'F' : '0';
+  }
+
+  sReturn[nReturnPos++] = bStatus ? 'F' : '0';
+  sReturn[nReturnPos++] = bStatus ? '0' : 'F';
 
   sReturn[nReturnPos] = '\0';
   return sReturn;
@@ -487,7 +539,6 @@ void RCSwitch::send(const char* sCodeWord) {
 void RCSwitch::send(unsigned long code, unsigned int length) {
   if (this->nTransmitterPin == -1)
     return;
-
 #if not defined( RCSwitchDisableReceiving )
   // make sure the receiver is disabled while we transmit
   int nReceiverInterrupt_backup = nReceiverInterrupt;
