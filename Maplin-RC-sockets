@@ -1,0 +1,123 @@
+Maplin (UK) RC Sockets
+
+Chip in the transmitter:
+[ SC5262S
+NC2J14B ]
+
+433.92 MHz	
+422µs	
+protocol 1		
+24-bit
+
+If converting the decimal value to binary, it will give 23 bits and so requires a leading zero (MSB) adding.
+
+• Group 1
+
+		Decimal		Tri-state
+Channel 1
+
+ON		1381717		0FFF 0FFF FFFF
+OFF		1381716		0FFF 0FFF FFF0
+
+
+Channel 2
+
+ON		1394005		0FFF F0FF FFFF
+OFF		1394004		0FFF F0FF FFF0
+
+
+Channel 3
+
+ON		1397077		0FFF FF0F FFFF
+OFF		1397076		0FFF FF0F FFF0
+
+
+Channel 4
+
+ON		1397845		0FFF FFF0 FFFF
+OFF		1397844		0FFF FFF0 FFF0
+
+———————————————————
+
+• Group 2
+
+		Decimal		Tri-state
+Channel 1
+
+ON		4527445		F0FF 0FFF FFFF
+OFF		4527444		F0FF 0FFF FFF0
+
+
+Channel 2
+
+ON		4539733		F0FF F0FF FFFF
+OFF		4539732		F0FF F0FF FFF0
+
+
+Channel 3
+
+ON		4542805		F0FF FF0F FFFF
+OFF		4542804		F0FF FF0F FFF0
+
+
+Channel 4
+
+ON		4543573		F0FF FFF0 FFFF
+OFF		4543572		F0FF FFF0 FFFF
+
+———————————————————
+
+• Group 3
+
+		Decimal		Tri-state
+Channel 1
+
+ON		5313877		FF0F 0FFF FFFF
+OFF		5313876		FF0F 0FFF FFF0
+
+
+Channel 2
+
+ON		5326165		FF0F F0FF FFFF
+OFF		5313876		FF0F F0FF FFF0
+
+
+Channel 3
+
+ON		5329237		FF0F FF0F FFFF
+OFF		5329236		FF0F FF0F FFF0
+
+
+Channel 4
+
+ON		5330005		FF0F FFF0 FFFF
+OFF		5330004		FF0F FFF0 FFF0
+
+———————————————————
+
+• Group 4
+
+		Decimal		Tri-state
+Channel 1	
+
+ON		5510485		FFF0 0FFF FFFF
+OFF		5510484		FFF0 0FFF FFF0
+
+
+Channel 2
+
+ON		5522773		FFF0 F0FF FFFF
+OFF		5522772		FFF0 F0FF FFF0
+
+
+Channel 3
+
+ON		5525845		FFF0 FF0F FFFF
+OFF		5525844		FFF0 FF0F FFF0
+
+
+Channel 4
+
+ON		5526613		FFF0 FFF0 FFFF
+OFF		5526612		FFF0 FFF0 FFF0
+
