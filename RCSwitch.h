@@ -123,6 +123,10 @@ class RCSwitch
     struct Protocol
     {
         uint8_t protocolId;
+
+        uint8_t changeCount; // the number of changes in the protocol (assuming all transmissions are the same lenght)
+                             // testing the protocol match is mutch faster with comparing the changeCount
+
         /** base pulse length in microseconds, e.g. 350 */
         uint16_t pulseLength;
 
