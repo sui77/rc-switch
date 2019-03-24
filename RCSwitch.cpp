@@ -668,7 +668,7 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
 
   const long time = micros();
   const long duration_long = time - lastTime;
-  const unsigned int duration = (duration_long <= UINT_MAX) ? static_cast<unsigned int>(duration_long) : UINT_MAX;
+  const unsigned int duration = (duration_long <= INT_MAX) ? static_cast<unsigned int>(duration_long) : INT_MAX;
 
   if (duration > RCSwitch::nSeparationLimit) {
     // A long stretch without signal level change occurred. This could
