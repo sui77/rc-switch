@@ -98,6 +98,7 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
     {11, 88, 100, {34, 34}, {5, 4}, {5, 13}, {2, 200}, false},// protocol 11 (Cixi Yidong Electronics , sold as AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.)
     {12, 26, 333, {0, 1}, {1, 2}, {2, 1}, {45, 0}, true},     // protocol 12 (CAME)
     {13, 68, 100, {0, 0}, {3, 8}, {8, 3}, {3, 100}, false},   // protocol 13 (Shi Qiong) - 32+1 bit protocol. The last bit is a closing "0"
+    {14, 26, 50, {7, 8}, {8, 15}, {15, 8}, {15, 340}, false },// protocol 14 (Mertik Maxitrol G6R-H4T1)	
 };
 
 enum
