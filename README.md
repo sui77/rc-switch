@@ -1,12 +1,22 @@
 # rc-switch
-[![Build Status](https://travis-ci.org/sui77/rc-switch.svg?branch=master)](https://travis-ci.org/sui77/rc-switch)
+[![Build Status](https://travis-ci.org/Attila-FIN/rc-switch.svg?branch=master)](https://travis-ci.org/Attila-FIN/rc-switch)
+
 
 Use your Arduino or [Raspberry Pi](https://github.com/r10r/rcswitch-pi) to operate remote radio controlled devices
 
 ## Download
+Original:
 https://github.com/sui77/rc-switch/releases/latest
 
 rc-switch is also listed in the arduino library manager.
+
+Modified to support Nexa and Everflourish
+https://github.com/perivar/rc-switch
+
+Modified to support for Cixi Yidong Electronics protocol.
+Remote control switches are sold under brands AXXEL, Telco, EVOLOGY, CONECTO, mumbi, Manax etc.
+More info about the protocol:
+http://ipfone.hu/reverse-engineering-the-433mhz-cixi-yidong-electronics-protocol/
 
 ## Wiki
 https://github.com/sui77/rc-switch/wiki
@@ -27,6 +37,8 @@ or more devices with one of the supported chipsets:
  - EV1527 / RT1527 / FP1527 / HS1527 
  - Intertechno outlets
  - HT6P20X
+ - Everflourish like EMW100T
+ - Nexa like LMLT-711
 
 ### Receive and decode RC codes
 

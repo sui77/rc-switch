@@ -9,10 +9,10 @@ cache:
       - "~/.platformio"
 
 env:
-  - > 
-    PLATFORMIO_CI_SRC=$PWD/examples/Webserver 
-    ARDUINOIDE_CI_SRC=$PLATFORMIO_CI_SRC/Webserver.ino
-    BOARDS="--board=diecimilaatmega328 --board=uno --board=esp01"
+#  - > 
+#    PLATFORMIO_CI_SRC=$PWD/examples/Webserver 
+#    ARDUINOIDE_CI_SRC=$PLATFORMIO_CI_SRC/Webserver.ino
+#    BOARDS="--board=diecimilaatmega328 --board=uno --board=esp01"
   - > 
     PLATFORMIO_CI_SRC=$PWD/examples/ReceiveDemo_Simple 
     ARDUINOIDE_CI_SRC=$PLATFORMIO_CI_SRC/ReceiveDemo_Simple.ino

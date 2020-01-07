@@ -10,6 +10,7 @@
   - Frank Oltmanns / <first name>.<last name>(at)gmail(dot)com
   - Max Horn / max(at)quendi(dot)de
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
+  - Per Ivar Nerseth / <first name>(at)<last name>(dot)com
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -31,56 +32,56 @@
 #define _RCSwitch_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-    #include "Arduino.h"
+#include "Arduino.h"
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
-    #include "Energia.h"
+#include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
-    #define RaspberryPi
+#define RaspberryPi
 
-    // Include libraries for RPi:
-    #include <string.h> /* memcpy */
-    #include <stdlib.h> /* abs */
-    #include <wiringPi.h>
+// Include libraries for RPi:
+#include <string.h> /* memcpy */
+#include <stdlib.h> /* abs */
+#include <wiringPi.h>
 #elif defined(SPARK)
-    #include "application.h"
+#include "application.h"
 #else
-    #include "WProgram.h"
+#include "WProgram.h"
 #endif
 
 #include <stdint.h>
 
-
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
 // missing libm depencies (udivmodhi4)
-#if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
+#if defined(__AVR_ATtinyX5__) or defined(__AVR_ATtinyX4__)
 #define RCSwitchDisableReceiving
 #endif
 
 // Number of maximum high/Low changes per packet.
-// We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
-#define RCSWITCH_MAX_CHANGES 67
+// We can handle up to 67 bits (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
+#define RCSWITCH_MAX_CHANGES 255 // increased from 67 to 255 and using char array to hold longer bit streams
 
-class RCSwitch {
+class RCSwitch
+{
 
   public:
     RCSwitch();
-    
+
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
-    void switchOn(const char* sGroup, int nSwitchNumber);
-    void switchOff(const char* sGroup, int nSwitchNumber);
+    void switchOn(const char *sGroup, int nSwitchNumber);
+    void switchOff(const char *sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
-    void switchOn(const char* sGroup, const char* sDevice);
-    void switchOff(const char* sGroup, const char* sDevice);
+    void switchOn(const char *sGroup, const char *sDevice);
+    void switchOff(const char *sGroup, const char *sDevice);
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
 
-    void sendTriState(const char* sCodeWord);
+    void sendTriState(const char *sCodeWord);
     void send(unsigned long code, unsigned int length);
-    void send(const char* sCodeWord);
-    
-    #if not defined( RCSwitchDisableReceiving )
+    void send(const char *sBitString);
+
+#ifndef RCSwitchDisableReceiving
     void enableReceive(int interrupt);
     void enableReceive();
     void disableReceive();
@@ -91,16 +92,17 @@ class RCSwitch {
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
     unsigned int getReceivedProtocol();
-    unsigned int* getReceivedRawdata();
-    #endif
-  
+    unsigned int *getReceivedRawdata();
+    char *getReceivedRawBits();
+#endif
+
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
-    #if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
     void setReceiveTolerance(int nPercent);
-    #endif
+#endif
 
     /**
      * Description of a single pule, which consists of a high signal
@@ -108,22 +110,30 @@ class RCSwitch {
      * by a low signal lasting "low" times the base pulse length.
      * Thus, the pulse overall lasts (high+low)*pulseLength
      */
-    struct HighLow {
-        uint8_t high;
-        uint8_t low;
+    struct HighLow
+    {
+        uint16_t high;
+        uint16_t low;
     };
 
     /**
      * A "protocol" describes how zero and one bits are encoded into high/low
      * pulses.
      */
-    struct Protocol {
+    struct Protocol
+    {
+        uint8_t protocolId;
+
+        uint8_t changeCount; // the number of changes in the protocol (assuming all transmissions are the same lenght)
+                             // testing the protocol match is mutch faster with comparing the changeCount
+
         /** base pulse length in microseconds, e.g. 350 */
         uint16_t pulseLength;
 
-        HighLow syncFactor;
-        HighLow zero;
-        HighLow one;
+        HighLow sync;  // sync bit before the data bits (normally zero, i.e. 0, 0)
+        HighLow zero;  // zero bit
+        HighLow one;   // one bit
+        HighLow pause; // pause bit
 
         /**
          * If true, interchange high and low logic levels in all transmissions.
@@ -147,25 +157,32 @@ class RCSwitch {
     void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
+    Protocol getProtocol();
+    void transmit(HighLow pulses);
+    int getReceiverInterrupt();
+
+    /* 
+     * helper function for debugging decoding binary inputs (used in the receiveProtocol method)
+     */
+    static char *dec2binWzerofill(unsigned long Dec, unsigned int bitLength);
 
   private:
-    char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);
-    char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
-    char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
-    char* getCodeWordD(char group, int nDevice, bool bStatus);
-    void transmit(HighLow pulses);
+    char *getCodeWordA(const char *sGroup, const char *sDevice, bool bStatus);
+    char *getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
+    char *getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
+    char *getCodeWordD(char group, int nDevice, bool bStatus);
 
-    #if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
-    #endif
+#endif
     int nTransmitterPin;
     int nRepeatTransmit;
-    
+
     Protocol protocol;
 
-    #if not defined( RCSwitchDisableReceiving )
+#ifndef RCSwitchDisableReceiving
     static int nReceiveTolerance;
     volatile static unsigned long nReceivedValue;
     volatile static unsigned int nReceivedBitlength;
@@ -173,12 +190,23 @@ class RCSwitch {
     volatile static unsigned int nReceivedProtocol;
     const static unsigned int nSeparationLimit;
     /* 
-     * timings[0] contains sync timing, followed by a number of bits
+     * timings[0] contains pause timing, followed by an optional sync bit and a number of data bits
      */
     static unsigned int timings[RCSWITCH_MAX_CHANGES];
-    #endif
 
-    
+    /* 
+     * timings_copy[0] contains a copy of the timings after a protocol has been succesfully found
+     * this ensures that the returned raw timings in fact were the original raw timings and not
+     * timings that are constanty modified
+     */
+    static unsigned int timings_copy[RCSWITCH_MAX_CHANGES];
+
+    /* 
+     * receivedBits[0] contains the raw bits as 1 and 0s
+     */
+    static char receivedBits[RCSWITCH_MAX_CHANGES];
+
+#endif
 };
 
 #endif
