@@ -58,7 +58,7 @@
 
 // Number of maximum high/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
-#define RCSWITCH_MAX_CHANGES 67
+#define RCSWITCH_MAX_CHANGES 132 // 64 bit plus 2 bit latch + 2 sync
 
 class RCSwitch {
 
@@ -87,6 +87,7 @@ class RCSwitch {
     bool available();
     void resetAvailable();
 
+    char * getReceivedCodeWord();
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
@@ -142,6 +143,12 @@ class RCSwitch {
          * FOO.low*pulseLength microseconds.
          */
         bool invertedSignal;
+
+        /**
+         * If set, it check for a second long pulse at the begening of the protocol
+         * Home Easy protocol (Home Easy, Domia Lite, Klik aan Klik uit, Byron, Bye Bye Standby, Nexa) 
+         */
+        HighLow latch;
     };
 
     void setProtocol(Protocol protocol);
@@ -167,7 +174,7 @@ class RCSwitch {
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
-    volatile static unsigned long nReceivedValue;
+    static char nReceivedCodeWord[RCSWITCH_MAX_CHANGES];
     volatile static unsigned int nReceivedBitlength;
     volatile static unsigned int nReceivedDelay;
     volatile static unsigned int nReceivedProtocol;
