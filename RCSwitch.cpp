@@ -13,6 +13,7 @@
   - Robert ter Vehn / <first name>.<last name>(at)gmail(dot)com
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
   - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
+  - Matias Cuenca-Acuna 
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -50,7 +51,7 @@
 
 
 /* Format for protocol definitions:
- * {pulselength, Sync bit, "0" bit, "1" bit}
+ * {pulselength, Sync bit, "0" bit, "1" bit, invertedSignal}
  * 
  * pulselength: pulse length in microseconds, e.g. 350
  * Sync bit: {1, 31} means 1 high pulse and 31 low pulses
@@ -82,7 +83,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 150, {  2, 62 }, {  1,  6 }, {  6,  1 }, false },    // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
   { 200, {  3, 130}, {  7, 16 }, {  3,  16}, false},     // protocol 8 Conrad RS-200 RX
   { 200, { 130, 7 }, {  16, 7 }, { 16,  3 }, true},      // protocol 9 Conrad RS-200 TX
-  { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true }      // protocol 10 (1ByOne Doorbell)
+  { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true },     // protocol 10 (1ByOne Doorbell)
+  { 270, { 36,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 11 (HT12E)
 };
 
 enum {
