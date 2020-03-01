@@ -51,19 +51,20 @@ before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
   - sleep 3
   - export DISPLAY=:1.0
-  - wget http://downloads.arduino.cc/arduino-1.6.9-linux64.tar.xz
-  - tar xf arduino-1.6.9-linux64.tar.xz
-  - sudo mv arduino-1.6.9 /usr/local/share/arduino
+  - wget http://downloads.arduino.cc/arduino-1.8.10-linux64.tar.xz
+  - tar xf arduino-1.8.10-linux64.tar.xz
+  - sudo mv arduino-1.8.10 /usr/local/share/arduino
   - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
   
 install:
   # Arduino IDE
   - ln -s $PWD /usr/local/share/arduino/libraries/rc-switch
   # PlatformIO
-  - sudo pip install -U platformio
+  # - pip install -U platformio
+  # - platformio update
 
 script:
   # Arduino IDE
   - arduino --verify --board arduino:avr:uno ${ARDUINOIDE_CI_SRC}
   # PlatformIO
-  - platformio ci --lib="." ${BOARDS}
+  # - platformio run --lib="." ${BOARDS}
