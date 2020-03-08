@@ -484,7 +484,27 @@ void RCSwitch::send(const char* sCodeWord) {
   }
   this->send(code, length);
 }
-
+  
+/**
+ * @param sCodeWord   a String code word consisting of the letter 0, 1
+ */
+unsigned int RCSwitch::send(String sCodeString) {
+  // turn the tristate code word into the corresponding bit pattern, then send it
+  unsigned long code = 0;
+  unsigned int length = 0;
+  char sCodeWord[sCodeString.length()+1];
+  
+  sCodeString.toCharArray(sCodeWord, sCodeString.length()+1);
+  
+  for (const char* p = sCodeWord; *p; p++) {
+    code <<= 1L;
+    if (*p != '0')
+      code |= 1L;
+    length++;
+  }
+  this->send(code, length);
+  return length;
+}
 /**
  * Transmit the first 'length' bits of the integer 'code'. The
  * bits are sent from MSB to LSB, i.e., first the bit at position length-1,
