@@ -488,7 +488,7 @@ void RCSwitch::send(const char* sCodeWord) {
 /**
  * @param sCodeWord   a String code word consisting of the letter 0, 1
  */
-unsigned int RCSwitch::send(String sCodeString) {
+void RCSwitch::send(String sCodeString) {
   // turn the tristate code word into the corresponding bit pattern, then send it
   unsigned long code = 0;
   unsigned int length = 0;
@@ -503,7 +503,6 @@ unsigned int RCSwitch::send(String sCodeString) {
     length++;
   }
   this->send(code, length);
-  return length;
 }
 /**
  * Transmit the first 'length' bits of the integer 'code'. The
