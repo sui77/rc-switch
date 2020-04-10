@@ -47,6 +47,11 @@
     #include "WProgram.h"
 #endif
 
+#if defined(WITH_LOCKS)
+    #include <condition_variable>
+    #include <mutex>
+#endif
+
 #include <stdint.h>
 
 
@@ -148,6 +153,14 @@ class RCSwitch {
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
 
+    #if defined(WITH_LOCKS)
+    // Enabled the handling of locks. 
+    // If enabled, the caller can use the wait() function to wait for data.
+    void enableLocks();
+    void wait();
+    #endif
+    
+
   private:
     char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
@@ -160,6 +173,13 @@ class RCSwitch {
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
+    
+    #if defined(WITH_LOCKS) 
+    static std::mutex mutex;
+    static std::condition_variable receiveGuard;
+    static volatile bool useLocks;
+    #endif
+
     int nTransmitterPin;
     int nRepeatTransmit;
     
