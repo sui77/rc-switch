@@ -33,7 +33,7 @@
 */
 
 #include "RCSwitch.h"
-#include <cassert>
+#include <assert.h>
 
 #ifdef RaspberryPi
     // PROGMEM and _P functions are for AVR based microprocessors,

@@ -47,6 +47,10 @@
     #include "WProgram.h"
 #endif
 
+#if defined(WITH_LOCKS) && !defined(RaspberryPi)
+    #error "Locks are not supported outside Raspberry Pi!"
+#endif
+
 #if defined(WITH_LOCKS)
     #include <condition_variable>
     #include <mutex>
