@@ -104,10 +104,13 @@ const unsigned int RCSwitch::nSeparationLimit = 4300;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+#if defined(WITH_LOCKS)
 volatile bool RCSwitch::useLocks = false;
 std::mutex RCSwitch::mutex;
 std::condition_variable RCSwitch::receiveGuard;
-#endif
+#endif // WITH_LOCKS
+
+#endif // !RCSwitchDisableReceiving
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
