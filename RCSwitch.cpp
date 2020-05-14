@@ -651,16 +651,12 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
             return false;
         }
     }
-
-    if (changeCount > 7) {    // ignore very short transmissions: no device sends them, so this must be noise
-        RCSwitch::nReceivedValue = code;
-        RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
-        RCSwitch::nReceivedDelay = delay;
-        RCSwitch::nReceivedProtocol = p;
-        return true;
-    }
-
-    return false;
+  
+    RCSwitch::nReceivedValue = code;
+    RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
+    RCSwitch::nReceivedDelay = delay;
+    RCSwitch::nReceivedProtocol = p;
+    return true;
 }
 
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
@@ -682,7 +678,7 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
       // here that a sender will send the signal multiple times,
       // with roughly the same gap between them).
       repeatCount++;
-      if (repeatCount == 2) {
+      if (repeatCount == 2 && changeCount > 7) { // ignore very short transmissions: no device sends them, so this must be noise
         for(unsigned int i = 1; i <= numProto; i++) {
           if (receiveProtocol(i, changeCount)) {
             // receive succeeded for protocol i
