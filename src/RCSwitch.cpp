@@ -42,10 +42,12 @@
     #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
 #endif
 
-#if defined(ESP8266) || defined(ESP32)
+#if defined(ESP8266)
     // interrupt handler and related code must be in RAM on ESP8266,
     // according to issue #46.
     #define RECEIVE_ATTR ICACHE_RAM_ATTR
+#elif defined(ESP32)
+    #define RECEIVE_ATTR IRAM_ATTR
 #else
     #define RECEIVE_ATTR
 #endif
