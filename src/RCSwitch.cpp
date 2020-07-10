@@ -124,7 +124,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 260,  0, { 0, 0 }, 1, {   1,  8 }, { 1,  4 }, { 4, 1 }, true,   0 },  // 30 (Anima)
 
   { 400,  0, { 0, 0 }, 1, {   1,  1 }, { 1,  2 }, { 2, 1 }, false, 43 },  // 31 (Mertik Maxitrol G6R-H4T1)
-  { 365,  0, { 0, 0 }, 1, {  18,  1 }, { 3,  1 }, { 1, 3 }, true,   0 }   // 32 (1ByOne Doorbell) from @Fatbeard https://github.com/sui77/rc-switch/pull/277
+  { 365,  0, { 0, 0 }, 1, {  18,  1 }, { 3,  1 }, { 1, 3 }, true,   0 },  // 32 (1ByOne Doorbell) from @Fatbeard https://github.com/sui77/rc-switch/pull/277
+  { 340,  0, { 0, 0 }, 1, {  14,  4 }, { 1,  2 }, { 2, 1 }, false,  0 }   // 33 (Dooya Control DC2708L)
 };
 
 enum {
