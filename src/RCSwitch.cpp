@@ -56,34 +56,34 @@
 #endif
 
 
-/* Формат для описания протокола:
+/* Protocol description format
  *
  * {Pulse length, Preamble, Sync bit, "0" bit, "1" bit, Inverted Signal, Guard time}
  * 
- * Pulse length: длительность импульса Te в микросекундах,
- *               например 350
- * Preamble: преамбула - Чередование высоких и низких уровней 
- *           {20, 1} означает 20 чередований длительностью 1 Te
+ * Pulse length: pulse duration Te in microseconds,
+ *               example 350
+ * Preamble: Alternating high and low levels
+ *           {20, 1} means 20 alternations of 1 Te duration
  *      _   _   _   _   _   _   _   _   _   _
  *     | |_| |_| |_| |_| |_| |_| |_| |_| |_| |_ 
- * Sync bit: Хедер и синхроимпульс
- *           {1, 31} означает 1 импульс длительностью Te высокого уровня и 31 низкого
+ * Sync bit: Header and clock
+ *           {1, 31} means 1 pulse long Te high and 31 low
  *      _
  *     | |_______________________________ (don't count the vertical bars)
- * "0" bit: форма импульсов, определяющая бит данных, являющийся логическим "0"
- *          {1, 3} означает 1 импульс длительностью Te высокого уровня и 3 низкого
+ * "0" bit: pulse shape defining a data bit, which is a logical "0"
+ *          {1, 3} means 1 pulse duration Te high level and 3 low
  *      _
  *     | |___
- * "1" bit: форма импульсов, определяющая бит данных, являющийся логической "1"
- *          {3, 1} означает 3 импульса длительностью Te высокого уровня и 1 низкого
+ * "1" bit: pulse shape that defines the data bit, which is a logical "1"
+ *          {3, 1} means 3 pulses with a duration of Te high level and 1 low
  *      ___
  *     |   |_
  *
- * (примечание: для формирования бита состояния Z (Tri-State bit) эти два кода объединяются)
- * Inverted Signal: Инверсия сигнала - если принимает значение true, то это означает
- *                  замену высокого уровня на низкий в передаваемом/принимаемом пакете
- * Guard time: Защитное время, после которого следует очередная преамбула следующего пакета
- *             например 39 импульсов длительностью Te низкого уровня
+ * (note: to form the state bit Z (Tri-State bit), these two codes are combined)
+ * Inverted Signal: Signal inversion - if true the signal is inverted
+ *                  replacing high to low in a transmitted / received packet
+ * Guard time: Safety time, followed by the next preamble of the next packet
+ *             for example 39 pulses of low duration Te
  */
 #if defined(ESP8266) || defined(ESP32)
 static const VAR_ISR_ATTR RCSwitch::Protocol proto[] = {
@@ -563,27 +563,27 @@ void RCSwitch::send(unsigned long long code, unsigned int length) {
   }
 #endif
 
-  // повторяем отправку пакета nRepeatTransmit раз
+  // repeat sending the packet nRepeatTransmit times
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
-    // отправляем преамбулу (меандр)
+    // send the preamble
     for (int i = 0; i < ((protocol.PreambleFactor / 2) + (protocol.PreambleFactor %2 )); i++) {
        this->transmit({protocol.Preamble.high, protocol.Preamble.low});
     }
-    // отправляем хедер
+    // send the header
     if (protocol.HeaderFactor > 0) {
       for (int i = 0; i < protocol.HeaderFactor; i++) {
         this->transmit(protocol.Header);
       }
     }
-    // отправляем код посылки
+    // send the code
     for (int i = length - 1; i >= 0; i--) {
       if (code & (1ULL << i))
         this->transmit(protocol.one);
       else
         this->transmit(protocol.zero);
     }
-    // для килока должна быть длительность 66, а сохраняется 64 значащих кода данных
-    // поэтому отправим еще два бита для ровного счета
+    // for kilok, there should be a duration of 66, and 64 significant data codes are stored
+    // send two more bits for even count
     if (length == 64) {
       if (nRepeat == 0) {
         this->transmit(protocol.zero);
@@ -593,7 +593,7 @@ void RCSwitch::send(unsigned long long code, unsigned int length) {
         this->transmit(protocol.one);
       }
      }
-    // выдерживаем Защитное время (Guard Time)
+    // Set the guard Time
     if (protocol.Guard > 0) {
       digitalWrite(this->nTransmitterPin, LOW);
       safeDelayMicroseconds(this->protocol.pulseLength * protocol.Guard);
@@ -712,7 +712,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     unsigned int BeginData = 0;
     if (pro.HeaderFactor > 0) {
       BeginData = (pro.invertedSignal) ? (2) : (1);
-      // коррекция на количество импульсов в Хедере для более одного
+      // Header pulse count correction for more than one
       if (pro.HeaderFactor > 1) {
         BeginData += (pro.HeaderFactor - 1) * 2;
       }
