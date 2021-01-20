@@ -14,6 +14,7 @@
   - Johann Richard / <first name>.<last name>(at)gmail(dot)com
   - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
   - Matias Cuenca-Acuna 
+  - Hajo Noerenberg / https://github.com/hn
   
   Project home: https://github.com/sui77/rc-switch/
 
@@ -90,7 +91,8 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 200, { 130, 7 }, {  16, 7 }, { 16,  3 }, true},      // protocol 9 Conrad RS-200 TX
   { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true },     // protocol 10 (1ByOne Doorbell)
   { 270, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 11 (HT12E)
-  { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 12 (SM5212)
+  { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 12 (SM5212)
+  { 430, { 1,  27 }, {  1,  3 }, {  3,  1 }, false }    // protocol 13 (HT45F23A, i.e. used in Cordes CC-80, VisorTech RWM-460.f -- needs 'strip stop bits' patch)
 };
 
 enum {
@@ -641,6 +643,18 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
      * The 2nd saved duration starts the data
      */
     const unsigned int firstDataTiming = (pro.invertedSignal) ? (2) : (1);
+
+    // HT45F23A: 'strip stop bits' patch (workaround)
+    if (changeCount == 54) { // better when using multiple protocols: if (p == 13 && changeCount == 54) {
+        if (diff(RCSwitch::timings[changeCount - 1], delay * pro.zero.high) < delayTolerance &&
+            diff(RCSwitch::timings[changeCount - 2], delay * pro.zero.high) < delayTolerance &&
+            diff(RCSwitch::timings[changeCount - 3], delay * pro.zero.high) < delayTolerance &&
+            diff(RCSwitch::timings[changeCount - 4], delay * pro.zero.high) < delayTolerance) {
+            changeCount -= 4;	// strip stop bits
+        } else {
+            return false;	// no "stop bits" found
+        }
+    }
 
     for (unsigned int i = firstDataTiming; i < changeCount - 1; i += 2) {
         code <<= 1;

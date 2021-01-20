@@ -28,6 +28,7 @@ or more devices with one of the supported chipsets:
  - EV1527 / RT1527 / FP1527 / HS1527 
  - Intertechno outlets
  - HT6P20X
+ - HT45F23A (receiver only, needs 'strip stop bits' patch/workaround)
 
 ### Receive and decode RC codes
 
