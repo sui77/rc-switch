@@ -91,7 +91,7 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true },     // protocol 10 (1ByOne Doorbell)
   { 270, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 11 (HT12E)
   { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 12 (SM5212)
-  { 250, { 20, 10 }, {  1,  1 }, {  3,  1 }, false },    // protocol 13 (Home NetWerks Bathroom Fan Model 6201-500)
+  { 250, { 20, 10 }, {  1,  1 }, {  3,  1 }, false }     // protocol 13 (Home NetWerks Bathroom Fan Model 6201-500)
 };
 
 enum {
