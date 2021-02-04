@@ -103,6 +103,7 @@ volatile unsigned int RCSwitch::nReceivedBitlength = 0;
 volatile unsigned int RCSwitch::nReceivedDelay = 0;
 volatile unsigned int RCSwitch::nReceivedProtocol = 0;
 int RCSwitch::nReceiveTolerance = 60;
+int RCSwitch::nReceiveRepeat = 2;
 const unsigned int RCSwitch::nSeparationLimit = 4300;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
@@ -117,6 +118,7 @@ RCSwitch::RCSwitch() {
   #if not defined( RCSwitchDisableReceiving )
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
+  this->setReceiveRepeat(2);
   RCSwitch::nReceivedValue = 0;
   #endif
 }
@@ -171,6 +173,9 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
 #if not defined( RCSwitchDisableReceiving )
 void RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
+}
+void RCSwitch::setReceiveRepeat(int nCount){
+  RCSwitch::nReceiveRepeat = nCount;
 }
 #endif
   
@@ -687,7 +692,7 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
       // here that a sender will send the signal multiple times,
       // with roughly the same gap between them).
       repeatCount++;
-      if (repeatCount == 2) {
+      if (repeatCount == RCSwitch::nReceiveRepeat) {
         for(unsigned int i = 1; i <= numProto; i++) {
           if (receiveProtocol(i, changeCount)) {
             // receive succeeded for protocol i
