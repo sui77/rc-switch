@@ -100,6 +100,7 @@ class RCSwitch {
     void setRepeatTransmit(int nRepeatTransmit);
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
+    void setReceiveRepeat(int nCount);
     #endif
 
     /**
@@ -167,6 +168,7 @@ class RCSwitch {
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
+    static int nReceiveRepeat;
     volatile static unsigned long nReceivedValue;
     volatile static unsigned int nReceivedBitlength;
     volatile static unsigned int nReceivedDelay;
