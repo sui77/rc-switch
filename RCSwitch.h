@@ -48,7 +48,6 @@
 #endif
 
 #include <stdint.h>
-#include <cstdio>
 
 
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
