@@ -96,7 +96,7 @@ class RCSwitch {
   
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
-    void setPulseLength(int nPulseLength);
+    void setPulseLength(uint16_t nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
@@ -146,7 +146,7 @@ class RCSwitch {
 
     void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
-    void setProtocol(int nProtocol, int nPulseLength);
+    void setProtocol(int nProtocol, uint16_t nPulseLength);
 
   private:
     char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);
