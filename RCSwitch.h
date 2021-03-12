@@ -79,6 +79,8 @@ class RCSwitch {
     void sendTriState(const char* sCodeWord);
     void send(unsigned long code, unsigned int length);
     void send(const char* sCodeWord);
+    void send(unsigned int * ptrtransmittimings);
+    unsigned int * transmittimings = NULL; // this should have a get/set functions interface
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
