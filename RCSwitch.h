@@ -32,6 +32,14 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
+#elif defined(__ets__)
+    #define ESP8266
+
+    #include <c_types.h>
+    #include <stdlib.h> /* abs */
+    #include "wiringESP.h"
+
+    #define ICACHE_RAM_ATTR
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
