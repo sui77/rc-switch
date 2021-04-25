@@ -557,7 +557,9 @@ void RCSwitch::enableReceive() {
     RCSwitch::nReceivedBitlength = 0;
 #if defined(RaspberryPi) // Raspberry Pi
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
-#else // Arduino
+#elif defined(USE_PIN_CHANGE_INTERRUPT)  // Arduino with PinChangeINTerrupt library
+    attachPinChangeInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+#else // Arduino with regular INTerrupts
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
 #endif
   }
@@ -567,9 +569,13 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
-#if not defined(RaspberryPi) // Arduino
+#if defined(RaspberryPi) // Raspberry Pi
+  // For Raspberry Pi (wiringPi) you can't unregister the ISR - do nothing
+#elif defined(USE_PIN_CHANGE_INTERRUPT)  // Arduino with PinChangeINTerrupt library
+  detachPinChangeInterrupt(this->nReceiverInterrupt);
+#else // Arduino with regular INTerrupts
   detachInterrupt(this->nReceiverInterrupt);
-#endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
+#endif 
   this->nReceiverInterrupt = -1;
 }
 
