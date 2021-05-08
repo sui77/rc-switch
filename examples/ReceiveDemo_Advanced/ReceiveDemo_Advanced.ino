@@ -14,6 +14,12 @@ RCSwitch mySwitch = RCSwitch();
 void setup() {
   Serial.begin(9600);
   mySwitch.enableReceive(0);  // Receiver on interrupt 0 => that is pin #2
+  // for some transmitters it gives better results when you set it to true
+  // when it is false library is using initial synchronization pulse to determine timing for decoding signal
+  // when it is true library is using protocol definition to determine timing for decoding signal
+  mySwitch.setReceiveUsingProtocolTiming(false);
+  // this is for testing only - it will show timings of received data even, if it doesn't follow any protocol.
+  mySwitch.setReceiveUnknownProtocol(true);
 }
 
 void loop() {

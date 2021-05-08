@@ -103,6 +103,9 @@ volatile unsigned int RCSwitch::nReceivedBitlength = 0;
 volatile unsigned int RCSwitch::nReceivedDelay = 0;
 volatile unsigned int RCSwitch::nReceivedProtocol = 0;
 int RCSwitch::nReceiveTolerance = 60;
+bool RCSwitch::receiveUsingProtocolTiming = false;
+bool RCSwitch::receiveUnknownProtocol = false;
+
 const unsigned int VAR_ISR_ATTR RCSwitch::nSeparationLimit = 4300;
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
@@ -117,6 +120,8 @@ RCSwitch::RCSwitch() {
   #if not defined( RCSwitchDisableReceiving )
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
+  this->setReceiveUsingProtocolTiming(false);
+  this->setReceiveUnknownProtocol(false);
   RCSwitch::nReceivedValue = 0;
   #endif
 }
@@ -171,6 +176,20 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
 #if not defined( RCSwitchDisableReceiving )
 void RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
+}
+
+/**
+ * Set source of recive protocol delay
+ */
+void RCSwitch::setReceiveUsingProtocolTiming(bool useProtocolTiming) {
+  RCSwitch::receiveUsingProtocolTiming = useProtocolTiming;
+}
+
+/**
+ * Enable receiving of unknown protocol data - for debugging purposes only
+ */
+void RCSwitch::setReceiveUnknownProtocol(bool showUnknownProtocol) {
+  RCSwitch::receiveUnknownProtocol = showUnknownProtocol;
 }
 #endif
   
@@ -620,7 +639,7 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     unsigned long code = 0;
     //Assuming the longer pulse length is the pulse captured in timings[0]
     const unsigned int syncLengthInPulses =  ((pro.syncFactor.low) > (pro.syncFactor.high)) ? (pro.syncFactor.low) : (pro.syncFactor.high);
-    const unsigned int delay = RCSwitch::timings[0] / syncLengthInPulses;
+    const unsigned int delay = RCSwitch::receiveUsingProtocolTiming ? pro.pulseLength : RCSwitch::timings[0] / syncLengthInPulses;
     const unsigned int delayTolerance = delay * RCSwitch::nReceiveTolerance / 100;
     
     /* For protocols that start low, the sync period looks like
@@ -668,7 +687,23 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     return false;
 }
 
+void RECEIVE_ATTR RCSwitch::acceptUnknownProtocol(unsigned int changeCount) {
+
+    if (changeCount > 7) {    // ignore very short transmissions: no device sends them, so this must be noise
+        RCSwitch::nReceivedValue = -1;
+        RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
+        RCSwitch::nReceivedDelay = 0;
+        RCSwitch::nReceivedProtocol = -1;
+    }
+}
+
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
+
+  // The timings table should remain unchanged
+  // until previously received data is consumed 
+  if (RCSwitch::receiveUnknownProtocol && RCSwitch::nReceivedValue != 0) {
+      return;
+  }
 
   static unsigned int changeCount = 0;
   static unsigned long lastTime = 0;
@@ -693,6 +728,9 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
             // receive succeeded for protocol i
             break;
           }
+        }
+        if (RCSwitch::receiveUnknownProtocol && RCSwitch::nReceivedValue == 0) {
+          acceptUnknownProtocol(changeCount);
         }
         repeatCount = 0;
       }
