@@ -75,6 +75,8 @@ class RCSwitch {
     void switchOff(const char* sGroup, const char* sDevice);
     void switchOn(char sGroup, int nDevice);
     void switchOff(char sGroup, int nDevice);
+    void switchOn(int nSwitchNumber, char sHomeCode);
+    void switchOff(int nSwitchNumber, char sHomeCode);
 
     void sendTriState(const char* sCodeWord);
     void send(unsigned long code, unsigned int length);
@@ -153,6 +155,7 @@ class RCSwitch {
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, bool bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, bool bStatus);
     char* getCodeWordD(char group, int nDevice, bool bStatus);
+    char* getCodeWordE(char sHomeCode, int nChannelCode, bool bStatus);
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )

@@ -15,6 +15,7 @@
   - Vlad Gheorghe / <first name>.<last name>(at)gmail(dot)com https://github.com/vgheo
   - Matias Cuenca-Acuna 
   
+  - Kaare Smith / https://github.com/ksmith3036
   Project home: https://github.com/sui77/rc-switch/
 
   This library is free software; you can redistribute it and/or
@@ -193,6 +194,26 @@ void RCSwitch::disableTransmit() {
 }
 
 /**
+ * Switch a remote switch on (Nexa/Proove simple (not self-learning), Hyttevokteren, Everspring B002R)
+ *
+ * @param nSwitchNumber  Switch 1 - 16
+ * @param sHomeCode      Home code A - P
+ */
+void RCSwitch::switchOn(int nSwitchNumber, char sHomeCode) {
+  this->sendTriState(this->getCodeWordE(sHomeCode, nSwitchNumber, true));
+}
+
+/**
+ * Switch a remote switch off (Nexa/Proove simple (not self-learning), Hyttevokteren, Everspring B002R)
+ *
+ * @param nSwitchNumber  Switch 1 - 16
+ * @param sHomeCode      Home code A - P
+ */
+void RCSwitch::switchOff(int nSwitchNumber, char sHomeCode) {
+  this->sendTriState(this->getCodeWordE(sHomeCode, nSwitchNumber, false));
+}
+
+/**
  * Switch a remote switch on (Type D REV)
  *
  * @param sGroup        Code of the switch group (A,B,C,D)
@@ -213,7 +234,7 @@ void RCSwitch::switchOff(char sGroup, int nDevice) {
 }
 
 /**
- * Switch a remote switch on (Type C Intertechno)
+ * Switch a remote switch on (Type C Intertechno and Nexa self-learning)
  *
  * @param sFamily  Familycode (a..f)
  * @param nGroup   Number of group (1..4)
@@ -224,7 +245,7 @@ void RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
 }
 
 /**
- * Switch a remote switch off (Type C Intertechno)
+ * Switch a remote switch off (Type C Intertechno and Nexa self-learning)
  *
  * @param sFamily  Familycode (a..f)
  * @param nGroup   Number of group (1..4)
@@ -444,6 +465,66 @@ char* RCSwitch::getCodeWordD(char sGroup, int nDevice, bool bStatus) {
   sReturn[nReturnPos++] = bStatus ? '0' : '1';
 
   sReturn[nReturnPos] = '\0';
+  return sReturn;
+}
+
+/**
+ * Returns a char[13], representing the Code Word to be send.
+ * A Code Word consists of 8 address bits, 2 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
+ * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
+ *
+ * +-----------------------------+---------------------------------+-----------------------------------------+----------------------+------------+
+ * | 4 bits address (home code)  | 4 bits address (switch number)  | 2 bit unknown (not used, so never mind) | 2 data bits (on|off) | 1 sync bit |
+ * | A=0000 B=F000 C=0F00 D=FF00 | 1=0000 2=F000 3=0F00 4=FF00     | FF                                      | on=FF off=F0         | S          |
+ * | E=00F0 F=F0F0 G=0FF0 H=FFF0 | 5=00F0 6=F0F0 7=0FF0 8=FFF0     |                                         |                      |            |
+ * | I=000F J=F00F K=0F0F L=FF0F | 9=000F 10=F00F 11=0F0F 12=FF0F  |                                         |                      |            |
+ * | M=00FF N=F0FF O=0FFF P=FFFF | 13=00FF 14=F0FF 15=0FFF 16=FFFF |                                         |                      |            |
+ * +-----------------------------+---------------------------------+-----------------------------------------+----------------------+------------+
+ *
+ * @param sHomeCode      Number of the switch group (A..P)
+ * @param nChannelCode  Number of the switch itself (1..16)
+ * @param bStatus       Wether to switch on (true) or off (false)
+ *
+ * @return char[13]
+ */
+char* RCSwitch::getCodeWordE(char sHomeCode, int nChannelCode, bool bStatus) {
+  int nReturnPos = 0;
+  static char sReturn[13];
+  int nAddressCode;
+  if (sHomeCode >= 'a') {
+    nAddressCode = (sHomeCode - 'a') + 1;
+  }
+  else {
+    nAddressCode = (sHomeCode - 'A') + 1;
+  }
+
+  // Map 16 values into tri-state codes. Used both for sHomeCode and nChannelCode
+  char* code[16] = { "0000", "F000", "0F00", "FF00", "00F0", "F0F0", "0FF0", "FFF0", "000F", "F00F", "0F0F", "FF0F", "00FF", "F0FF", "0FFF", "FFFF" };
+
+  if (nAddressCode < 1 || nAddressCode > 16 || nChannelCode < 1 || nChannelCode > 16) {
+    return nullptr;
+  }
+  for (int i = 0; i < 4; i++) {
+    sReturn[nReturnPos++] = code[nAddressCode - 1][i];
+  }
+
+  for (int i = 0; i < 4; i++) {
+    sReturn[nReturnPos++] = code[nChannelCode - 1][i];
+  }
+
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+  sReturn[nReturnPos++] = 'F';
+
+  if (bStatus) {
+    sReturn[nReturnPos++] = 'F';
+  }
+  else {
+    sReturn[nReturnPos++] = '0';
+  }
+
+  sReturn[nReturnPos] = '\0';
+
   return sReturn;
 }
 
