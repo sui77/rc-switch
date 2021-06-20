@@ -508,13 +508,13 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 #endif
 
   for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    this->transmit(protocol.syncFactor);
     for (int i = length-1; i >= 0; i--) {
       if (code & (1L << i))
         this->transmit(protocol.one);
       else
         this->transmit(protocol.zero);
     }
-    this->transmit(protocol.syncFactor);
   }
 
   // Disable transmit after sending (i.e., for inverted protocols)
