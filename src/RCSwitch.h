@@ -152,6 +152,7 @@ class RCSwitch {
     void setProtocol(Protocol protocol);
     void setProtocol(int nProtocol);
     void setProtocol(int nProtocol, int nPulseLength);
+    const int getNumProtocols(void);
 
   private:
     char* getCodeWordA(const char* sGroup, const char* sDevice, bool bStatus);

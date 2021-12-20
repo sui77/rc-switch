@@ -188,6 +188,12 @@ void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
   this->setPulseLength(nPulseLength);
 }
 
+/**
+  * Get the number of supported protocols (maximum index)
+  */
+const int RCSwitch::getNumProtocols(void) {
+  return numProto;
+}
 
 /**
   * Sets pulse length in microseconds
