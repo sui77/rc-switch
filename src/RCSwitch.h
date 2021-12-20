@@ -49,7 +49,6 @@
 
 #include <stdint.h>
 
-
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
 // missing libm depencies (udivmodhi4)
 #if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
@@ -60,6 +59,12 @@
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
 // Для keeloq нужно увеличить RCSWITCH_MAX_CHANGES до 23+1+66*2+1=157
 #define RCSWITCH_MAX_CHANGES 67        // default 67
+
+// separationLimit: minimum microseconds between received codes, closer codes are ignored.
+// according to discussion on issue #14 it might be more suitable to set the separation
+// limit to the same time as the 'low' part of the sync signal for the current protocol.
+// should be set to the minimum value of pulselength * the sync signal
+#define RCSWITCH_SEPARATION_LIMIT 4100
 
 class RCSwitch {
 
