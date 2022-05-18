@@ -33,6 +33,7 @@
 */
 
 #include "RCSwitch.h"
+#include <assert.h>
 
 #ifdef RaspberryPi
     // PROGMEM and _P functions are for AVR based microprocessors,
@@ -108,7 +109,13 @@ const unsigned int VAR_ISR_ATTR RCSwitch::nSeparationLimit = 4300;
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
-#endif
+#if defined(WITH_LOCKS)
+volatile bool RCSwitch::useLocks = false;
+std::mutex RCSwitch::mutex;
+std::condition_variable RCSwitch::receiveGuard;
+#endif // WITH_LOCKS
+
+#endif // !RCSwitchDisableReceiving
 
 RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
@@ -606,6 +613,22 @@ static inline unsigned int diff(int A, int B) {
   return abs(A - B);
 }
 
+#if defined(WITH_LOCKS)
+void RCSwitch::enableLocks() {
+    this->useLocks = true;
+}
+void RCSwitch::wait() {
+    assert(useLocks);
+    if (!useLocks) {
+        return;
+    }
+    while (!available()) {
+        std::unique_lock<std::mutex> lock(this->mutex);
+        receiveGuard.wait(lock);
+    }
+}
+#endif
+
 /**
  *
  */
@@ -658,10 +681,22 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     }
 
     if (changeCount > 7) {    // ignore very short transmissions: no device sends them, so this must be noise
+        #if defined(WITH_LOCKS)    
+        std::unique_lock<std::mutex> lock(mutex, std::defer_lock);
+        if (useLocks) {
+            lock.lock();
+        }
+        #endif
+        // The following code is lock-guarded when using locks.
         RCSwitch::nReceivedValue = code;
         RCSwitch::nReceivedBitlength = (changeCount - 1) / 2;
         RCSwitch::nReceivedDelay = delay;
         RCSwitch::nReceivedProtocol = p;
+        #if defined(WITH_LOCKS)
+        if (useLocks) {
+            receiveGuard.notify_all();
+        }
+        #endif
         return true;
     }
 
