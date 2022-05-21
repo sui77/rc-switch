@@ -50,10 +50,17 @@
 #include <stdint.h>
 
 
-// At least for the ATTiny X4/X5, receiving has to be disabled due to
-// missing libm depencies (udivmodhi4)
-#if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
-#define RCSwitchDisableReceiving
+// Enable the following if you would like to use https://github.com/NicoHood/PinChangeInterrupt
+// for handling interrupts. It allows you to select any pin as receiver input, not only D2 and D3.
+//#define USE_PIN_CHANGE_INTERRUPT
+
+
+#ifdef USE_PIN_CHANGE_INTERRUPT
+    #include <PinChangeInterrupt.h> // https://github.com/NicoHood/PinChangeInterrupt
+#else
+    #if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
+    #define RCSwitchDisableReceiving
+    #endif
 #endif
 
 // Number of maximum high/Low changes per packet.
