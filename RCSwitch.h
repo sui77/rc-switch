@@ -100,6 +100,8 @@ class RCSwitch {
     void setRepeatTransmit(int nRepeatTransmit);
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
+    void setReceiveUsingProtocolTiming(bool useProtocolTiming);
+    void setReceiveUnknownProtocol(bool showUnknownProtocol);
     #endif
 
     /**
@@ -158,6 +160,7 @@ class RCSwitch {
     #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
     static bool receiveProtocol(const int p, unsigned int changeCount);
+    static void acceptUnknownProtocol(unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
@@ -167,6 +170,8 @@ class RCSwitch {
 
     #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
+    static bool receiveUsingProtocolTiming;
+    static bool receiveUnknownProtocol;
     volatile static unsigned long nReceivedValue;
     volatile static unsigned int nReceivedBitlength;
     volatile static unsigned int nReceivedDelay;
