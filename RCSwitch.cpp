@@ -536,9 +536,11 @@ void RCSwitch::transmit(HighLow pulses) {
   uint8_t secondLogicLevel = (this->protocol.invertedSignal) ? HIGH : LOW;
   
   digitalWrite(this->nTransmitterPin, firstLogicLevel);
-  delayMicroseconds( this->protocol.pulseLength * pulses.high);
+  delay((this->protocol.pulseLength * pulses.high)/1000);
+  delayMicroseconds((this->protocol.pulseLength * pulses.high)%1000);
   digitalWrite(this->nTransmitterPin, secondLogicLevel);
-  delayMicroseconds( this->protocol.pulseLength * pulses.low);
+  delay((this->protocol.pulseLength * pulses.low)/1000);
+  delayMicroseconds((this->protocol.pulseLength * pulses.low)%1000);
 }
 
 
