@@ -496,6 +496,34 @@ void RCSwitch::send(const char* sCodeWord) {
  * then the bit at position length-2, and so on, till finally the bit at position 0.
  */
 void RCSwitch::send(unsigned long code, unsigned int length) {
+
+  // if there is a pointer to a transmit timings array, write the timings to
+  // the array instead of sending them.
+  // allways start with low signal. Do not send (return).
+  // the host program is completely responsible for the array memory management
+  if (transmittimings){
+    int invertedoffset = 0;
+    if (this->protocol.invertedSignal) invertedoffset = 1;
+    for (int i = length-1; i >= 0; i--) {
+      if (code & (1L << i)) {
+        transmittimings[2*(length-i-1)+1+invertedoffset] = this->protocol.pulseLength * this->protocol.one.high;
+        transmittimings[2*(length-i-1)+1+invertedoffset+1] = this->protocol.pulseLength * this->protocol.one.low;
+      } else {
+        transmittimings[2*(length-i-1)+1+invertedoffset] = this->protocol.pulseLength * this->protocol.zero.high;
+        transmittimings[2*(length-i-1)+1+invertedoffset+1] = this->protocol.pulseLength * this->protocol.zero.low;
+      }
+    }
+    if (this->protocol.invertedSignal) {
+      transmittimings[0] = this->protocol.pulseLength * this->protocol.syncFactor.high;
+      transmittimings[1] = this->protocol.pulseLength * this->protocol.syncFactor.low;
+    } else {
+      transmittimings[2*length+1] = this->protocol.pulseLength * this->protocol.syncFactor.high;
+      transmittimings[0] = this->protocol.pulseLength * this->protocol.syncFactor.low;
+    }
+    transmittimings[2*length+2] = 0; // zero-terminate the array
+    return;
+    }
+
   if (this->nTransmitterPin == -1)
     return;
 
@@ -519,6 +547,47 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
 
   // Disable transmit after sending (i.e., for inverted protocols)
   digitalWrite(this->nTransmitterPin, LOW);
+
+#if not defined( RCSwitchDisableReceiving )
+  // enable receiver again if we just disabled it
+  if (nReceiverInterrupt_backup != -1) {
+    this->enableReceive(nReceiverInterrupt_backup);
+  }
+#endif
+}
+
+/**
+ * Transmit signal with the timings stored in transmittimings zero-terminated integrer array
+ * until a 0 timing is found or the RCSWITCH_MAX_CHANGES is reached
+ * first timing is always low. A final low is always sent in case the number of timings is not even
+ * the host program is completely responsible for the array memory management
+ */
+void RCSwitch::send(unsigned int * ptrtransmittimings) {
+  if (this->nTransmitterPin == -1)
+    return;
+
+  if (!ptrtransmittimings)
+    return;
+
+#if not defined( RCSwitchDisableReceiving )
+  // make sure the receiver is disabled while we transmit
+  int nReceiverInterrupt_backup = nReceiverInterrupt;
+  if (nReceiverInterrupt_backup != -1) {
+    this->disableReceive();
+  }
+#endif
+
+  for (int nRepeat = 0; nRepeat < nRepeatTransmit; nRepeat++) {
+    unsigned int currenttiming = 0;
+    bool currentlogiclevel = false;
+    while( ptrtransmittimings[currenttiming] && currenttiming < RCSWITCH_MAX_CHANGES ) {
+      digitalWrite(this->nTransmitterPin, currentlogiclevel ? HIGH : LOW);
+      delayMicroseconds( ptrtransmittimings[currenttiming] );
+      currenttiming++;
+      currentlogiclevel = !currentlogiclevel;
+    }
+  digitalWrite(this->nTransmitterPin, LOW);
+  }
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
