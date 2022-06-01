@@ -79,24 +79,24 @@ static const VAR_ISR_ATTR RCSwitch::Protocol proto[] = {
 #else
 static const RCSwitch::Protocol PROGMEM proto[] = {
 #endif
-  { 350, {  1, 31 }, {  1,  3 }, {  3,  1 }, false },    // protocol 1
-  { 650, {  1, 10 }, {  1,  2 }, {  2,  1 }, false },    // protocol 2
-  { 100, { 30, 71 }, {  4, 11 }, {  9,  6 }, false },    // protocol 3
-  { 380, {  1,  6 }, {  1,  3 }, {  3,  1 }, false },    // protocol 4
-  { 500, {  6, 14 }, {  1,  2 }, {  2,  1 }, false },    // protocol 5
-  { 450, { 23,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 6 (HT6P20B)
-  { 150, {  2, 62 }, {  1,  6 }, {  6,  1 }, false },    // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
-  { 200, {  3, 130}, {  7, 16 }, {  3,  16}, false},     // protocol 8 Conrad RS-200 RX
-  { 200, { 130, 7 }, {  16, 7 }, { 16,  3 }, true},      // protocol 9 Conrad RS-200 TX
-  { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true },     // protocol 10 (1ByOne Doorbell)
-  { 270, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 11 (HT12E)
-  { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 12 (SM5212)
-  { 500, {  1, 14 }, {  1,  3 }, {  3,  1 }, false },    // protocol 13 (Blyss Doorbell Ref. DC6-FR-WH 656185)
-  { 415, {  1, 30 }, {  1,  3 }, {  4,  1 }, false },    // protocol 14 (sc2260R4)
-  { 250, { 20, 10 }, {  1,  1 }, {  3,  1 }, false },    // protocol 15 (Home NetWerks Bathroom Fan Model 6201-500)
-  {  80, {  3, 25 }, {  3, 13 }, { 11,  5 }, false },    // protocol 16 (ORNO OR-GB-417GD)
-  {  82, {  2, 65 }, {  3,  5 }, {  7,  1 }, false },    // protocol 17 (CLARUS BHC993BF-3)
-  { 560, { 16,  8 }, {  1,  1 }, {  1,  3 }, false }     // protocol 18 (NEC)
+  { 350, {   1,  31 }, {   1,  3 }, {  3,   1 }, false },    // protocol 1
+  { 650, {   1,  10 }, {   1,  2 }, {  2,   1 }, false },    // protocol 2
+  { 100, {  30,  71 }, {   4, 11 }, {  9,   6 }, false },    // protocol 3
+  { 380, {   1,   6 }, {   1,  3 }, {  3,   1 }, false },    // protocol 4
+  { 500, {   6,  14 }, {   1,  2 }, {  2,   1 }, false },    // protocol 5
+  { 450, {  23,   1 }, {   1,  2 }, {  2,   1 },  true },    // protocol 6 (HT6P20B)
+  { 150, {   2,  62 }, {   1,  6 }, {  6,   1 }, false },    // protocol 7 (HS2303-PT, i. e. used in AUKEY Remote)
+  { 200, {   3, 130 }, {   7, 16 }, {  3,  16 }, false },    // protocol 8 Conrad RS-200 RX
+  { 200, { 130,   7 }, {  16,  7 }, { 16,   3 },  true },    // protocol 9 Conrad RS-200 TX
+  { 365, {  18,   1 }, {   3,  1 }, {  1,   3 },  true },    // protocol 10 (1ByOne Doorbell)
+  { 270, {  36,   1 }, {   1,  2 }, {  2,   1 },  true },    // protocol 11 (HT12E)
+  { 320, {  36,   1 }, {   1,  2 }, {  2,   1 },  true },    // protocol 12 (SM5212)
+  { 500, {   1,  14 }, {   1,  3 }, {  3,   1 }, false },    // protocol 13 (Blyss Doorbell Ref. DC6-FR-WH 656185)
+  { 415, {   1,  30 }, {   1,  3 }, {  4,   1 }, false },    // protocol 14 (sc2260R4)
+  { 250, {  20,  10 }, {   1,  1 }, {  3,   1 }, false },    // protocol 15 (Home NetWerks Bathroom Fan Model 6201-500)
+  {  80, {   3,  25 }, {   3, 13 }, { 11,   5 }, false },    // protocol 16 (ORNO OR-GB-417GD)
+  {  82, {   2,  65 }, {   3,  5 }, {  7,   1 }, false },    // protocol 17 (CLARUS BHC993BF-3)
+  { 560, {  16,   8 }, {   1,  1 }, {  1,   3 }, false }     // protocol 18 (NEC)
 };
 
 enum {
