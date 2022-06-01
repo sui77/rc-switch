@@ -90,7 +90,13 @@ static const RCSwitch::Protocol PROGMEM proto[] = {
   { 200, { 130, 7 }, {  16, 7 }, { 16,  3 }, true},      // protocol 9 Conrad RS-200 TX
   { 365, { 18,  1 }, {  3,  1 }, {  1,  3 }, true },     // protocol 10 (1ByOne Doorbell)
   { 270, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 11 (HT12E)
-  { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true }      // protocol 12 (SM5212)
+  { 320, { 36,  1 }, {  1,  2 }, {  2,  1 }, true },     // protocol 12 (SM5212)
+  { 500, {  1, 14 }, {  1,  3 }, {  3,  1 }, false },    // protocol 13 (Blyss Doorbell Ref. DC6-FR-WH 656185)
+  { 415, {  1, 30 }, {  1,  3 }, {  4,  1 }, false },    // protocol 14 (sc2260R4)
+  { 250, { 20, 10 }, {  1,  1 }, {  3,  1 }, false },    // protocol 15 (Home NetWerks Bathroom Fan Model 6201-500)
+  {  80, {  3, 25 }, {  3, 13 }, { 11,  5 }, false },    // protocol 16 (ORNO OR-GB-417GD)
+  {  82, {  2, 65 }, {  3,  5 }, {  7,  1 }, false },    // protocol 17 (CLARUS BHC993BF-3)
+  { 560, { 16,  8 }, {  1,  1 }, {  1,  3 }, false }     // protocol 18 (NEC)
 };
 
 enum {
