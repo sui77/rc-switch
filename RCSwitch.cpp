@@ -41,12 +41,17 @@
     #define memcpy_P(dest, src, num) memcpy((dest), (src), (num))
 #endif
 
-#if defined(ESP8266) || defined(ESP32)
+#if defined(ESP8266)
     // interrupt handler and related code must be in RAM on ESP8266,
     // according to issue #46.
     #define RECEIVE_ATTR ICACHE_RAM_ATTR
+    #define VAR_ISR_ATTR
+#elif defined(ESP32)
+    #define RECEIVE_ATTR IRAM_ATTR
+    #define VAR_ISR_ATTR DRAM_ATTR
 #else
     #define RECEIVE_ATTR
+    #define VAR_ISR_ATTR
 #endif
 
 
@@ -70,7 +75,7 @@
  * These are combined to form Tri-State bits when sending or receiving codes.
  */
 #if defined(ESP8266) || defined(ESP32)
-static const RCSwitch::Protocol proto[] = {
+static const VAR_ISR_ATTR RCSwitch::Protocol proto[] = {
 #else
 static const RCSwitch::Protocol PROGMEM proto[] = {
 #endif
@@ -93,7 +98,9 @@ enum {
 };
 
 #if not defined( RCSwitchDisableReceiving )
+
 const unsigned int RCSwitch::nSeparationLimit = 4300;
+
 // separationLimit: minimum microseconds between received codes, closer codes are ignored.
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
