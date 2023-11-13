@@ -156,7 +156,11 @@ class RCSwitch {
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
+	#if defined(ARDUINO_ARCH_RP2040)
+	static void handleInterrupt(void*);
+	#else
     void handleInterrupt();
+	#endif
     bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif

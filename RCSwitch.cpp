@@ -34,6 +34,10 @@
 
 #include "RCSwitch.h"
 
+#if (defined(ARDUINO_ARCH_RP2040) || defined(STM32_CORE_VERSION))
+#include <functional>
+#endif
+
 #ifdef RaspberryPi
     // PROGMEM and _P functions are for AVR based microprocessors,
     // so we must normalize these for the ARM processor:
@@ -556,8 +560,13 @@ void RCSwitch::enableReceive() {
     this->nReceivedBitlength = 0;
 #if defined(RaspberryPi) // Raspberry Pi
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
-#else // Arduino
-    attachInterrupt(this->nReceiverInterrupt, std::bind(&RCSwitch::handleInterrupt, this), CHANGE);
+#elif defined(ARDUINO_ARCH_RP2040)
+	attachInterruptParam(this->nReceiverInterrupt, &RCSwitch::handleInterrupt, CHANGE, this);
+#elif defined(STM32_CORE_VERSION)
+	attachInterrupt(this->nReceiverInterrupt, std::bind(&RCSwitch::handleInterrupt, this), CHANGE);
+#else // Arduino	
+	//attachInterrupt(this->nReceiverInterrupt, [this](){ this->handleInterrupt(); }, CHANGE);
+	#error not supported
 #endif
   }
 }
@@ -665,40 +674,83 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
 
 }
 
-void RECEIVE_ATTR RCSwitch::handleInterrupt() {
+#if defined(ARDUINO_ARCH_RP2040)
+void RCSwitch::handleInterrupt(void* obj)
+{
+  RCSwitch* thiz = static_cast<RCSwitch*>(obj);
   const long time = micros();
-  const unsigned int duration = time - this->lastTime;
+  const unsigned int duration = time - thiz->lastTime;
   
   if (duration > RCSwitch::nSeparationLimit) {
     // A long stretch without signal level change occurred. This could
     // be the gap between two transmission.
-    if ((this->repeatCount==0) || (diff(duration, this->timings[0]) < 200)) {
+    if ((thiz->repeatCount==0) || (diff(duration, thiz->timings[0]) < 200)) {
       // This long signal is close in length to the long signal which
       // started the previously recorded timings; this suggests that
       // it may indeed by a a gap between two transmissions (we assume
       // here that a sender will send the signal multiple times,
       // with roughly the same gap between them).
-      this->repeatCount++;
-      if (this->repeatCount == 2 && this->changeCount > 7) { // ignore very short transmissions: no device sends them, so this must be noise)
+      thiz->repeatCount++;
+      if (thiz->repeatCount == 2 && thiz->changeCount > 7) { // ignore very short transmissions: no device sends them, so this must be noise)
         for(unsigned int i = 1; i <= numProto; i++) {
-          if (receiveProtocol(i, this->changeCount)) {
+          if (thiz->receiveProtocol(i, thiz->changeCount)) {
             // receive succeeded for protocol i
             break;
           }
         }
-        this->repeatCount = 0;
+        thiz->repeatCount = 0;
       }
     }
-    this->changeCount = 0;
+    thiz->changeCount = 0;
   }
  
   // detect overflow
-  if (this->changeCount >= RCSWITCH_MAX_CHANGES) {
-    this->changeCount = 0;
-    this->repeatCount = 0;
+  if (thiz->changeCount >= RCSWITCH_MAX_CHANGES) {
+    thiz->changeCount = 0;
+    thiz->repeatCount = 0;
   }
 
-  this->timings[changeCount++] = duration;
-  this->lastTime = time;  
+  thiz->timings[thiz->changeCount++] = duration;
+  thiz->lastTime = time;  
 }
+
+#else
+void RECEIVE_ATTR RCSwitch::handleInterrupt() {
+  const long time = micros();
+  const unsigned int duration = time - lastTime;
+  
+  if (duration > RCSwitch::nSeparationLimit) {
+    // A long stretch without signal level change occurred. This could
+    // be the gap between two transmission.
+    if ((repeatCount==0) || (diff(duration, timings[0]) < 200)) {
+      // This long signal is close in length to the long signal which
+      // started the previously recorded timings; this suggests that
+      // it may indeed by a a gap between two transmissions (we assume
+      // here that a sender will send the signal multiple times,
+      // with roughly the same gap between them).
+      repeatCount++;
+      if (repeatCount == 2 && changeCount > 7) { // ignore very short transmissions: no device sends them, so this must be noise)
+        for(unsigned int i = 1; i <= numProto; i++) {
+          if (receiveProtocol(i, changeCount)) {
+            // receive succeeded for protocol i
+            break;
+          }
+        }
+        repeatCount = 0;
+      }
+    }
+    changeCount = 0;
+  }
+ 
+  // detect overflow
+  if (changeCount >= RCSWITCH_MAX_CHANGES) {
+    changeCount = 0;
+    repeatCount = 0;
+  }
+
+  timings[changeCount++] = duration;
+  lastTime = time;  
+}
+#endif
+
 #endif
