@@ -1,3 +1,17 @@
+#This library compiles for STM32 and RP2040 but not Arduino AVR like Nano
+to add support one has to figure out how to pass a non-static class member with `this` object to the attachInterupt
+function.
+other repos for future reference
+https://github.com/maniacbug/StandardCplusplus
+https://github.com/kekyo/BoostForArduino
+https://github.com/vancegroup/arduino-boost
+https://github.com/Stivius/callable-wrapper
+https://github.com/fopeczek/function_objects
+https://github.com/danyhm/functional
+I could get std::bind to work on Arduino Nano however I can't convert it back to c style function pointer.
+It seems it's possible to do it using boost library. however i couldn't get it to compile on Arduino.
+another method is to change Arduino Core files to implement attachInterruptEx or attachInterruptParam
+
 # rc-switch
 [![arduino-library-badge](https://www.ardu-badge.com/badge/rc-switch.svg?)](https://www.ardu-badge.com/rc-switch)
 [![Build Status](https://travis-ci.org/sui77/rc-switch.svg?branch=master)](https://travis-ci.org/sui77/rc-switch)
