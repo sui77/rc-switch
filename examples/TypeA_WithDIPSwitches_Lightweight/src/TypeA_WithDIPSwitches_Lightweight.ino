@@ -6,7 +6,7 @@
   https://github.com/sui77/rc-switch/
 */
 
-int RCLpin = 7;
+int RCLpin = RCSWITCH_TRANSMIT_PIN;  // see platformio_shared.ini;
 
 void setup() {
     pinMode(RCLpin, OUTPUT);

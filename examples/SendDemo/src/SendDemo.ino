@@ -11,10 +11,9 @@ RCSwitch mySwitch = RCSwitch();
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(MONITOR_SPEED);
   
-  // Transmitter is connected to Arduino Pin #10  
-  mySwitch.enableTransmit(10);
+  mySwitch.enableTransmit(RCSWITCH_TRANSMIT_PIN);  // see platformio_shared.ini
   
   // Optional set protocol (default is 1, will work for most outlets)
   // mySwitch.setProtocol(2);
