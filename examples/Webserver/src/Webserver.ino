@@ -15,7 +15,7 @@ EthernetServer server(80);                           // Server Port 80
 
 // RCSwitch configuration
 RCSwitch mySwitch = RCSwitch();
-int RCTransmissionPin = 7;
+int RCTransmissionPin = RCSWITCH_TRANSMIT_PIN;  // see platformio_shared.ini
 
 // More to do...
 // You should also modify the processCommand() and 
