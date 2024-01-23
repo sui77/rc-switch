@@ -565,8 +565,9 @@ void RCSwitch::enableReceive() {
 #elif defined(STM32_CORE_VERSION)
 	attachInterrupt(this->nReceiverInterrupt, std::bind(&RCSwitch::handleInterrupt, this), CHANGE);
 #else // Arduino	
-	//attachInterrupt(this->nReceiverInterrupt, [this](){ this->handleInterrupt(); }, CHANGE);
-	#error not supported
+	attachInterrupt(this->nReceiverInterrupt, &RCSwitch::handleInterrupt, CHANGE);
+	//attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
+	//#error not supported
 #endif
   }
 }
