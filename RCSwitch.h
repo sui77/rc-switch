@@ -156,8 +156,12 @@ class RCSwitch {
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
-    static void handleInterrupt();
-    static bool receiveProtocol(const int p, unsigned int changeCount);
+	#if defined(ARDUINO_ARCH_RP2040)
+	static void handleInterrupt(void*);
+	#else
+    void handleInterrupt();
+	#endif
+    bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
     int nTransmitterPin;
@@ -166,16 +170,22 @@ class RCSwitch {
     Protocol protocol;
 
     #if not defined( RCSwitchDisableReceiving )
-    static int nReceiveTolerance;
-    volatile static unsigned long nReceivedValue;
-    volatile static unsigned int nReceivedBitlength;
-    volatile static unsigned int nReceivedDelay;
-    volatile static unsigned int nReceivedProtocol;
+    int nReceiveTolerance;
+    volatile unsigned long nReceivedValue;
+    volatile unsigned int nReceivedBitlength;
+    volatile unsigned int nReceivedDelay;
+    volatile unsigned int nReceivedProtocol;
     const static unsigned int nSeparationLimit;
+	/*
+	 * Required values for interrupt handler
+	 */
+	unsigned int changeCount = 0;
+	unsigned long lastTime = 0;
+	unsigned int repeatCount = 0;
     /* 
      * timings[0] contains sync timing, followed by a number of bits
      */
-    static unsigned int timings[RCSWITCH_MAX_CHANGES];
+    unsigned int timings[RCSWITCH_MAX_CHANGES];
     #endif
 
     
