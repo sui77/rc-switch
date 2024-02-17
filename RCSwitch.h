@@ -35,12 +35,20 @@
 #elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
     #include "Energia.h"
 #elif defined(RPI) // Raspberry Pi
-    #define RaspberryPi
-
     // Include libraries for RPi:
     #include <string.h> /* memcpy */
     #include <stdlib.h> /* abs */
+
+#if (RPI==5)
+    #define RaspberryPi5
+    #define LOW LG_LOW
+    #define HIGH LG_HIGH
+    #include <lgpio.h>
+#else
+    #define RaspberryPi
     #include <wiringPi.h>
+#endif
+
 #elif defined(SPARK)
     #include "application.h"
 #else
@@ -64,6 +72,9 @@ class RCSwitch {
 
   public:
     RCSwitch();
+#if defined( RaspberryPi5 )
+    ~RCSwitch();
+#endif
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -100,6 +111,9 @@ class RCSwitch {
     void setRepeatTransmit(int nRepeatTransmit);
     #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
+    #endif
+    #if defined( RaspberryPi5 )
+    void setLgGpioHandle(int nLgGpioHandle);
     #endif
 
     /**
@@ -156,7 +170,12 @@ class RCSwitch {
     void transmit(HighLow pulses);
 
     #if not defined( RCSwitchDisableReceiving )
+    #if defined( RaspberryPi5 )
+    static void handleInterrupt(int e, lgGpioAlert_p evt, void *data);
+    int nLgGpioHandle;
+    #else
     static void handleInterrupt();
+    #endif
     static bool receiveProtocol(const int p, unsigned int changeCount);
     int nReceiverInterrupt;
     #endif
