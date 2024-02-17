@@ -34,7 +34,7 @@
 
 #include "RCSwitch.h"
 
-#ifdef RaspberryPi
+#if defined( RaspberryPi ) || defined( RaspberryPi5 )
     // PROGMEM and _P functions are for AVR based microprocessors,
     // so we must normalize these for the ARM processor:
     #define PROGMEM
@@ -121,6 +121,12 @@ RCSwitch::RCSwitch() {
   #endif
 }
 
+#if defined( RaspberryPi5 )
+RCSwitch::~RCSwitch() {
+  RCSwitch::setLgGpioHandle(0);
+}
+#endif
+
 /**
   * Sets the protocol to send.
   */
@@ -174,6 +180,16 @@ void RCSwitch::setReceiveTolerance(int nPercent) {
 }
 #endif
   
+#if defined( RaspberryPi5 )
+void RCSwitch::setLgGpioHandle(int gpiochip) {
+  if (gpiochip) {
+    RCSwitch::nLgGpioHandle = lgGpiochipOpen(gpiochip);
+  } else if (RCSwitch::nLgGpioHandle) {
+    lgGpiochipClose(RCSwitch::nLgGpioHandle);
+    RCSwitch::nLgGpioHandle = 0;
+  }
+}
+#endif
 
 /**
  * Enable transmissions
@@ -182,7 +198,11 @@ void RCSwitch::setReceiveTolerance(int nPercent) {
  */
 void RCSwitch::enableTransmit(int nTransmitterPin) {
   this->nTransmitterPin = nTransmitterPin;
+#if defined( RaspberryPi5 )
+  lgGpioClaimOutput(this->nLgGpioHandle, 0, this->nTransmitterPin, 0);
+#else
   pinMode(this->nTransmitterPin, OUTPUT);
+#endif
 }
 
 /**
@@ -518,7 +538,11 @@ void RCSwitch::send(unsigned long code, unsigned int length) {
   }
 
   // Disable transmit after sending (i.e., for inverted protocols)
+#if defined( RaspberryPi5 )
+  lgGpioWrite(this->nLgGpioHandle, this->nTransmitterPin, LOW);
+#else
   digitalWrite(this->nTransmitterPin, LOW);
+#endif
 
 #if not defined( RCSwitchDisableReceiving )
   // enable receiver again if we just disabled it
@@ -535,10 +559,17 @@ void RCSwitch::transmit(HighLow pulses) {
   uint8_t firstLogicLevel = (this->protocol.invertedSignal) ? LOW : HIGH;
   uint8_t secondLogicLevel = (this->protocol.invertedSignal) ? HIGH : LOW;
   
+#if defined( RaspberryPi5 )
+  lgGpioWrite(this->nLgGpioHandle, this->nTransmitterPin, firstLogicLevel);
+  lguSleep( (float)this->protocol.pulseLength * pulses.high / 1000000);
+  lgGpioWrite(this->nLgGpioHandle, this->nTransmitterPin, secondLogicLevel);
+  lguSleep( (float)this->protocol.pulseLength * pulses.low / 1000000);
+#else
   digitalWrite(this->nTransmitterPin, firstLogicLevel);
   delayMicroseconds( this->protocol.pulseLength * pulses.high);
   digitalWrite(this->nTransmitterPin, secondLogicLevel);
   delayMicroseconds( this->protocol.pulseLength * pulses.low);
+#endif
 }
 
 
@@ -557,6 +588,10 @@ void RCSwitch::enableReceive() {
     RCSwitch::nReceivedBitlength = 0;
 #if defined(RaspberryPi) // Raspberry Pi
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
+#elif defined(RaspberryPi5)  // Raspberry Pi 5
+    static int userdata = 1;
+    lgGpioSetAlertsFunc(this->nLgGpioHandle, this->nReceiverInterrupt, handleInterrupt, &userdata);
+    lgGpioClaimAlert(this->nLgGpioHandle, 0, LG_BOTH_EDGES, this->nReceiverInterrupt, -1);
 #else // Arduino
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
 #endif
@@ -567,7 +602,7 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
-#if not defined(RaspberryPi) // Arduino
+#if not defined(RaspberryPi) and not defined(RaspberryPi5) // Arduino
   detachInterrupt(this->nReceiverInterrupt);
 #endif // For Raspberry Pi (wiringPi) you can't unregister the ISR
   this->nReceiverInterrupt = -1;
@@ -668,13 +703,21 @@ bool RECEIVE_ATTR RCSwitch::receiveProtocol(const int p, unsigned int changeCoun
     return false;
 }
 
+#if defined( RaspberryPi5 )
+void RECEIVE_ATTR RCSwitch::handleInterrupt(int e, lgGpioAlert_p evt, void *data) {
+#else
 void RECEIVE_ATTR RCSwitch::handleInterrupt() {
+#endif
 
   static unsigned int changeCount = 0;
   static unsigned long lastTime = 0;
   static unsigned int repeatCount = 0;
 
+  #if defined( RaspberryPi5 )
+  const long time = lguTimestamp();
+  #else
   const long time = micros();
+  #endif
   const unsigned int duration = time - lastTime;
 
   if (duration > RCSwitch::nSeparationLimit) {
